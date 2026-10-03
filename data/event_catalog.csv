@@ -1,0 +1,55 @@
+topic,event_type,producer,consumers,payload_keys,frequency,volume_per_day,retention_days,pii,idempotency,dlq,criticality,notes
+ot.line.telemetry,sensor.reading,SCADA/Historian,Historian;PdM;MES,"tag;ts;value;quality",Real-time,2000000,730,no,tag+ts,buffered,Critical,"نرخ بالا؛ نمونه‌برداری در سطح لبه"
+ot.line.events,equipment.state_changed,SCADA,MES;CMMS;BI,"asset_id;state;ts;duration_s",On-event,5000,730,no,asset_id+ts,drop_after_log,High,"منبع اصلی محاسبه OEE"
+ot.line.alarm,alarm.raised,SCADA/Alarm Console,HSE;CMMS;MES;BI,"alarm_id;asset_id;severity;ts",On-event,3000,1095,no,alarm_id+ts,drop_after_log,Critical,"نقشه هشدارها در 09-alarm-map.md"
+ot.line.counter,production.counted,PLC/SCADA,MES,"asset_id;counter;good_qty;scrap_qty",Real-time,50000,730,no,asset_id+ts,buffered,High,"مبنای Performance در OEE"
+mes.workorder.created,workorder.created,MES,ERP;WMS;CMMS;BI,"wo_id;product;recipe_ver;qty;line;shift",On-event,60,2555,no,wo_id,critical,Critical,-
+mes.workorder.started,workorder.started,MES,WMS;HRM;BI,"wo_id;line;operator_ids;ts",On-event,60,2555,yes,wo_id,critical,Critical,"شامل شناسه اپراتور (PII)؛ فقط شناسه نه مشخصات"
+mes.workorder.completed,workorder.completed,MES,ERP;WMS;FIN;BI,"wo_id;qty_produced;scrap;ts",On-event,60,2555,no,wo_id,critical,Critical,"ماشه سند مالی"
+material.consumed,material.consumed,MES,WMS;ERP;FIN;BI,"wo_id;material;vendor_batch;qty;uom;bin",On-event,4000,2555,no,wo_id+material+vendor_batch,critical,Critical,"کسر خودکار موجودی"
+material.returned,material.returned,MES,WMS;FIN,"wo_id;material;vendor_batch;qty;bin",On-event,300,2555,no,wo_id+material+vendor_batch,critical,High,"برگشت مازاد با وضعیت کیفی"
+batch.created,batch.created,MES,WMS;LIMS;BI,"batch_id;wo_id;product;line;ts",On-event,60,2555,no,batch_id,critical,Critical,-
+batch.genealogy.edge,batch.genealogy.edge,MES,WMS;BI,"parent_type;parent_id;child_id;qty",On-event,20000,2555,no,parent+child,critical,Critical,"گراف ردیابی؛ مبنای سناریوی فراخوان"
+batch.released,batch.released,LIMS/MES,WMS;ERP;SAL;BI,"batch_id;verdict;qa_signature_id",On-event,60,3650,no,batch_id,critical,Critical,"گیت کیفیت"
+batch.quarantined,batch.quarantined,LIMS/MES,WMS;BI,"batch_id;reason;ncr_id",On-event,30,3650,no,batch_id,critical,Critical,"قفل برداشت و ارسال"
+batch.rejected,batch.rejected,LIMS/MES,WMS;FIN;BI,"batch_id;reason;disposition",On-event,10,3650,no,batch_id,critical,Critical,-
+qms.sample.requested,sample.requested,MES,LIMS,"sample_id;batch_id;spec_id;control_point",On-event,500,1095,no,sample_id,critical,High,-
+qms.result.recorded,result.recorded,LIMS,MES;SPC;BI,"sample_id;param;value;unit;verdict",On-event,3000,3650,no,sample_id+param,critical,Critical,"منبع SPC و Cpk"
+qms.spec.breach,spec.breach,LIMS,MES;HSE;BI,"sample_id;param;value;limits",On-event,200,3650,no,sample_id+param,critical,Critical,"ایجاد خودکار NCR"
+qms.ncr.created,ncr.created,QMS,MES;HSE;FIN;BI,"ncr_id;batch_id;severity;description",On-event,150,3650,no,ncr_id,critical,High,-
+qms.capa.closed,capa.closed,QMS,BI;HSE,"capa_id;ncr_id;effectiveness",On-event,120,3650,no,capa_id,standard,Medium,-
+wms.receipt.created,receipt.created,WMS,ERP;QCL;SEC;BI,"receipt_id;po_id;supplier;vehicle;weight",On-event,60,2555,no,receipt_id,critical,High,"تطبیق با ASN و وزن باسکول"
+wms.stock.moved,stock.moved,WMS,ERP;FIN;BI,"movement_id;item;batch;from_bin;to_bin;qty",On-event,8000,2555,no,movement_id,critical,Critical,هر حرکت باید مکان مبدأ/مقصد داشته باشد
+wms.stock.adjusted,stock.adjusted,WMS,FIN;BI,"adjustment_id;item;bin;qty;reason",On-event,200,2555,no,adjustment_id,critical,High,"نیازمند تأیید و ثبت علت"
+wms.quarantine.set,wms.quarantine.set,WMS,MES;QCL;BI,"item;batch;bin;reason",On-event,50,3650,no,item+batch+ts,critical,Critical,-
+wms.pick.confirmed,pick.confirmed,WMS,MES;SAL;BI,"pick_id;so_id;sscc;qty",On-event,3000,2555,no,pick_id,critical,High,-
+wms.pallet.built,pallet.built,WMS,SAL;EXP;BI,"sscc;batch_ids;qty;weight",On-event,400,2555,no,sscc,critical,High,"SSCC یکتا"
+wms.shipment.dispatched,shipment.dispatched,WMS,SAL;EXP;FIN;SEC;BI,"shipment_id;so_id;vehicle;ssccs;ts",On-event,40,2555,no,shipment_id,critical,Critical,"ماشه صدور فاکتور و مجوز خروج"
+wms.pod.confirmed,pod.confirmed,WMS/CRM,SAL;FIN;BI,"shipment_id;delivery_ts;signature_ref",On-event,40,2555,no,shipment_id,critical,High,"تأیید تحویل الکترونیکی"
+cmms.workrequest.created,workrequest.created,CMMS,MES;MRO;BI,"wr_id;asset_id;source;description;priority",On-event,120,2555,no,wr_id,critical,High,"امکان ایجاد با اسکن QR روی ماشین"
+cmms.workorder.created,workorder.created,CMMS,MRO;HSE;MES;FIN,"wo_mnt_id;asset_id;type;priority;planned_start",On-event,150,3650,no,wo_mnt_id,critical,High,"ماشه رزرو قطعه و بررسی PTW"
+cmms.workorder.started,workorder.started,CMMS,MES;HSE;MRO,"wo_mnt_id;technician_ids;ptw_id;ts",On-event,150,3650,yes,wo_mnt_id,critical,Critical,"بدون PTW معتبر مسدود است"
+cmms.workorder.completed,workorder.completed,CMMS,MES;FIN;BI,"wo_mnt_id;failure_mode;duration;parts;cost",On-event,150,3650,no,wo_mnt_id,critical,High,"الزام ثبت علت خرابی"
+pdm.health.scored,asset.health.scored,PdM,CMMS;BI,"asset_id;health_score;predicted_failure_window",Hourly,1200,730,no,asset_id+ts,buffered,High,"مبنای WO پیش‌بینانه"
+pdm.anomaly.detected,anomaly.detected,PdM,CMMS;BI,"asset_id;metric;score;recommendation",On-event,60,1095,no,asset_id+metric+ts,critical,High,-
+hse.ptw.requested,ptw.requested,HSE,CMMS;SEC;BI,"ptw_id;type;asset_id;requester;window",On-event,40,3650,yes,ptw_id,critical,Critical,-
+hse.ptw.approved,ptw.approved,HSE,CMMS;MES,"ptw_id;approver;conditions;valid_until",On-event,40,3650,yes,ptw_id,critical,Critical,"گیت شروع WO"
+hse.ptw.expired,ptw.expired,HSE,CMMS;SEC,"ptw_id;asset_id;ts",On-event,40,3650,no,ptw_id,standard,Critical,"تعلیق خودکار کار"
+hse.loto.engaged,loto.engaged,HSE,CMMS;MES,"loto_id;asset_id;isolation_points;verified_by",On-event,60,3650,yes,loto_id,critical,Critical,"تأیید تصویری الزامی"
+hse.gas.alarm,gas.alarm.raised,HSE,SEC;MES;CMMS;BI,"point_id;gas;concentration;threshold",On-event,20,3650,no,point_id+ts,critical,Critical,"اقدام خودکار تهویه/قطع"
+hse.incident.reported,incident.reported,HSE,HRM;FIN;BI,"incident_id;type;severity;location;person_ref",On-event,15,3650,yes,incident_id,critical,Critical,"حاوی ارجاع به شخص (PII)؛ دسترسی محدود"
+hse.emergency.declared,emergency.declared,HSE,SEC;MES;CMMS;BI,"level;zone;ts;declared_by",On-event,2,3650,no,zone+ts,critical,Critical,"آزادسازی گیت‌ها (Fail-safe)"
+sec.access.event,access.granted_denied,ACS,HRM;BI;SIEM,"access_id;person_ref;zone;door;result;ts",Real-time,3000,1095,yes,access_id,critical,High,"مبنای حضور و غیاب"
+sec.gatepass.issued,gatepass.issued,ACS,WMS;SAL;BI,"gate_pass_id;shipment_id;vehicle;checks",On-event,40,1095,no,gate_pass_id,critical,Critical,"تطبیق چهارگانه"
+sec.intrusion.detected,intrusion.detected,VMS,SEC;HSE;SIEM,"camera_id;zone;confidence;clip_ref",On-event,20,1095,no,camera_id+ts,critical,Critical,-
+hr.attendance.raw,attendance.raw,ACS,HRM;FIN;MES,"person_ref;event_ts;device;result",Real-time,3000,1095,yes,person_ref+ts,buffered,High,"ورودی محاسبه کارکرد"
+hr.competency.expired,competency.expired,HRM,HSE;MES;CMMS,"person_ref;cert_id;expiry",Daily,20,3650,yes,person_ref+cert_id,standard,Critical,"محرومیت خودکار از تخصیص"
+hr.shift.assigned,shift.assigned,HRM/T&A,MES;CMMS;BI,"person_ref;shift;line;date",Daily,500,1095,yes,person_ref+date,standard,Medium,-
+fin.posting.requested,posting.requested,ERP,"FIN;BI","posting_id;source_event_id;amount;accounts",On-event,5000,3650,no,source_event_id,critical,Critical,"یک رویداد ⇒ یک سند"
+fin.posting.failed,posting.failed,ERP,IT;BI,"posting_id;source_event_id;error",On-event,20,3650,no,source_event_id,critical,Critical,"هشدار A096"
+fin.cost.calculated,cost.calculated,ERP,MES;BI,"batch_id;cost_per_uom;variance_breakdown",On-event,60,3650,no,batch_id,critical,High,"بهای تمام‌شده واقعی بچ"
+mdm.entity.changed,entity.changed,MDM,ERP;MES;WMS;CMMS;BI,"entity_type;entity_id;version;changed_fields",On-event,500,3650,no,entity_id+version,critical,High,"انتشار تغییرات داده پایه"
+mdm.quality.violation,quality.violation,MDM,BI;DMO,"entity_type;entity_id;rule;detail",On-event,50,1095,no,entity_id+rule+ts,standard,High,"شاخص K116"
+audit.trail.append,audit.appended,Audit Store,BI;SIEM,"event_id;actor;entity;action;prev_hash;hash",On-event,60000,2555,yes,event_id,never,Critical,"زنجیره درهم‌سازی؛ غیرقابل حذف"
+it.service.degraded,service.degraded,Monitoring,IT;BI,"service;metric;value;threshold",On-event,100,365,no,service+ts,standard,Critical,"هشدار A098"
+it.sync.lagging,sync.lagging,Monitoring,IT;MDM,"pipeline;lag_seconds;threshold",Real-time,50,365,no,pipeline+ts,standard,High,"هشدار A099/A103"

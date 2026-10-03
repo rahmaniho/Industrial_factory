@@ -56,7 +56,7 @@
 |---|---|---|
 | ۱ | خلاصه مدیریتی | این صفحه + [`docs/00-executive-summary.md`](docs/00-executive-summary.md) |
 | ۲ | معماری لایه‌ای + جریان داده (ASCII/Mermaid) | [`docs/02-reference-architecture.md`](docs/02-reference-architecture.md) |
-| ۳ | جدول جامع واحدها (۹ محور × ۱۴ واحد) | [`docs/03-units/`](docs/03-units/) |
+| ۳ | جدول جامع واحدها (۹ محور × ۱۴ واحد) | [`docs/03-units/`](docs/03-units/) + مدل داده و قراردادها: [`docs/17`](docs/17-architecture-decisions.md) تا [`docs/21`](docs/21-sequence-flows.md) |
 | ۴ | ماتریس یکپارچگی بین‌واحدی | [`docs/04-integration-matrix.md`](docs/04-integration-matrix.md) + [`data/integration_matrix.csv`](data/integration_matrix.csv) |
 | ۵ | فهرست Master Data و مالکیت | [`docs/05-master-data-ownership.md`](docs/05-master-data-ownership.md) + [`data/master_data.csv`](data/master_data.csv) |
 | ۶ | فهرست تجهیزات و حسگرها به تفکیک واحد | [`docs/06-hardware-sensors-catalog.md`](docs/06-hardware-sensors-catalog.md) |
@@ -68,6 +68,18 @@
 | ۱۲ | تحلیل ریسک + برنامهٔ کاهش | [`docs/12-risk-register.md`](docs/12-risk-register.md) |
 | ۱۳ | معیارهای پذیرش (UAT) و چک‌لیست راه‌اندازی | [`docs/13-uat-checklist.md`](docs/13-uat-checklist.md) |
 | ۱۴ | آموزش و مدیریت تغییر | [`docs/14-change-management.md`](docs/14-change-management.md) |
+
+### مستندات تکمیلیِ اجرایی (۱۷ تا ۲۳)
+
+| # | مستند | کاربردِ عملی |
+|---|---|---|
+| ۱۷ | [`17-architecture-decisions.md`](docs/17-architecture-decisions.md) | ۱۴ ADR با گزینه‌های ردشده و شرط بازنگری — پاسخ به «چرا این‌طور؟» |
+| ۱۸ | [`18-data-model.md`](docs/18-data-model.md) | مرزهای دامنه، مدل ردیابی (گراف)، قرارداد شناسه‌ها، کلاس‌های نگه‌داری |
+| ۱۹ | [`19-event-catalog.md`](docs/19-event-catalog.md) | ۵۴ رویداد با تولیدکننده، مصرف‌کننده، کلیدِ باید و سیاستِ خطا |
+| ۲۰ | [`20-api-contract.md`](docs/20-api-contract.md) | قرارداد REST/AsyncAPI، مدل خطا، باید، نسخه‌بندی، شاخص‌های سلامت |
+| ۲۱ | [`21-sequence-flows.md`](docs/21-sequence-flows.md) | ۷ جریانِ سرتاسری با نمودار Mermaid + مسیر شکست + تست متناظر |
+| ۲۲ | [`22-vendor-selection.md`](docs/22-vendor-selection.md) | مدل امتیازدهی، معیارهای حذف، POC دو‌هفته‌ای، بندهای قراردادی |
+| ۲۳ | [`23-cutover-migration.md`](docs/23-cutover-migration.md) | مهاجرت داده، Runbookـ T-‎۱۴ تا T+‎۳۰، درخت بازگشت، آشتی‌سازی |
 
 مستندات مکمل: [`docs/01-inputs-and-assumptions.md`](docs/01-inputs-and-assumptions.md) ·
 [`docs/15-nfr-security-compliance.md`](docs/15-nfr-security-compliance.md) ·

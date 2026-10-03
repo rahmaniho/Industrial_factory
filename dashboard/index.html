@@ -84,6 +84,8 @@
   <button class="active" data-sec="sec-mx">ماتریس یکپارچگی</button>
   <button data-sec="sec-kpi">کاتالوگ KPI</button>
   <button data-sec="sec-alarm">نقشهٔ هشدارها</button>
+  <button data-sec="sec-ev">کاتالوگ رویدادها</button>
+  <button data-sec="sec-risk">ثبت ریسک</button>
   <button data-sec="sec-road">نقشهٔ راه</button>
   <button data-sec="sec-mdm">دادهٔ پایه</button>
 </nav>
@@ -156,6 +158,48 @@
     </div>
   </section>
 
+  <!-- Events -->
+  <section id="sec-ev">
+    <div class="card">
+      <h2>کاتالوگ رویدادها</h2>
+      <p class="hint">هر رویداد: تولیدکننده، مصرف‌کنندگان، کلیدِ باید (Idempotency) و سیاستِ خطا.
+         ستون «PII» نشان می‌دهد آیا رویداد به شخص ارجاع دارد یا نه.</p>
+      <div class="toolbar">
+        <input id="evSearch" placeholder="جست‌وجو در موضوع/نوع/تولیدکننده…">
+        <select id="evCrit">
+          <option value="">همهٔ حساسیت‌ها</option>
+          <option>Critical</option><option>High</option><option>Medium</option>
+        </select>
+        <select id="evPii">
+          <option value="">همه</option>
+          <option value="yes">فقط حاوی ارجاع به شخص (PII)</option>
+          <option value="no">بدون ارجاع به شخص</option>
+        </select>
+      </div>
+      <div class="scroll" id="evTable"></div>
+    </div>
+  </section>
+
+  <!-- Risks -->
+  <section id="sec-risk">
+    <div class="card">
+      <h2>ثبت ریسک</h2>
+      <p class="hint">امتیاز = احتمال × اثر. سطح‌ها: ۱–۴ کم، ۵–۹ متوسط، ۱۰–۱۴ بالا، ۱۵–۲۵ بحرانی.</p>
+      <div class="toolbar">
+        <input id="rkSearch" placeholder="جست‌وجو در ریسک/کاهش/مالک…">
+        <select id="rkBand">
+          <option value="">همهٔ سطوح</option>
+          <option>بحرانی</option><option>بالا</option><option>متوسط</option><option>کم</option>
+        </select>
+      </div>
+      <div class="scroll" id="rkTable"></div>
+    </div>
+    <div class="card">
+      <h2>نقشهٔ حرارتی</h2>
+      <div class="gantt" id="rkHeat"></div>
+    </div>
+  </section>
+
   <!-- Roadmap -->
   <section id="sec-road">
     <div class="card">
@@ -195,7 +239,8 @@
 
 <footer>
   منبع داده: <code>data/integration_matrix.csv</code>، <code>data/kpi_catalog.csv</code>،
-  <code>data/alarm_catalog.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
+  <code>data/alarm_catalog.csv</code>، <code>data/event_catalog.csv</code>،
+  <code>data/risk_register.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
   مستندات تحلیلی در پوشهٔ <code>docs/</code>.
 </footer>
 
@@ -239,12 +284,12 @@ async function load(f){ const r=await fetch("../data/"+f); if(!r.ok) throw new E
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- boot ---------- */
-let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[];
+let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[];
 (async ()=>{
   try{
-    [MX,KPI,AL,ROAD,MDM] = await Promise.all([
+    [MX,KPI,AL,ROAD,MDM,EV,RK] = await Promise.all([
       load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
-      load("roadmap.csv"),load("master_data.csv")
+      load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),load("risk_register.csv")
     ]);
   }catch(e){
     document.getElementById("loadErr").innerHTML =
@@ -281,6 +326,8 @@ function renderKpis(){
     ["یال بحرانی",crit,"قطع آن تولید/انطباق را متوقف می‌کند"],
     ["شاخص کلیدی",KPI.length,"دارای فرمول و مالک"],
     ["هشدار تعریف‌شده",AL.length,"سطح‌بندی‌شده"],
+    ["رویداد یکپارچه‌سازی",EV.length,"با کلیدِ باید و سیاستِ خطا"],
+    ["ریسک ثبت‌شده",RK.filter(r=>r.band==="بحرانی"||r.band==="بالا").length,"بحرانی یا بالا از "+RK.length],
     ["موجودیت داده پایه",MDM.length,"با مالک مشخص"],
     ["بستهٔ کاری",ROAD.length,"در ۷ فاز"],
     ["مدت پروژه",maxW+" هفته","≈ "+Math.round(maxW/4.33)+" ماه"],
@@ -398,6 +445,68 @@ function drawAlarms(){
     `<table><thead><tr><th>شناسه</th><th>واحد</th><th>هشدار</th><th>محرک</th><th>سطح</th><th>مسئول</th><th>اعلان</th><th>SLA</th><th>اقدام خودکار</th><th>ارتقا</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
+/* ---------- events ---------- */
+function renderEvents(){ drawEvents(); }
+function drawEvents(){
+  const q=(document.getElementById("evSearch").value||"").toLowerCase();
+  const c=document.getElementById("evCrit").value, pii=document.getElementById("evPii").value;
+  const rows=EV.filter(e=>{
+    if(c && e.criticality!==c) return false;
+    if(pii && e.pii!==pii) return false;
+    if(q && !(e.topic+e.event_type+e.producer+e.consumers+e.notes).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const shown=rows.length;
+  const body=rows.map(e=>`<tr><td dir="ltr" style="text-align:left"><b>${esc(e.topic)}</b></td>
+    <td dir="ltr" style="text-align:left">${esc(e.event_type)}</td><td>${esc(e.producer)}</td>
+    <td>${esc(e.consumers.replace(/;/g,"، "))}</td>
+    <td dir="ltr" style="text-align:left;font-size:11px">${esc(e.payload_keys.replace(/;/g,"، "))}</td>
+    <td>${esc(e.frequency)}</td><td>${esc(e.volume_per_day)}</td><td>${esc(e.retention_days)}</td>
+    <td>${e.pii==="yes"?'<span class="pill p-major">بله</span>':'<span class="pill p-low">خیر</span>'}</td>
+    <td dir="ltr" style="text-align:left;font-size:11px">${esc(e.idempotency)}</td>
+    <td>${esc(e.dlq)}</td>
+    <td><span class="pill p-${(e.criticality||"").toLowerCase()}">${esc(SEV_FA[e.criticality]||e.criticality)}</span></td></tr>`).join("");
+  document.getElementById("evTable").innerHTML =
+    `<table><thead><tr><th>موضوع (Topic)</th><th>نوع رویداد</th><th>تولیدکننده</th><th>مصرف‌کنندگان</th>
+     <th>کلیدهای پیام</th><th>فرکانس</th><th>حجم/روز</th><th>نگه‌داری (روز)</th><th>PII</th>
+     <th>Idempotency</th><th>سیاست خطا</th><th>حساسیت</th></tr></thead><tbody>${body}</tbody></table>
+     <p class="hint" style="margin-top:10px">تعداد نمایش‌داده‌شده: ${shown} از ${EV.length}</p>`;
+}
+
+/* ---------- risks ---------- */
+function renderRisk(){
+  // heatmap
+  const grid={};
+  RK.forEach(r=>{ (grid[r.impact+"-"+r.probability] ||= []).push(r.id); });
+  let g="      احتمال →      ۱        ۲        ۳        ۴        ۵\n";
+  for(let imp=5; imp>=1; imp--){
+    let line=`  اثر ${imp} |`;
+    for(let p=1;p<=5;p++){
+      const ids=grid[imp+"-"+p]||[];
+      line += " " + (ids.length? ids.join(",") : "·").padEnd(8," ");
+    }
+    g += line + "\n";
+  }
+  document.getElementById("rkHeat").textContent=g;
+  drawRisk();
+}
+function drawRisk(){
+  const q=(document.getElementById("rkSearch").value||"").toLowerCase();
+  const b=document.getElementById("rkBand").value;
+  const rows=RK.filter(r=>{
+    if(b && r.band!==b) return false;
+    if(q && !(r.risk+r.mitigation+r.owner+r.id+r.category).toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,c)=>c.score-a.score).map(r=>`<tr>
+    <td><b>${esc(r.id)}</b></td><td>${esc(r.risk)}</td><td>${esc(r.category)}</td>
+    <td>${esc(r.probability)}</td><td>${esc(r.impact)}</td>
+    <td><span class="pill p-${r.band==="بحرانی"?"crit":r.band==="بالا"?"major":r.band==="متوسط"?"minor":"warn"}">${esc(r.score)} — ${esc(r.band)}</span></td>
+    <td>${esc(r.early_warning)}</td><td>${esc(r.mitigation)}</td><td>${esc(r.owner)}</td><td>${esc(r.review)}</td></tr>`).join("");
+  document.getElementById("rkTable").innerHTML =
+    `<table><thead><tr><th>شناسه</th><th>ریسک</th><th>دسته</th><th>احتمال</th><th>اثر</th><th>امتیاز/سطح</th>
+     <th>نشانهٔ هشدار</th><th>برنامهٔ کاهش</th><th>مالک</th><th>بازنگری</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
 /* ---------- roadmap ---------- */
 function renderRoad(){
   const phases=[...new Map(ROAD.map(r=>[r.phase,{p:r.phase,fa:r.phase_fa}])).values()];
@@ -483,6 +592,11 @@ function wire(){
   document.getElementById("alSearch").addEventListener("input",drawAlarms);
   document.getElementById("alSev").addEventListener("change",drawAlarms);
   document.getElementById("alUnit").addEventListener("change",drawAlarms);
+  document.getElementById("evSearch").addEventListener("input",drawEvents);
+  document.getElementById("evCrit").addEventListener("change",drawEvents);
+  document.getElementById("evPii").addEventListener("change",drawEvents);
+  document.getElementById("rkSearch").addEventListener("input",drawRisk);
+  document.getElementById("rkBand").addEventListener("change",drawRisk);
   document.getElementById("roadPhase").addEventListener("change",drawRoad);
   document.getElementById("mdmSearch").addEventListener("input",drawMdm);
   document.getElementById("mdmCrit").addEventListener("change",drawMdm);
