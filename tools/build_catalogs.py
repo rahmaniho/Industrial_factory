@@ -319,15 +319,15 @@ def build_roadmap():
         ws = [int(r["start_week"]) for r in d["items"]]
         we = [int(r["start_week"]) + int(r["duration_weeks"]) for r in d["items"]]
         max_week = max(max_week, max(we))
-        A(f"| **{p}** | {d['fa']} | {len(d['items'])} | {min(ws)}–{max(we)} | "
+        A(f"| **{p}** | {d['fa']} | {fa(len(d['items']))} | {fa(min(ws))}–{fa(max(we))} | "
           f"{lo:.2f}–{hi:.2f} | {d['items'][0]['deliverable']} |")
-    A(f"| — | **جمع** | **{len(rows)}** | **۱–{max_week}** | **{total_lo:.2f}–{total_hi:.2f}** | — |")
+    A(f"| — | **جمع** | **{fa(len(rows))}** | **{fa(1)}–{fa(max_week)}** | **{total_lo:.2f}–{total_hi:.2f}** | — |")
     A("")
-    A(f"**مدت کل:** حدود **{max_week} هفته** (≈ {max_week / 4.33:.0f} ماه) در صورت تأمین به‌موقع تجهیزات؛ "
-      f"با محدودیت منابع و تأخیر تأمین (۳–۶ ماه [فرض])، زمان تقویمی واقع‌بینانه **۲۴ تا ۳۴ ماه** است.")
+    A(f"**مدت کل:** حدود **{fa(max_week)} هفته** (≈ {fa(int(round(max_week / 4.33)))} ماه) در صورت تأمین به‌موقع تجهیزات؛ "
+      f"با محدودیت منابع و تأخیر تأمین (۳–۶ ماه [فرض])، زمان تقویمی واقع‌بینانه **{fa(int(round(max_week / 4.33)))} تا ۳۰ ماه** است.")
     A("")
-    A(f"**هزینهٔ کل:** **{total_lo:.1f} تا {total_hi:.1f} میلیون دلار**")
-    A(f"(≈ {total_lo * 100:.0f}–{total_hi * 100:.0f} میلیارد تومان با نرخ [فرض] ۱ USD = ۱۰۰,۰۰۰ تومان؛ "
+    A(f"**هزینهٔ کل:** **{total_lo:.2f} تا {total_hi:.2f} میلیون دلار**")
+    A(f"(≈ {fa(int(round(total_lo * 100)))}–{fa(int(round(total_hi * 100)))} میلیارد تومان با نرخ [فرض] ۱ USD = ۱۰۰,۰۰۰ تومان؛ "
       "**نسبت‌ها معتبرتر از اعداد مطلق‌اند**).")
     A("")
     A("**ترکیب هزینه:** ۴۲٪ خدمات نرم‌افزاری و یکپارچه‌سازی · ۳۸٪ سخت‌افزار OT/IT · ۲۰٪ احتیاطی و مدیریت تغییر.")
@@ -364,13 +364,13 @@ def build_roadmap():
         we = [int(r["start_week"]) + int(r["duration_weeks"]) for r in items]
         A(f"### {p} — {d['fa']}")
         A("")
-        A(f"- **مدت:** هفتهٔ {min(ws)} تا {max(we)} ({max(we) - min(ws)} هفته) · "
+        A(f"- **مدت:** هفتهٔ {fa(min(ws))} تا {fa(max(we))} ({fa(max(we) - min(ws))} هفته) · "
           f"**هزینه:** {lo:.2f}–{hi:.2f} میلیون دلار")
         A("")
         A("| WBS | بستهٔ کاری | شروع | مدت (هفته) | پیش‌نیاز | خروجی | مسئول | تیم | هزینه (M USD) | ریسک |")
         A("|---|---|---|---|---|---|---|---|---|---|")
         for r in items:
-            A(f"| `{r['wbs']}` | {r['work_package']} | {r['start_week']} | {r['duration_weeks']} | "
+            A(f"| `{r['wbs']}` | {r['work_package']} | {fa(r['start_week'])} | {fa(r['duration_weeks'])} | "
               f"{r['depends_on'].replace(';', '، ') if r['depends_on'] else '—'} | {r['deliverable']} | "
               f"{r['owner_role']} | {r['team']} | {r['cost_low_musd']}–{r['cost_high_musd']} | "
               f"{r['risk_ref']} |")
@@ -496,12 +496,36 @@ def build_events():
     A("| `audit.*` | Audit Store | BI، SIEM | افسر امنیت OT |")
     A("| `it.*` | مانیتورینگ | IT، BI | مدیر IT |")
     A("")
+    A("")
+    A("← بعدی: [`20-api-contract.md`](20-api-contract.md)")
     write("19-event-catalog.md", L)
 
 
 # ───────────────────────────────────────────── ۱۲. Risk Register
+RISK_BANDS = {"بحرانی": (15, 25), "بالا": (10, 14), "متوسط": (5, 9), "کم": (1, 4)}
+
+
+def validate_risk(rows):
+    """سازگاریِ امتیاز و سطح را پیش از تولید بررسی می‌کند."""
+    errs = []
+    for r in rows:
+        exp = int(r["probability"]) * int(r["impact"])
+        got = int(r["score"])
+        if got != exp:
+            errs.append(f"{r['id']}: امتیاز {got} با احتمال×اثر ({exp}) هم‌خوان نیست")
+        lo, hi = RISK_BANDS.get(r["band"], (0, 0))
+        if not lo <= got <= hi:
+            errs.append(f"{r['id']}: امتیاز {got} با سطح «{r['band']}» ({lo}–{hi}) هم‌خوان نیست")
+    for e in errs:
+        print(f"  ✗ {e}")
+    if errs:
+        raise SystemExit(f"{len(errs)} خطا در data/risk_register.csv — مستند تولید نشد.")
+    return True
+
+
 def build_risk():
     rows = read("risk_register.csv")
+    validate_risk(rows)
     L = []
     A = L.append
     band_order = {"بحرانی": 0, "بالا": 1, "متوسط": 2, "کم": 3}
@@ -535,9 +559,9 @@ def build_risk():
     for r in rows:
         grid.setdefault((int(r["impact"]), int(r["probability"])), []).append(r["id"])
     A("```")
-    A("      احتمال →      ۱        ۲        ۳        ۴        ۵")
+    A("      احتمال →     " + "   ".join(fa(p) for p in range(1, 6)))
     for imp in range(5, 0, -1):
-        line = f"  اثر {imp} |"
+        line = f"  اثر {fa(imp)} |"
         for p in range(1, 6):
             ids = grid.get((imp, p), [])
             cell = ",".join(ids) if ids else "·"
@@ -554,7 +578,7 @@ def build_risk():
     A("|---|---|---|")
     for b in ["بحرانی", "بالا", "متوسط", "کم"]:
         if cnt.get(b):
-            A(f"| {b} | {cnt[b]} | {cnt[b] / len(rows) * 100:.0f}٪ |")
+            A(f"| {b} | {fa(cnt[b])} | {fa(int(round(cnt[b] / len(rows) * 100)))}٪ |")
     A("")
     A("## ۱۲-۵. برنامهٔ کاهشِ سطح‌بالا")
     A("")
@@ -582,6 +606,144 @@ def build_risk():
     write("12-risk-register.md", L)
 
 
+# ───────────────────────────────────────────── ۱۶. پرسش‌های باز + ۲۴. پرسش‌نامه
+PRIO_ICON = {"بلوکه\u200cکننده": "🔴", "مهم": "🟠", "قابل تأخیر": "🟡"}
+
+
+def fa(n):
+    """تبدیل عدد به ارقام فارسی."""
+    return str(n).translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
+
+
+def _q_rows():
+    return read("open_questions.csv")
+
+
+def build_questions():
+    rows = _q_rows()
+    by = OrderedDict()
+    for r in rows:
+        by.setdefault(r["group"], []).append(r)
+
+    L = []
+    A = L.append
+    A("# ۱۶. سؤالات شفاف‌سازی (Open Questions)")
+    A("")
+    A("> این فهرست، **شرط صادقانه‌بودنِ این طرح** است. هرچه در مستندات با برچسب")
+    A("> «[فرض]» آمده، در اینجا به پرسش تبدیل شده است.")
+    A("> این فایل از `data/open_questions.csv` تولید می‌شود؛ **مستقیماً ویرایش نشود.**")
+    A("> نسخهٔ قابل چاپ و تکمیل برای مشتری: [`24-customer-questionnaire.md`](24-customer-questionnaire.md)")
+    A("")
+    n_block = sum(1 for r in rows if r["priority"] == "بلوکه\u200cکننده")
+    n_imp = sum(1 for r in rows if r["priority"] == "مهم")
+    n_late = sum(1 for r in rows if r["priority"] == "قابل تأخیر")
+    A(f"**خلاصه:** {fa(len(rows))} پرسش — {fa(n_block)} بلوکه‌کننده 🔴 · {fa(n_imp)} مهم 🟠 · {fa(n_late)} قابل تأخیر 🟡")
+    A("")
+
+    sec = 0
+    for group, items in by.items():
+        sec += 1
+        A(f"## ۱۶-{fa(sec)}. {group}")
+        A("")
+        A("| # | سؤال | اولویت | چرا مهم است | پیش‌فرض فعلی (در صورت عدم پاسخ) | پاسخ‌گو | بلوکه می‌کند | مهلت |")
+        A("|---|---|---|---|---|---|---|---|")
+        for r in items:
+            ic = PRIO_ICON.get(r["priority"], "")
+            A(f"| {r['id']} | {r['question']} | {ic} {r['priority']} | {r['why_it_matters']} "
+              f"| {r['default_assumption']} | {r['decision_owner']} | `{r['blocks']}` | {r['due']} |")
+        A("")
+
+    A("## ۱۶-۵. قدم بعدی پیشنهادی (۵ روز کاری)")
+    A("")
+    A("| روز | اقدام | پرسش‌های هدف | خروجی |")
+    A("|---|---|---|---|")
+    A("| ۱ | جلسهٔ ۲ ساعته با مدیرعامل و مدیران واحدها | Q01، Q06، Q16، Q17 | صورت‌جلسهٔ تصمیمات |")
+    A("| ۲ | بازدید میدانی و فهرست‌برداری تجهیزات | Q04، Q25 | فهرست اولیهٔ تجهیزات OT |")
+    A("| ۳ | بررسی فنی ERP و زیرساخت | Q05، Q11، Q10 | گزارش قابلیت یکپارچه‌سازی |")
+    A("| ۴ | استخراج دادهٔ واقعی از سیستم‌های موجود | Q02، Q03، Q26 | جایگزینی اعداد «[فرض]» |")
+    A("| ۵ | بازنگری این سند و مفروضات | همه | نسخهٔ ۱.۱ مستند ۰۱ |")
+    A("")
+    A("---")
+    A("")
+    A("**یادداشت پایانی:** این طرح با مفروضاتِ صریح نوشته شده تا قابل نقد باشد.")
+    A(f"هر پاسخ به این {fa(len(rows))} سؤال، بخشی از «[فرض]» را به «واقعیتِ مستند» تبدیل می‌کند")
+    A("و دقتِ برآوردها را بالا می‌برد. توصیه می‌شود وضعیت هر سؤال (باز / پاسخ‌داده‌شده / منقضی)")
+    A("در جلسهٔ هفتگیِ کمیتهٔ راهبری بازنگری شود.")
+    A("")
+    A("← بعدی: [`17-architecture-decisions.md`](17-architecture-decisions.md)")
+    write("16-open-questions.md", L)
+
+
+def build_questionnaire():
+    """نسخهٔ قابل چاپ و تکمیل برای مشتری — ستون پاسخ خالی است."""
+    rows = _q_rows()
+    by = OrderedDict()
+    for r in rows:
+        by.setdefault(r["group"], []).append(r)
+
+    L = []
+    A = L.append
+    A("# ۲۴. پرسش‌نامهٔ شفاف‌سازی برای مشتری (برای تکمیل)")
+    A("")
+    A("> این فرم از `data/open_questions.csv` تولید می‌شود تا همواره با مستند ۱۶ هم‌خوان باشد.")
+    A("> لطفاً ستون «پاسخ شما» را تکمیل کنید و پرونده را برای تیم پروژه بازگردانید.")
+    A("> هر پاسخ، یک «[فرض]» را به واقعیتِ مستند تبدیل می‌کند و دقت برآوردها را بالا می‌برد.")
+    A("")
+    A("**راهنمای تکمیل:**")
+    A("")
+    A("- پرسش‌های 🔴 **بلوکه‌کننده**اند: پیش از آغاز فاز ۰ یا ۱ باید پاسخ داده شوند.")
+    A("- اگر پاسخ را نمی‌دانید، عبارت «نامشخص» را بنویسید — این صادقانه‌تر از حدس‌زدن است؛")
+    A("  تیم پروژه برای هر «نامشخص» یک روشِ اندازه‌گیری پیشنهاد می‌دهد.")
+    A("- هرجا عدد می‌دهید، **منبع عدد** را هم بنویسید (سیستم، گزارش، تخمینِ خبره).")
+    A("")
+    A("| تاریخ تکمیل | نام و سمت تکمیل‌کننده | امضا |")
+    A("|---|---|---|")
+    A("| | | |")
+    A("")
+
+    sec = 0
+    for group, items in by.items():
+        sec += 1
+        A(f"## ۲۴-{fa(sec)}. {group}")
+        A("")
+        for r in items:
+            ic = PRIO_ICON.get(r["priority"], "")
+            A(f"### {r['id']} — {ic} {r['priority']}")
+            A("")
+            A(f"**پرسش.** {r['question']}")
+            A("")
+            A(f"**چرا مهم است.** {r['why_it_matters']}")
+            A("")
+            A(f"**پیش‌فرض فعلی ما (در صورت عدم پاسخ).** {r['default_assumption']}")
+            A("")
+            A(f"**قالب پاسخ مورد انتظار:** {r['answer_format']} · **پاسخ‌گو:** {r['decision_owner']} · "
+              f"**مهلت:** {r['due']} · **وابسته‌ها:** `{r['blocks']}`")
+            A("")
+            A("**پاسخ شما:**")
+            A("")
+            A("```")
+            A("")
+            A("")
+            A("```")
+            A("")
+
+    A("---")
+    A("")
+    A("## ۲۴-۵. خلاصهٔ وضعیت (تکمیل توسط مدیر پروژه)")
+    A("")
+    A("| اولویت | تعداد پرسش | پاسخ‌داده‌شده | باقی‌مانده |")
+    A("|---|---|---|---|")
+    for pr in ("بلوکه\u200cکننده", "مهم", "قابل تأخیر"):
+        n = sum(1 for r in rows if r["priority"] == pr)
+        A(f"| {PRIO_ICON.get(pr,'')} {pr} | {fa(n)} | | |")
+    A(f"| **جمع** | **{fa(len(rows))}** | | |")
+    A("")
+    A("**نکته:** تا زمانی که حتی یک پرسشِ 🔴 بی‌پاسخ بماند، بازهٔ هزینهٔ پروژه باید")
+    A("به‌صورت **گسترده** (۴.۹۶–۸.۴۲ میلیون دلار) نگه داشته شود؛ باریک‌شدنِ بازه،")
+    A("مستلزم پاسخ به همهٔ پرسش‌های بلوکه‌کننده است.")
+    write("24-customer-questionnaire.md", L)
+
+
 if __name__ == "__main__":
     build_master_data()
     build_kpi()
@@ -589,4 +751,6 @@ if __name__ == "__main__":
     build_roadmap()
     build_events()
     build_risk()
+    build_questions()
+    build_questionnaire()
     print("تمام شد.")

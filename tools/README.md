@@ -36,6 +36,9 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | `build_catalogs.py` | `data/kpi_catalog.csv` | `docs/08-kpi-catalog.md` |
 | `build_catalogs.py` | `data/alarm_catalog.csv` | `docs/09-alarm-map.md` |
 | `build_catalogs.py` | `data/roadmap.csv` | `docs/11-roadmap.md` (شامل گانت متنی) |
+| `build_catalogs.py` | `data/risk_register.csv` | `docs/12-risk-register.md` (امتیاز، نقشهٔ حرارتی ۵×۵، راهبرد کاهش) |
+| `build_catalogs.py` | `data/event_catalog.csv` | `docs/19-event-catalog.md` (قراردادهای عمومی، جدول رویدادها، سیاست‌های ویژه) |
+| `build_catalogs.py` | `data/open_questions.csv` | `docs/16-open-questions.md` + `docs/24-customer-questionnaire.md` |
 
 ## ویرایش ایمن
 
@@ -54,3 +57,6 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | `alarm_catalog.csv` | `severity` یکی از `Critical/Major/Minor/Warning` |
 | `roadmap.csv` | هزینه‌ها به «میلیون دلار» و زمان‌ها به «هفته» (از ابتدای پروژه) هستند |
 | `master_data.csv` | `criticality` یکی از `Critical/High/Medium/Low`؛ مصرف‌کنندگان با `;` جدا می‌شوند |
+| `risk_register.csv` | `score` باید برابر `probability × impact` باشد (اگر نباشد هشدار می‌گیرد)؛ سطح‌ها بر اساس امتیاز محاسبه می‌شوند |
+| `event_catalog.csv` | نام‌گذاریِ موضوع `حوزه.زیرحوزه.موجودیت`؛ `dlq` یکی از `never/critical/standard/buffered`؛ `pii` فقط `yes/no` |
+| `open_questions.csv` | `priority` یکی از «بلوکه‌کننده/مهم/قابل تأخیر»؛ `blocks` شامل فاز، شمارهٔ ADR و شناسهٔ ریسک است |

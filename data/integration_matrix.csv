@@ -203,4 +203,3 @@ ERP,BI,"داده تراکنشی برای انبار داده",one-way,DB+Event,D
 BI,FIN,"شاخص‌های مالی برای داشبورد",one-way,DB,Daily,FIN,High,-
 BI,PRD,"شاخص‌های تولید و OEE",one-way,DB,Daily,PRD,Critical,-
 BI,ERP,"انبار داده از تراکنش‌های ERP",one-way,DB,Daily,BI,Critical,-
-BI,BI," self-service reporting و Semantic Layer",one-way,DB,Daily,BI,Medium,لایه معنایی یکسان برای همه شاخص‌ها

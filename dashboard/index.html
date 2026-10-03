@@ -88,6 +88,7 @@
   <button data-sec="sec-risk">ثبت ریسک</button>
   <button data-sec="sec-road">نقشهٔ راه</button>
   <button data-sec="sec-mdm">دادهٔ پایه</button>
+  <button data-sec="sec-q">پرسش‌های باز</button>
 </nav>
 
 <main>
@@ -200,6 +201,25 @@
     </div>
   </section>
 
+  <!-- Questions -->
+  <section id="sec-q">
+    <div class="card">
+      <h2>پرسش‌های شفاف‌سازی (برای مشتری)</h2>
+      <p class="hint">هر پرسشِ بی‌پاسخ یعنی یک «[فرض]» در طرح. پرسش‌های قرمز <b>بلوکه‌کننده</b>اند:
+         تا پیش از پاسخ، بازهٔ هزینه باید گسترده بماند. نسخهٔ قابل تکمیل:
+         <code>docs/24-customer-questionnaire.md</code></p>
+      <div class="toolbar">
+        <input id="qSearch" placeholder="جست‌وجو در پرسش/پاسخ‌گو/وابسته‌ها…">
+        <select id="qPrio">
+          <option value="">همهٔ اولویت‌ها</option>
+          <option>بلوکه‌کننده</option><option>مهم</option><option>قابل تأخیر</option>
+        </select>
+        <select id="qGroup"><option value="">همهٔ گروه‌ها</option></select>
+      </div>
+      <div class="scroll" id="qTable"></div>
+    </div>
+  </section>
+
   <!-- Roadmap -->
   <section id="sec-road">
     <div class="card">
@@ -240,7 +260,7 @@
 <footer>
   منبع داده: <code>data/integration_matrix.csv</code>، <code>data/kpi_catalog.csv</code>،
   <code>data/alarm_catalog.csv</code>، <code>data/event_catalog.csv</code>،
-  <code>data/risk_register.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
+  <code>data/risk_register.csv</code>، <code>data/open_questions.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
   مستندات تحلیلی در پوشهٔ <code>docs/</code>.
 </footer>
 
@@ -284,12 +304,13 @@ async function load(f){ const r=await fetch("../data/"+f); if(!r.ok) throw new E
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- boot ---------- */
-let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[];
+let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[];
 (async ()=>{
   try{
-    [MX,KPI,AL,ROAD,MDM,EV,RK] = await Promise.all([
+    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ] = await Promise.all([
       load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
-      load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),load("risk_register.csv")
+      load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),
+      load("risk_register.csv"),load("open_questions.csv")
     ]);
   }catch(e){
     document.getElementById("loadErr").innerHTML =
@@ -328,6 +349,7 @@ function renderKpis(){
     ["هشدار تعریف‌شده",AL.length,"سطح‌بندی‌شده"],
     ["رویداد یکپارچه‌سازی",EV.length,"با کلیدِ باید و سیاستِ خطا"],
     ["ریسک ثبت‌شده",RK.filter(r=>r.band==="بحرانی"||r.band==="بالا").length,"بحرانی یا بالا از "+RK.length],
+    ["پرسشِ بلوکه‌کننده",QQ.filter(x=>x.priority==="بلوکه\u200cکننده").length,"از "+QQ.length+" پرسشِ باز"],
     ["موجودیت داده پایه",MDM.length,"با مالک مشخص"],
     ["بستهٔ کاری",ROAD.length,"در ۷ فاز"],
     ["مدت پروژه",maxW+" هفته","≈ "+Math.round(maxW/4.33)+" ماه"],
@@ -507,6 +529,37 @@ function drawRisk(){
      <th>نشانهٔ هشدار</th><th>برنامهٔ کاهش</th><th>مالک</th><th>بازنگری</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
+/* ---------- open questions ---------- */
+const QICON={"بلوکه\u200cکننده":"🔴","مهم":"🟠","قابل تأخیر":"🟡"};
+function renderQuestions(){
+  const gs=[...new Set(QQ.map(q=>q.group))];
+  document.getElementById("qGroup").innerHTML =
+    '<option value="">همهٔ گروه‌ها</option>' + gs.map(g=>`<option>${esc(g)}</option>`).join("");
+  drawQuestions();
+}
+function drawQuestions(){
+  const q=(document.getElementById("qSearch").value||"").toLowerCase();
+  const pr=document.getElementById("qPrio").value, gr=document.getElementById("qGroup").value;
+  const rows=QQ.filter(x=>{
+    if(pr && x.priority!==pr) return false;
+    if(gr && x.group!==gr) return false;
+    if(q && !(x.question+x.why_it_matters+x.decision_owner+x.blocks+x.default_assumption).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const body=rows.map(x=>`<tr>
+    <td><b>${esc(x.id)}</b></td><td>${esc(x.question)}</td>
+    <td><span class="pill p-${x.priority==="بلوکه\u200cکننده"?"crit":x.priority==="مهم"?"major":"minor"}">${QICON[x.priority]||""} ${esc(x.priority)}</span></td>
+    <td>${esc(x.why_it_matters)}</td><td>${esc(x.default_assumption)}</td>
+    <td>${esc(x.decision_owner)}</td><td dir="ltr" style="text-align:left;font-size:11px">${esc(x.blocks)}</td>
+    <td>${esc(x.due)}</td><td>${esc(x.answer_format)}</td></tr>`).join("");
+  document.getElementById("qTable").innerHTML =
+    `<table><thead><tr><th>#</th><th>پرسش</th><th>اولویت</th><th>چرا مهم است</th>
+     <th>پیش‌فرض فعلی</th><th>پاسخ‌گو</th><th>وابسته‌ها</th><th>مهلت</th><th>قالب پاسخ</th></tr></thead>
+     <tbody>${body}</tbody></table>
+     <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${QQ.length} پرسش
+     (بلوکه‌کننده: ${QQ.filter(x=>x.priority==="بلوکه\u200cکننده").length})</p>`;
+}
+
 /* ---------- roadmap ---------- */
 function renderRoad(){
   const phases=[...new Map(ROAD.map(r=>[r.phase,{p:r.phase,fa:r.phase_fa}])).values()];
@@ -597,6 +650,9 @@ function wire(){
   document.getElementById("evPii").addEventListener("change",drawEvents);
   document.getElementById("rkSearch").addEventListener("input",drawRisk);
   document.getElementById("rkBand").addEventListener("change",drawRisk);
+  document.getElementById("qSearch").addEventListener("input",drawQuestions);
+  document.getElementById("qPrio").addEventListener("change",drawQuestions);
+  document.getElementById("qGroup").addEventListener("change",drawQuestions);
   document.getElementById("roadPhase").addEventListener("change",drawRoad);
   document.getElementById("mdmSearch").addEventListener("input",drawMdm);
   document.getElementById("mdmCrit").addEventListener("change",drawMdm);
