@@ -23,6 +23,7 @@ jobs:
         run: |
           python3 tools/build_integration_matrix.py
           python3 tools/build_catalogs.py
+          python3 tools/build_templates.py
 
       - name: بررسیِ به‌روزبودنِ خروجی‌ها
         run: |

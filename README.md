@@ -143,6 +143,9 @@
 | `docs/25-financial-model.md` | `benefit_model.csv` + `financial_model.csv` | محرک‌های ارزش، جریان نقدی، NPV/IRR و تحلیل حساسیت |
 | `docs/26-ot-security-plan.md` | `ot_zones.csv` + `ot_conduits.csv` | منطقه‌بندیِ OT، کانال‌های مجاز و قوانین امنیتی |
 | `docs/27-traceability-coverage.md` | `traceability.csv` | پوششِ معیارهای پذیرش، تحویل‌دادنی‌ها و الزامات نگارش |
+| `docs/07-ui-forms-by-role.md` | `roles.csv` + `ui_matrix.csv` | نقش‌ها و ماتریسِ دسترسیِ نقش × صفحه |
+| `docs/10-raci-rbac.md` | `raci.csv` + `rbac.csv` + `sod_rules.csv` | مسئولیت‌ها، دسترسی و تفکیک وظایف |
+| `docs/13-uat-checklist.md` | `uat_scenarios.csv` + `uat_criteria.csv` | سناریوهای پذیرش و معیارهای کمّی |
 
 بازتولید همهٔ موارد بالا:
 
@@ -159,6 +162,13 @@ node tools/test_site.js         # ۱۸ تستِ سایت و داشبورد (جا
 
 همین بررسی‌ها در GitHub Actions (`.github/workflows/docs.yml`) اجرا می‌شوند و اگر
 مستندِ تولید‌شده با CSV هم‌خوان نباشد، ساخت شکست می‌خورد.
+
+سه مستند (۷، ۱۰، ۱۳) ترکیبی‌اند: متن در قالب (`tools/templates/`) و جدول‌ها از CSV.
+بازتولید آن‌ها:
+
+```bash
+python3 tools/build_templates.py
+```
 
 جزئیات خط لوله، قراردادهای CSV و شیوهٔ ویرایش ایمن: [`tools/README.md`](tools/README.md)
 

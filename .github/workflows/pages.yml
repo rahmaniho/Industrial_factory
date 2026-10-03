@@ -37,6 +37,7 @@ jobs:
         run: |
           python3 tools/build_integration_matrix.py
           python3 tools/build_catalogs.py
+          python3 tools/build_templates.py
           python3 tools/test_build.py
           node tools/test_site.js
 

@@ -32,6 +32,7 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | ابزار | ورودی | خروجی |
 |---|---|---|
 | `build_integration_matrix.py` | `data/integration_matrix.csv` | `docs/04-integration-matrix.md` (ماتریس ۱۸×۱۸، آمار، جزئیات یال‌ها، الگوها، ضدالگوها) |
+| `build_templates.py` | `tools/templates/*.md` + چند CSV | `docs/07`، `docs/10`، `docs/13` (متنِ ثابت + جدولِ داده‌محور) |
 | `build_catalogs.py` | `data/master_data.csv` | `docs/05-master-data-ownership.md` |
 | `build_catalogs.py` | `data/kpi_catalog.csv` | `docs/08-kpi-catalog.md` |
 | `build_catalogs.py` | `data/alarm_catalog.csv` | `docs/09-alarm-map.md` |
@@ -70,4 +71,7 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | `financial_model.csv` | جمعِ ستون‌های سرمایه باید با بودجهٔ مصوب (۴.۹۶ / ۸.۴۲) برابر باشد؛ شیبِ منفعت صعودی و در سال آخر ۱۰۰ است |
 | `ot_zones.csv` | `sl_target` یکی از `SL-1/SL-2/SL-3`؛ هر منطقه باید کنترل‌های کلیدی داشته باشد |
 | `ot_conduits.csv` | مناطق باید از `ot_zones.csv` باشند؛ `denied_by_default` برای همهٔ کانال‌ها باید «بله» باشد |
+| `raci.csv` | قالبِ طویل (فعالیت × نقش × مقدار)؛ هر فعالیت باید **دقیقاً یک A** و **حداقل یک R** داشته باشد |
+| `ui_matrix.csv` | قالبِ طویل و **کامل**: هر ترکیبِ صفحه×نقش یک ردیف دارد (بدون دسترسی = `—`) |
+| `roles.csv` | کدهای نقش یکتا هستند و ماتریس فقط به همین کدها ارجاع می‌دهد |
 | `traceability.csv` | `group` یکی از «معیار پذیرش / تحویل‌دادنی / الزام نگارش / کیفیت مخزن»؛ هر ردیف باید روشِ راستی‌آزمایی داشته باشد |

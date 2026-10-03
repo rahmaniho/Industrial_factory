@@ -92,6 +92,9 @@
   <button data-sec="sec-fin">مدل مالی</button>
   <button data-sec="sec-ot">امنیت OT</button>
   <button data-sec="sec-tr">پوشش نیازمندی‌ها</button>
+  <button data-sec="sec-role">نقش‌ها و دسترسی</button>
+  <button data-sec="sec-raci">مسئولیت‌ها (RACI)</button>
+  <button data-sec="sec-uat">برنامهٔ پذیرش</button>
 </nav>
 
 <main>
@@ -223,6 +226,80 @@
     </div>
   </section>
 
+  <!-- Roles & Access -->
+  <section id="sec-role">
+    <div class="card">
+      <h2>نقش‌ها و پروفایل کاربری</h2>
+      <p class="hint">۲۴ نقش تعریف‌شده. هر نقش محیط کار، سطح دسترسیِ پیش‌فرض و ابزارِ خود را دارد.</p>
+      <div class="toolbar"><input id="roleSearch" placeholder="جست‌وجو در نقش‌ها…"></div>
+      <div class="scroll" id="roleTable"></div>
+    </div>
+    <div class="card">
+      <h2>ماتریس دسترسیِ نقش × صفحه</h2>
+      <p class="hint">نمادها: ● ایجاد/ویرایش · ○ فقط خواندن · ◐ ویرایش محدود یا تأیید · — بدون دسترسی</p>
+      <div class="toolbar">
+        <select id="accRole"><option value="">همهٔ نقش‌ها</option></select>
+        <select id="accPage"><option value="">همهٔ صفحات</option></select>
+        <label style="color:var(--muted);font-size:12.5px;display:flex;gap:6px;align-items:center">
+          <input type="checkbox" id="accAll" style="min-width:auto"> نمایشِ «بدون دسترسی» هم
+        </label>
+      </div>
+      <div class="scroll" id="accTable"></div>
+    </div>
+    <div class="card">
+      <h2>مدل کنترل دسترسی (RBAC)</h2>
+      <p class="hint">سطحِ دسترسی هر نقش به هر ماژول. فیلتر کنید تا پاسخِ «این نقش به چه چیزهایی دسترسی دارد؟» را ببینید.</p>
+      <div class="toolbar">
+        <select id="rbacRole"><option value="">همهٔ نقش‌ها</option></select>
+        <select id="rbacMod"><option value="">همهٔ ماژول‌ها</option></select>
+        <input id="rbacSearch" placeholder="جست‌وجو…">
+      </div>
+      <div class="scroll" id="rbacTable"></div>
+    </div>
+    <div class="card">
+      <h2>قواعد تفکیک وظایف (SoD)</h2>
+      <p class="hint">این قواعد باید در سیستم «اعمال» شوند، نه فقط در دستورالعمل نوشته شوند.</p>
+      <div class="scroll" id="sodTable"></div>
+    </div>
+  </section>
+
+  <!-- RACI -->
+  <section id="sec-raci">
+    <div class="card">
+      <h2>ماتریس RACI</h2>
+      <p class="hint">نمادها: <b>R</b> مسئول اجرا · <b>A</b> پاسخ‌گو (دقیقاً یکی) · <b>C</b> مشورت‌شونده · <b>I</b> مطلع</p>
+      <div class="toolbar">
+        <select id="raciActor"><option value="">همهٔ نقش‌ها</option></select>
+        <select id="raciFilter">
+          <option value="RA">فقط مواردی که مسئول یا پاسخ‌گوست (R/A)</option>
+          <option value="">همهٔ موارد</option>
+          <option value="R">فقط مسئول اجرا (R)</option>
+          <option value="A">فقط پاسخ‌گو (A)</option>
+          <option value="C">فقط مشورت (C)</option>
+          <option value="I">فقط مطلع (I)</option>
+        </select>
+        <input id="raciSearch" placeholder="جست‌وجو در فعالیت‌ها…">
+      </div>
+      <div class="scroll" id="raciTable"></div>
+    </div>
+  </section>
+
+  <!-- UAT -->
+  <section id="sec-uat">
+    <div class="card">
+      <h2>سناریوهای پذیرش سرتاسری (UAT)</h2>
+      <p class="hint">هر سناریو مسیر و معیارِ عبورِ دقیق دارد؛ عبور بر اساسِ عدد است، نه احساس.</p>
+      <div class="toolbar"><input id="uatSearch" placeholder="جست‌وجو در سناریوها…"></div>
+      <div class="scroll" id="uatTable"></div>
+    </div>
+    <div class="card">
+      <h2>معیارهای پذیرش کمی</h2>
+      <p class="hint">اگر معیاری قابل اندازه‌گیری نباشد، در پذیرش قابل اتکا نیست.</p>
+      <div class="toolbar"><input id="uatcSearch" placeholder="جست‌وجو…"></div>
+      <div class="scroll" id="uatcTable"></div>
+    </div>
+  </section>
+
   <!-- Traceability -->
   <section id="sec-tr">
     <div class="card">
@@ -317,7 +394,7 @@
 <footer>
   منبع داده: <code>data/integration_matrix.csv</code>، <code>data/kpi_catalog.csv</code>،
   <code>data/alarm_catalog.csv</code>، <code>data/event_catalog.csv</code>،
-  <code>data/risk_register.csv</code>، <code>data/open_questions.csv</code>، <code>data/benefit_model.csv</code>، <code>data/financial_model.csv</code>، <code>data/ot_zones.csv</code>، <code>data/ot_conduits.csv</code>، <code>data/traceability.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
+  <code>data/risk_register.csv</code>، <code>data/open_questions.csv</code>، <code>data/benefit_model.csv</code>، <code>data/financial_model.csv</code>، <code>data/ot_zones.csv</code>، <code>data/ot_conduits.csv</code>، <code>data/traceability.csv</code>، <code>data/roles.csv</code>، <code>data/ui_matrix.csv</code>، <code>data/rbac.csv</code>، <code>data/sod_rules.csv</code>، <code>data/raci.csv</code>، <code>data/uat_scenarios.csv</code>، <code>data/uat_criteria.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
   مستندات تحلیلی در پوشهٔ <code>docs/</code>.
 </footer>
 
@@ -361,15 +438,17 @@ async function load(f){ const r=await fetch("../data/"+f); if(!r.ok) throw new E
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- boot ---------- */
-let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[], FIN=[], OZ=[], OC=[], TR=[];
+let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[], FIN=[], OZ=[], OC=[], TR=[], ROLES=[], ACC=[], RBAC=[], SOD=[], RACI=[], UAT=[], UATC=[];
 (async ()=>{
   try{
-    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR] = await Promise.all([
+    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR,ROLES,ACC,RBAC,SOD,RACI,UAT,UATC] = await Promise.all([
       load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
       load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),
       load("risk_register.csv"),load("open_questions.csv"),
       load("benefit_model.csv"),load("financial_model.csv"),
-      load("ot_zones.csv"),load("ot_conduits.csv"),load("traceability.csv")
+      load("ot_zones.csv"),load("ot_conduits.csv"),load("traceability.csv"),
+      load("roles.csv"),load("ui_matrix.csv"),load("rbac.csv"),load("sod_rules.csv"),
+      load("raci.csv"),load("uat_scenarios.csv"),load("uat_criteria.csv")
     ]);
   }catch(e){
     document.getElementById("loadErr").innerHTML =
@@ -412,6 +491,8 @@ function renderKpis(){
     ["منفعتِ سالانه (پایه)",(BEN.reduce((a,b)=>a+(parseFloat(b.saving_low_musd)+parseFloat(b.saving_high_musd))/2,0)).toFixed(1),"میلیون دلار در سطح کامل"],
     ["کانالِ امنِ OT",OC.length,"مسیر مجاز؛ بقیه مسدود"],
     ["نیازمندیِ ردیابی‌شده",TR.length,"با مستند، داده و روش راستی‌آزمایی"],
+    ["نقشِ کاربری",ROLES.length,"با ماتریس دسترسی و SoD"],
+    ["سناریوی پذیرش",UAT.length,"با معیارِ عبورِ عددی"],
     ["موجودیت داده پایه",MDM.length,"با مالک مشخص"],
     ["بستهٔ کاری",ROAD.length,"در ۷ فاز"],
     ["مدت پروژه",maxW+" هفته","≈ "+Math.round(maxW/4.33)+" ماه"],
@@ -620,6 +701,107 @@ function drawQuestions(){
      <tbody>${body}</tbody></table>
      <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${QQ.length} پرسش
      (بلوکه‌کننده: ${QQ.filter(x=>x.priority==="بلوکه\u200cکننده").length})</p>`;
+}
+
+/* ---------- نقش‌ها، دسترسی، RACI، UAT ---------- */
+const NONE = "—";
+function fillSelect(id, values, allLabel){
+  const el = document.getElementById(id);
+  el.innerHTML = '<option value="">' + allLabel + '</option>' +
+    [...new Set(values)].map(v => `<option>${esc(v)}</option>`).join("");
+}
+function renderRoles(){
+  fillSelect("accRole", ACC.map(r=>r.role), "همهٔ نقش‌ها");
+  fillSelect("accPage", ACC.map(r=>r.page), "همهٔ صفحات");
+  fillSelect("rbacRole", RBAC.map(r=>r.role), "همهٔ نقش‌ها");
+  fillSelect("rbacMod", RBAC.map(r=>r.module), "همهٔ ماژول‌ها");
+  drawRoles(); drawAcc(); drawRbac();
+  document.getElementById("sodTable").innerHTML =
+    `<table><thead><tr><th>#</th><th>قاعدهٔ تفکیک وظایف</th><th>کنترل سیستمی</th></tr></thead><tbody>` +
+    SOD.map(r=>`<tr><td><b>${esc(r.id)}</b></td><td>${esc(r.rule)}</td><td>${esc(r.control)}</td></tr>`).join("") +
+    `</tbody></table>`;
+}
+function drawRoles(){
+  const q=(document.getElementById("roleSearch").value||"").toLowerCase();
+  const rows=ROLES.filter(r=>!q || (r.role_fa+r.workplace+r.access_level+r.devices+r.code).toLowerCase().includes(q));
+  document.getElementById("roleTable").innerHTML =
+    `<table><thead><tr><th>کد</th><th>نام نقش</th><th>محیط کار</th><th>سطح دسترسی پیش‌فرض</th><th>ابزار</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.code)}</b></td><td>${esc(r.role_fa)}</td><td>${esc(r.workplace)}</td>
+      <td>${esc(r.access_level)}</td><td>${esc(r.devices)}</td></tr>`).join("") + `</tbody></table>
+      <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${ROLES.length} نقش</p>`;
+}
+function drawAcc(){
+  const role=document.getElementById("accRole").value, page=document.getElementById("accPage").value;
+  const all=document.getElementById("accAll").checked;
+  const rows=ACC.filter(r=>{
+    if(role && r.role!==role) return false;
+    if(page && r.page!==page) return false;
+    if(!all && (r.access===NONE || !r.access)) return false;
+    return true;
+  });
+  const cls=a => a===NONE ? "p-low" : /●/.test(a) ? "p-crit" : /◐/.test(a) ? "p-major" : "p-ok";
+  document.getElementById("accTable").innerHTML =
+    `<table><thead><tr><th>صفحه / فرم</th><th>نقش</th><th>سطح دسترسی</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>${esc(r.page)}</td><td><b>${esc(r.role)}</b></td>
+      <td><span class="pill ${cls(r.access)}">${esc(r.access)}</span></td></tr>`).join("") + `</tbody></table>
+      <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${ACC.length} خانه</p>`;
+}
+function drawRbac(){
+  const role=document.getElementById("rbacRole").value, mod=document.getElementById("rbacMod").value;
+  const q=(document.getElementById("rbacSearch").value||"").toLowerCase();
+  const rows=RBAC.filter(r=>{
+    if(role && r.role!==role) return false;
+    if(mod && r.module!==mod) return false;
+    if(q && !(r.role+r.module+r.access).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("rbacTable").innerHTML =
+    `<table><thead><tr><th>نقش</th><th>ماژول</th><th>سطح دسترسی</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.role)}</b></td><td>${esc(r.module)}</td><td>${esc(r.access)}</td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${RBAC.length}</p>`;
+}
+
+function renderRaci(){
+  fillSelect("raciActor", RACI.map(r=>r.actor), "همهٔ نقش‌ها");
+  drawRaci();
+}
+function drawRaci(){
+  const actor=document.getElementById("raciActor").value;
+  const f=document.getElementById("raciFilter").value;
+  const q=(document.getElementById("raciSearch").value||"").toLowerCase();
+  const rows=RACI.filter(r=>{
+    if(actor && r.actor!==actor) return false;
+    if(f && !f.split("").some(c => r.value.toUpperCase().includes(c))) return false;
+    if(q && !r.activity.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const cls=v => /A/.test(v) ? "p-crit" : /R/.test(v) ? "p-major" : /C/.test(v) ? "p-minor" : "p-low";
+  document.getElementById("raciTable").innerHTML =
+    `<table><thead><tr><th>#</th><th>فعالیت / تصمیم</th><th>نقش</th><th>نقش در RACI</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>${esc(r.activity_id)}</td><td>${esc(r.activity)}</td>
+      <td><b>${esc(r.actor)}</b></td>
+      <td><span class="pill ${cls(r.value.toUpperCase())}">${esc(r.value)}</span></td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${RACI.length} مورد</p>`;
+}
+
+function renderUat(){ drawUat(); drawUatc(); }
+function drawUat(){
+  const q=(document.getElementById("uatSearch").value||"").toLowerCase();
+  const rows=UAT.filter(r=>!q || (r.scenario+r.flow+r.pass_criteria+r.id).toLowerCase().includes(q));
+  document.getElementById("uatTable").innerHTML =
+    `<table><thead><tr><th>#</th><th>سناریو</th><th>مسیر</th><th>معیار عبور دقیق</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.id)}</b></td><td>${esc(r.scenario)}</td><td>${esc(r.flow)}</td>
+      <td>${esc(r.pass_criteria)}</td></tr>`).join("") + `</tbody></table>
+      <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${UAT.length} سناریو</p>`;
+}
+function drawUatc(){
+  const q=(document.getElementById("uatcSearch").value||"").toLowerCase();
+  const rows=UATC.filter(r=>!q || (r.area+r.criterion+r.threshold+r.measurement).toLowerCase().includes(q));
+  document.getElementById("uatcTable").innerHTML =
+    `<table><thead><tr><th>حوزه</th><th>معیار</th><th>آستانه</th><th>روش اندازه‌گیری</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>${esc(r.area)}</td><td>${esc(r.criterion)}</td>
+      <td><b>${esc(r.threshold)}</b></td><td>${esc(r.measurement)}</td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${UATC.length} معیار</p>`;
 }
 
 /* ---------- traceability ---------- */
@@ -847,6 +1029,15 @@ function wire(){
   document.getElementById("evPii").addEventListener("change",drawEvents);
   document.getElementById("rkSearch").addEventListener("input",drawRisk);
   document.getElementById("rkBand").addEventListener("change",drawRisk);
+  ["roleSearch"].forEach(id=>document.getElementById(id).addEventListener("input",drawRoles));
+  ["accRole","accPage"].forEach(id=>document.getElementById(id).addEventListener("change",drawAcc));
+  document.getElementById("accAll").addEventListener("change",drawAcc);
+  ["rbacRole","rbacMod"].forEach(id=>document.getElementById(id).addEventListener("change",drawRbac));
+  document.getElementById("rbacSearch").addEventListener("input",drawRbac);
+  ["raciActor","raciFilter"].forEach(id=>document.getElementById(id).addEventListener("change",drawRaci));
+  document.getElementById("raciSearch").addEventListener("input",drawRaci);
+  document.getElementById("uatSearch").addEventListener("input",drawUat);
+  document.getElementById("uatcSearch").addEventListener("input",drawUatc);
   document.getElementById("trSearch").addEventListener("input",drawTrace);
   document.getElementById("trGroup").addEventListener("change",drawTrace);
   document.getElementById("otSearch").addEventListener("input",drawOt);

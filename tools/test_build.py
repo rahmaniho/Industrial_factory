@@ -113,6 +113,59 @@ class TestCsvIntegrity(unittest.TestCase):
                 self.assertTrue(r["data_owner"].strip(), f"{r['id']}: مالک ندارد")
                 self.assertTrue(r["target"].strip(), f"{r['id']}: هدف ندارد")
 
+    def test_raci_health_rules(self):
+        """قواعدِ سلامتِ RACI همان‌هایی است که خودِ مستند ۱۰ اعلام کرده است."""
+        rows = read_csv("raci.csv")
+        acts = {}
+        for r in rows:
+            acts.setdefault(r["activity_id"], []).append(r)
+        for aid, items in acts.items():
+            v = [x["value"].upper() for x in items]
+            n_a = sum(1 for x in v if "A" in x)
+            n_r = sum(1 for x in v if "R" in x)
+            with self.subTest(activity=aid):
+                self.assertEqual(n_a, 1, f"فعالیت {aid}: باید دقیقاً یک A داشته باشد (اکنون {n_a})")
+                self.assertGreaterEqual(n_r, 1, f"فعالیت {aid}: بدون R است؛ کار انجام نمی‌شود")
+
+    def test_ui_matrix_is_complete_and_unique(self):
+        rows = read_csv("ui_matrix.csv")
+        seen = set()
+        for r in rows:
+            key = (r["page"], r["role"])
+            with self.subTest(cell=key):
+                self.assertNotIn(key, seen, f"خانهٔ تکراری: {key}")
+                seen.add(key)
+        pages = {r["page"] for r in rows}
+        roles = {r["role"] for r in rows}
+        with self.subTest(check="کامل‌بودنِ ماتریس"):
+            self.assertEqual(len(seen), len(pages) * len(roles),
+                             "هر ترکیبِ صفحه×نقش باید دقیقاً یک خانه داشته باشد")
+
+    def test_roles_and_rbac_are_consistent(self):
+        codes = [r["code"] for r in read_csv("roles.csv")]
+        self.assertEqual(len(codes), len(set(codes)), "کدِ نقش تکراری است")
+        for r in read_csv("roles.csv"):
+            with self.subTest(role=r["code"]):
+                for col in ("role_fa", "workplace", "access_level", "devices"):
+                    self.assertTrue(r[col].strip(), f"{r['code']}: ستون {col} خالی است")
+        matrix_roles = {r["role"] for r in read_csv("ui_matrix.csv")}
+        known = set(codes)
+        with self.subTest(check="نقش‌های ناشناس در ماتریس"):
+            self.assertEqual(sorted(matrix_roles - known), [],
+                             "ماتریس به نقشی ارجاع می‌دهد که در roles.csv نیست")
+
+    def test_sod_and_uat_rows_complete(self):
+        for r in read_csv("sod_rules.csv"):
+            with self.subTest(sod=r["id"]):
+                self.assertTrue(r["control"].strip(), f"{r['id']}: کنترل سیستمی ندارد")
+        for r in read_csv("uat_scenarios.csv"):
+            with self.subTest(uat=r["id"]):
+                self.assertTrue(r["pass_criteria"].strip(), f"{r['id']}: معیار عبور ندارد")
+        for r in read_csv("uat_criteria.csv"):
+            with self.subTest(area=r["area"]):
+                self.assertTrue(r["threshold"].strip(), f"{r['criterion']}: آستانه ندارد")
+                self.assertTrue(r["measurement"].strip(), f"{r['criterion']}: روش اندازه‌گیری ندارد")
+
     def test_traceability_rows_complete(self):
         for r in read_csv("traceability.csv"):
             with self.subTest(id=r["id"]):
@@ -311,6 +364,50 @@ class TestDashboard(unittest.TestCase):
         sections = set(re.findall(r'<section id="(sec-[a-z]+)"', html))
         buttons = set(re.findall(r'data-sec="(sec-[a-z]+)"', html))
         self.assertEqual(sections, buttons, "هر بخش باید دکمهٔ ناوبری داشته باشد و برعکس")
+
+
+class TestTemplates(unittest.TestCase):
+    """مستنداتِ مبتنی‌بر قالب باید با CSVها هم‌خوان باشند."""
+
+    TPL_DIR = os.path.join(BASE, "tools", "templates")
+
+    def setUp(self):
+        sys.path.insert(0, os.path.join(BASE, "tools"))
+
+    def test_templates_exist(self):
+        self.assertTrue(os.path.isdir(self.TPL_DIR))
+        files = [f for f in os.listdir(self.TPL_DIR) if f.endswith(".md")]
+        self.assertGreaterEqual(len(files), 3, "حداقل سه قالب انتظار می‌رود")
+        for f in files:
+            with self.subTest(tpl=f):
+                self.assertTrue(os.path.exists(os.path.join(DOCS, f)),
+                                f"خروجی برای {f} تولید نشده است")
+
+    def test_every_placeholder_is_defined(self):
+        import build_templates as bt  # type: ignore
+        ph = bt.build_placeholders()
+        for f in sorted(x for x in os.listdir(self.TPL_DIR) if x.endswith(".md")):
+            body = read_text(os.path.join(self.TPL_DIR, f))
+            for m in re.findall(r"\{\{(\w+)\}\}", body):
+                with self.subTest(tpl=f, placeholder=m):
+                    self.assertIn(m, ph, f"نشانهٔ تعریف‌نشده در {f}: {m}")
+
+    def test_regeneration_is_idempotent(self):
+        import build_templates as bt  # type: ignore
+        before = {f: read_text(os.path.join(DOCS, f))
+                  for f in os.listdir(self.TPL_DIR) if f.endswith(".md")}
+        self.assertEqual(bt.main(), 0, "مولّدِ قالب‌ها با خطا مواجه شد")
+        for f, content in before.items():
+            with self.subTest(doc=f):
+                self.assertEqual(content, read_text(os.path.join(DOCS, f)),
+                                 f"{f} پس از بازتولید تغییر کرده است")
+
+    def test_notice_is_stripped_from_output(self):
+        for f in os.listdir(self.TPL_DIR):
+            if not f.endswith(".md"):
+                continue
+            with self.subTest(doc=f):
+                self.assertNotIn("این قالب، منبعِ متنِ", read_text(os.path.join(DOCS, f)))
 
 
 class TestSite(unittest.TestCase):
