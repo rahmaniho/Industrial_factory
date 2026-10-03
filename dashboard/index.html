@@ -91,6 +91,7 @@
   <button data-sec="sec-q">پرسش‌های باز</button>
   <button data-sec="sec-fin">مدل مالی</button>
   <button data-sec="sec-ot">امنیت OT</button>
+  <button data-sec="sec-tr">پوشش نیازمندی‌ها</button>
 </nav>
 
 <main>
@@ -222,6 +223,20 @@
     </div>
   </section>
 
+  <!-- Traceability -->
+  <section id="sec-tr">
+    <div class="card">
+      <h2>ماتریس ردیابی و پوشش نیازمندی‌ها</h2>
+      <p class="hint">هر نیازمندی در سه سطح ردیابی می‌شود: مستندِ پاسخ‌گو، دادهٔ پشتیبان،
+         و روشِ راستی‌آزمایی. فیلتر کنید تا گروه مورد نظر را ببینید.</p>
+      <div class="toolbar">
+        <input id="trSearch" placeholder="جست‌وجو در نیازمندی/مستند/روش راستی‌آزمایی…">
+        <select id="trGroup"><option value="">همهٔ گروه‌ها</option></select>
+      </div>
+      <div class="scroll" id="trTable"></div>
+    </div>
+  </section>
+
   <!-- Finance -->
   <section id="sec-fin">
     <div class="card">
@@ -302,7 +317,7 @@
 <footer>
   منبع داده: <code>data/integration_matrix.csv</code>، <code>data/kpi_catalog.csv</code>،
   <code>data/alarm_catalog.csv</code>، <code>data/event_catalog.csv</code>،
-  <code>data/risk_register.csv</code>، <code>data/open_questions.csv</code>، <code>data/benefit_model.csv</code>، <code>data/financial_model.csv</code>، <code>data/ot_zones.csv</code>، <code>data/ot_conduits.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
+  <code>data/risk_register.csv</code>، <code>data/open_questions.csv</code>، <code>data/benefit_model.csv</code>، <code>data/financial_model.csv</code>، <code>data/ot_zones.csv</code>، <code>data/ot_conduits.csv</code>، <code>data/traceability.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
   مستندات تحلیلی در پوشهٔ <code>docs/</code>.
 </footer>
 
@@ -346,15 +361,15 @@ async function load(f){ const r=await fetch("../data/"+f); if(!r.ok) throw new E
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- boot ---------- */
-let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[], FIN=[], OZ=[], OC=[];
+let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[], FIN=[], OZ=[], OC=[], TR=[];
 (async ()=>{
   try{
-    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC] = await Promise.all([
+    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR] = await Promise.all([
       load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
       load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),
       load("risk_register.csv"),load("open_questions.csv"),
       load("benefit_model.csv"),load("financial_model.csv"),
-      load("ot_zones.csv"),load("ot_conduits.csv")
+      load("ot_zones.csv"),load("ot_conduits.csv"),load("traceability.csv")
     ]);
   }catch(e){
     document.getElementById("loadErr").innerHTML =
@@ -396,6 +411,7 @@ function renderKpis(){
     ["پرسشِ بلوکه‌کننده",QQ.filter(x=>x.priority==="بلوکه\u200cکننده").length,"از "+QQ.length+" پرسشِ باز"],
     ["منفعتِ سالانه (پایه)",(BEN.reduce((a,b)=>a+(parseFloat(b.saving_low_musd)+parseFloat(b.saving_high_musd))/2,0)).toFixed(1),"میلیون دلار در سطح کامل"],
     ["کانالِ امنِ OT",OC.length,"مسیر مجاز؛ بقیه مسدود"],
+    ["نیازمندیِ ردیابی‌شده",TR.length,"با مستند، داده و روش راستی‌آزمایی"],
     ["موجودیت داده پایه",MDM.length,"با مالک مشخص"],
     ["بستهٔ کاری",ROAD.length,"در ۷ فاز"],
     ["مدت پروژه",maxW+" هفته","≈ "+Math.round(maxW/4.33)+" ماه"],
@@ -606,6 +622,35 @@ function drawQuestions(){
      (بلوکه‌کننده: ${QQ.filter(x=>x.priority==="بلوکه\u200cکننده").length})</p>`;
 }
 
+/* ---------- traceability ---------- */
+function renderTrace(){
+  const gs=[...new Set(TR.map(r=>r.group))];
+  document.getElementById("trGroup").innerHTML =
+    '<option value="">همهٔ گروه‌ها</option>' + gs.map(g=>`<option>${esc(g)}</option>`).join("");
+  drawTrace();
+}
+function drawTrace(){
+  const q=(document.getElementById("trSearch").value||"").toLowerCase();
+  const g=document.getElementById("trGroup").value;
+  const rows=TR.filter(r=>{
+    if(g && r.group!==g) return false;
+    if(q && !(r.requirement+r.criterion+r.evidence_docs+r.evidence_data+r.verification+r.id).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const cls = st => st==="تأمین" ? "low" : st==="در حال انجام" ? "minor" : "crit";
+  document.getElementById("trTable").innerHTML =
+    `<table><thead><tr><th>#</th><th>گروه</th><th>نیازمندی</th><th>معیار</th>
+     <th>مستندِ پاسخ‌گو</th><th>دادهٔ پشتیبان</th><th>روشِ راستی‌آزمایی</th><th>وضعیت</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.id)}</b></td><td>${esc(r.group)}</td>
+      <td>${esc(r.requirement)}</td><td>${esc(r.criterion)}</td>
+      <td>${esc(r.evidence_docs)}</td><td>${esc(r.evidence_data)}</td>
+      <td>${esc(r.verification)}</td>
+      <td><span class="pill p-${cls(r.status)}">${esc(r.status)}</span></td></tr>`).join("") +
+    `</tbody></table>
+     <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${TR.length} نیازمندی —
+     تأمین‌شده: ${TR.filter(r=>r.status==="تأمین").length}</p>`;
+}
+
 /* ---------- finance ---------- */
 const N = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
 function renderFinance(){
@@ -802,6 +847,8 @@ function wire(){
   document.getElementById("evPii").addEventListener("change",drawEvents);
   document.getElementById("rkSearch").addEventListener("input",drawRisk);
   document.getElementById("rkBand").addEventListener("change",drawRisk);
+  document.getElementById("trSearch").addEventListener("input",drawTrace);
+  document.getElementById("trGroup").addEventListener("change",drawTrace);
   document.getElementById("otSearch").addEventListener("input",drawOt);
   document.getElementById("otDir").addEventListener("change",drawOt);
   document.getElementById("otZone").addEventListener("change",drawOt);

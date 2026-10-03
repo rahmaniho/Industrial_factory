@@ -148,4 +148,4 @@
 | نشست‌های راه‌دورِ بدون درخواست | نشست‌های فاقد شمارهٔ Change Request | ۰ |
 | رویدادهای تلاشِ عبور از مرز | تلاش‌های مسدودشده در مرز IDMZ/L2 | پایشِ هفتگی |
 
-← بعدی: [`../README.md`](../README.md)
+← بعدی: [`27-traceability-coverage.md`](27-traceability-coverage.md)

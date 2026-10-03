@@ -28,11 +28,17 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: آماده‌سازی Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: بازتولید مستندات و اجرای تست‌ها
         run: |
           python3 tools/build_integration_matrix.py
           python3 tools/build_catalogs.py
           python3 tools/test_build.py
+          node tools/test_site.js
 
       - name: ساخت پوشهٔ انتشار
         run: |

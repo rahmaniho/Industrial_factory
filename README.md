@@ -70,7 +70,7 @@
 | ۱۳ | معیارهای پذیرش (UAT) و چک‌لیست راه‌اندازی | [`docs/13-uat-checklist.md`](docs/13-uat-checklist.md) |
 | ۱۴ | آموزش و مدیریت تغییر | [`docs/14-change-management.md`](docs/14-change-management.md) |
 
-### مستندات تکمیلیِ اجرایی (۱۶ تا ۲۶)
+### مستندات تکمیلیِ اجرایی (۱۶ تا ۲۷)
 
 | # | مستند | کاربردِ عملی |
 |---|---|---|
@@ -84,6 +84,7 @@
 | ۲۴ | [`24-customer-questionnaire.md`](docs/24-customer-questionnaire.md) | پرسش‌نامهٔ ۳۰گانه برای تکمیل توسط مشتری — هر پاسخ یک «[فرض]» را حذف می‌کند |
 | ۲۵ | [`25-financial-model.md`](docs/25-financial-model.md) | ۱۰ محرک ارزش، جریان نقدی ۵ ساله، NPV/IRR، تحلیل حساسیت |
 | ۲۶ | [`26-ot-security-plan.md`](docs/26-ot-security-plan.md) | ۹ منطقهٔ امنیتی، ۱۸ کانال مجاز، قوانین غیرقابل‌مذاکره بر اساس IEC 62443 |
+| ۲۷ | [`27-traceability-coverage.md`](docs/27-traceability-coverage.md) | ماتریس ردیابی: ۳۳ نیازمندی → مستند + داده + روش راستی‌آزمایی |
 
 مستندات مکمل: [`docs/01-inputs-and-assumptions.md`](docs/01-inputs-and-assumptions.md) ·
 [`docs/15-nfr-security-compliance.md`](docs/15-nfr-security-compliance.md) ·
@@ -141,6 +142,7 @@
 | `docs/24-customer-questionnaire.md` | `open_questions.csv` | نسخهٔ قابل چاپ و تکمیلِ پرسش‌ها برای مشتری |
 | `docs/25-financial-model.md` | `benefit_model.csv` + `financial_model.csv` | محرک‌های ارزش، جریان نقدی، NPV/IRR و تحلیل حساسیت |
 | `docs/26-ot-security-plan.md` | `ot_zones.csv` + `ot_conduits.csv` | منطقه‌بندیِ OT، کانال‌های مجاز و قوانین امنیتی |
+| `docs/27-traceability-coverage.md` | `traceability.csv` | پوششِ معیارهای پذیرش، تحویل‌دادنی‌ها و الزامات نگارش |
 
 بازتولید همهٔ موارد بالا:
 
@@ -151,7 +153,8 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 کیفیت این مخزن با ۲۰ تست خودکار پایش می‌شود؛ اجرا:
 
 ```bash
-python3 tools/test_build.py
+python3 tools/test_build.py     # ۲۸ تستِ داده و مستندات (پایتون)
+node tools/test_site.js         # ۱۸ تستِ سایت و داشبورد (جاوااسکریپت)
 ```
 
 همین بررسی‌ها در GitHub Actions (`.github/workflows/docs.yml`) اجرا می‌شوند و اگر

@@ -14,6 +14,7 @@ import os
 import re
 import sys
 import unittest
+from collections import Counter
 from glob import glob
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -96,6 +97,32 @@ class TestCsvIntegrity(unittest.TestCase):
                 self.assertIn(r["target"], valid, f"گرهٔ مقصد نامعتبر: {r['target']}")
                 self.assertNotEqual(r["source"], r["target"], "رابطهٔ خودی (self-edge) مجاز نیست")
 
+    def test_each_unit_has_at_least_five_kpis(self):
+        kpi = read_csv("kpi_catalog.csv")
+        counts = Counter(r["unit"] for r in kpi)
+        units = {"SEC", "HSE", "PRD", "QCL", "MRO", "RMW", "FGW", "HRM", "SAL",
+                 "EXP", "FIN", "MNT", "ELE", "MEC", "UTL"}
+        for u in sorted(units):
+            with self.subTest(unit=u):
+                self.assertGreaterEqual(counts.get(u, 0), 5,
+                                        f"واحد {u} تنها {counts.get(u, 0)} شاخص دارد (حداقل ۵ لازم است)")
+        for r in kpi:
+            with self.subTest(kpi=r["id"]):
+                self.assertTrue(r["formula"].strip(), f"{r['id']}: فرمول ندارد")
+                self.assertTrue(r["source_system"].strip(), f"{r['id']}: منبع داده ندارد")
+                self.assertTrue(r["data_owner"].strip(), f"{r['id']}: مالک ندارد")
+                self.assertTrue(r["target"].strip(), f"{r['id']}: هدف ندارد")
+
+    def test_traceability_rows_complete(self):
+        for r in read_csv("traceability.csv"):
+            with self.subTest(id=r["id"]):
+                self.assertTrue(r["requirement"].strip(), f"{r['id']}: عنوان ندارد")
+                self.assertTrue(r["verification"].strip(), f"{r['id']}: روش راستی‌آزمایی ندارد")
+                self.assertIn(r["status"], ("تأمین", "در حال انجام", "باقی‌مانده"),
+                              f"{r['id']}: وضعیت نامعتبر است")
+                self.assertIn(r["group"], ("معیار پذیرش", "تحویل‌دادنی", "الزام نگارش", "کیفیت مخزن"),
+                              f"{r['id']}: گروه نامعتبر است")
+
     def test_roadmap_costs_monotonic(self):
         for r in read_csv("roadmap.csv"):
             with self.subTest(wbs=r["wbs"]):
@@ -151,7 +178,7 @@ class TestDocs(unittest.TestCase):
         "04-integration-matrix.md", "05-master-data-ownership.md", "08-kpi-catalog.md",
         "09-alarm-map.md", "11-roadmap.md", "12-risk-register.md", "16-open-questions.md",
         "19-event-catalog.md", "24-customer-questionnaire.md", "25-financial-model.md",
-        "26-ot-security-plan.md",
+        "26-ot-security-plan.md", "27-traceability-coverage.md",
     ]
 
     def test_generated_docs_exist(self):

@@ -41,14 +41,16 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | `build_catalogs.py` | `data/open_questions.csv` | `docs/16-open-questions.md` + `docs/24-customer-questionnaire.md` |
 | `build_catalogs.py` | `data/benefit_model.csv` + `data/financial_model.csv` | `docs/25-financial-model.md` (محرک‌ها، جریان نقدی، NPV/IRR، حساسیت) |
 | `build_catalogs.py` | `data/ot_zones.csv` + `data/ot_conduits.csv` | `docs/26-ot-security-plan.md` (منطقه‌ها، کانال‌ها، قوانین امنیتی) |
-| `test_build.py` | همهٔ فایل‌های `data/` و `docs/` | ۲۰ تست یکپارچگی و کیفیت (بدون خروجی) |
+| `build_catalogs.py` | `data/traceability.csv` | `docs/27-traceability-coverage.md` (پوششِ نیازمندی‌ها و ردیابی) |
+| `test_build.py` | همهٔ فایل‌های `data/` و `docs/` | ۲۸ تست یکپارچگی و کیفیت (بدون خروجی) |
+| `test_site.js` | `site/index.html` و `data/*.csv` | ۱۸ تستِ نمایشگر مارک‌داون، CSV و جست‌وجوی تمام‌متن |
 
 ## ویرایش ایمن
 
 1. فایل CSV مربوطه را ویرایش کنید (ستون‌ها را تغییر ندهید؛ مقادیر را اصلاح کنید).
 2. اسکریپت را اجرا کنید.
 3. خروجی را در `git diff` ببینید و همراه با تغییر CSV در یک کامیت قرار دهید.
-4. `python3 tools/test_build.py` را اجرا کنید تا یکپارچگیِ داده بررسی شود.
+4. `python3 tools/test_build.py` و `node tools/test_site.js` را اجرا کنید تا یکپارچگیِ داده و سایت بررسی شود.
 
 > اگر نیاز به ستون جدید دارید، اسکریپت را هم به‌روز کنید — هرگز مستندِ تولید‌شده را دستی ویرایش نکنید.
 
@@ -68,3 +70,4 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | `financial_model.csv` | جمعِ ستون‌های سرمایه باید با بودجهٔ مصوب (۴.۹۶ / ۸.۴۲) برابر باشد؛ شیبِ منفعت صعودی و در سال آخر ۱۰۰ است |
 | `ot_zones.csv` | `sl_target` یکی از `SL-1/SL-2/SL-3`؛ هر منطقه باید کنترل‌های کلیدی داشته باشد |
 | `ot_conduits.csv` | مناطق باید از `ot_zones.csv` باشند؛ `denied_by_default` برای همهٔ کانال‌ها باید «بله» باشد |
+| `traceability.csv` | `group` یکی از «معیار پذیرش / تحویل‌دادنی / الزام نگارش / کیفیت مخزن»؛ هر ردیف باید روشِ راستی‌آزمایی داشته باشد |

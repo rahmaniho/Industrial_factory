@@ -34,8 +34,15 @@ jobs:
           fi
           echo "✓ مستندات با منابع داده هم‌خوان‌اند"
 
+      - name: آماده‌سازی Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: اجرای تست‌ها
-        run: python3 tools/test_build.py
+        run: |
+          python3 tools/test_build.py
+          node tools/test_site.js
 
       - name: آمار مخزن
         run: |

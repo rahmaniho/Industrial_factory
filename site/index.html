@@ -95,6 +95,12 @@
   iframe{width:100%;height:82vh;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
 
   footer{padding:20px 30px 40px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+  mark{background:#3d5a1f;color:#eaffd0;border-radius:3px;padding:0 2px}
+  .res{display:block;background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+       padding:9px 12px;margin-bottom:7px;cursor:pointer;font-size:12.5px}
+  .res:hover{border-color:var(--accent)}
+  .res .t{color:var(--accent);font-size:11.5px;display:block;margin-bottom:3px}
+  .res .s{color:var(--muted);line-height:1.8}
   .err{background:#2a1616;border:1px solid #5c2626;color:#ffb4b4;padding:14px;border-radius:10px;font-size:13px}
 </style>
 </head>
@@ -177,9 +183,12 @@
 <section id="s-docs">
   <div class="card" style="padding:14px">
     <div class="toolbar" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-      <input id="docSearch" placeholder="جست‌وجو در عنوان و توضیح اسناد…" style="flex:1;min-width:200px;
+      <input id="docSearch" placeholder="جست‌وجو در عنوان و توضیح اسناد…" style="flex:1;min-width:190px;
         background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 11px;font-family:inherit">
+      <input id="ftSearch" placeholder="جست‌وجوی تمام‌متن در همهٔ اسناد…" style="flex:1;min-width:190px;
+        background:var(--panel2);border:1px solid var(--accent);color:var(--txt);border-radius:8px;padding:8px 11px;font-family:inherit">
     </div>
+    <div id="ftResults" style="max-height:26vh;overflow:auto;margin-bottom:12px"></div>
     <div class="docwrap">
       <div class="side" id="side"></div>
       <div class="viewer" id="viewer"><p class="hint">یک سند را از فهرست سمت راست انتخاب کنید.</p></div>
@@ -307,6 +316,7 @@ const GROUPS = [
     {p:"docs/15-nfr-security-compliance.md", t:"۱۵. امنیت و انطباق", d:"الزامات غیرکارکردی، IEC 62443 و قوانین OT"},
     {p:"docs/26-ot-security-plan.md", t:"۲۶. طرح امنیت OT", d:"۹ منطقه، ۱۸ کانال مجاز و ۸ قانون غیرقابل‌مذاکره"},
     {p:"docs/25-financial-model.md", t:"۲۵. مدل مالی", d:"۱۰ محرک ارزش، جریان نقدی، NPV/IRR و تحلیل حساسیت"},
+    {p:"docs/27-traceability-coverage.md", t:"۲۷. ماتریس ردیابی و پوشش", d:"۳۳ نیازمندی با مستند، داده و روش راستی‌آزمایی؛ پاسخ به «از کجا می‌فهمیم کامل است؟»"},
   ]},
   { name:"پرسش‌ها", items:[
     {p:"docs/16-open-questions.md", t:"۱۶. پرسش‌های باز", d:"۳۰ پرسش با اولویت، پیش‌فرض و پاسخ‌گو"},
@@ -446,13 +456,18 @@ function resolve(base, rel){
   });
   return parts.join("/");
 }
-async function openDoc(path, push){
+async function openDoc(path, push, query){
   try{
-    const r = await fetch(ROOT + path);
-    if(!r.ok) throw new Error("HTTP " + r.status);
-    const txt = await r.text();
+    let txt = CACHE[path];
+    if(txt === undefined){
+      const r = await fetch(ROOT + path);
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      txt = await r.text();
+    }
     CURRENT = path;
+    CACHE[path] = txt;
     document.getElementById("viewer").innerHTML = md(txt);
+    if(query) highlightViewer(query);
     document.querySelectorAll("#side a").forEach(a =>
       a.classList.toggle("on", a.dataset.p === path));
     if(push !== false) location.hash = "#/doc/" + path;
@@ -470,6 +485,106 @@ document.getElementById("viewer").addEventListener("click", e => {
   if(!a) return;
   e.preventDefault();
   openDoc(resolve(CURRENT, a.dataset.doc));
+});
+
+/* ═════════════════ جست‌وجوی تمام‌متن ═════════════════ */
+const ALL = GROUPS.flatMap(g => g.items.map(it => ({p: it.p, t: it.t, g: g.name})));
+const CACHE = {};
+let INDEX = null, FT_TIMER = null;
+
+const escapeRe = q => q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+async function buildIndex(onProgress){
+  if(INDEX) return INDEX;
+  const items = [];
+  for(let i = 0; i < ALL.length; i++){
+    const d = ALL[i];
+    try{
+      const txt = CACHE[d.p] !== undefined ? CACHE[d.p]
+                : await (await fetch(ROOT + d.p)).text();
+      CACHE[d.p] = txt;
+      items.push({p: d.p, t: d.t, g: d.g, lines: txt.split("\n")});
+    }catch(e){}
+    if(onProgress) onProgress(items.length, ALL.length);
+  }
+  INDEX = items;
+  return INDEX;
+}
+
+function searchAll(q){
+  const lq = q.toLowerCase();
+  const out = [];
+  for(const d of (INDEX || [])){
+    let hits = 0;
+    for(const raw of d.lines){
+      const ln = raw.trim();
+      const i = ln.toLowerCase().indexOf(lq);
+      if(i < 0) continue;
+      out.push({p: d.p, t: d.t, g: d.g, line: ln, i: i, n: q.length});
+      if(++hits >= 4) break;          // حداکثر ۴ نتیجه از هر سند
+    }
+  }
+  return out;
+}
+
+function snippetOf(line, i, len, q){
+  const a = Math.max(0, i - 70), b = Math.min(line.length, i + len + 70);
+  const pre = a > 0 ? "…" : "", post = b < line.length ? "…" : "";
+  return pre + esc(line.slice(a, b)).replace(
+    new RegExp("(" + escapeRe(q || currentQuery) + ")", "gi"), "<mark>$1</mark>") + post;
+}
+
+let currentQuery = "";
+function highlightViewer(q){
+  const v = document.getElementById("viewer");
+  const re = new RegExp("(" + escapeRe(q) + ")", "gi");
+  const walker = document.createTreeWalker(v, NodeFilter.SHOW_TEXT, null);
+  const nodes = []; let n;
+  while((n = walker.nextNode())){
+    if(n.nodeValue.trim() && re.test(n.nodeValue)) nodes.push(n);
+    re.lastIndex = 0;
+  }
+  let first = null;
+  nodes.slice(0, 300).forEach(node => {
+    const span = document.createElement("span");
+    span.innerHTML = node.nodeValue.replace(re, "<mark>$1</mark>");
+    node.parentNode.replaceChild(span, node);
+    if(!first) first = span.querySelector("mark");
+  });
+  if(first) setTimeout(() => first.scrollIntoView({block:"center", behavior:"smooth"}), 60);
+  return nodes.length;
+}
+
+async function runFullText(q){
+  const box = document.getElementById("ftResults");
+  currentQuery = q;
+  if(q.length < 3){ box.innerHTML = ""; return; }
+  box.innerHTML = `<div class="hint">در حال نمایه‌سازیِ ${ALL.length} سند…</div>`;
+  await buildIndex((done, total) => {
+    box.innerHTML = `<div class="hint">در حال نمایه‌سازی… ${done} از ${total}</div>`;
+  });
+  const hits = searchAll(q);
+  if(!hits.length){
+    box.innerHTML = `<div class="hint">هیچ موردی برای «${esc(q)}» یافت نشد.</div>`;
+    return;
+  }
+  box.innerHTML = `<div class="hint" style="margin-bottom:8px">
+      ${hits.length} مورد در ${new Set(hits.map(h => h.p)).size} سند —
+      برای مشاهده، روی نتیجه بزنید.</div>` +
+    hits.map((h, k) => `<div class="res" data-p="${h.p}" data-q="${esc(q)}">
+        <span class="t">${esc(h.g)} ← ${esc(h.t)}</span>
+        <span class="s">${snippetOf(h.line, h.i, h.n, q)}</span></div>`).join("");
+  box.querySelectorAll(".res").forEach(el => el.addEventListener("click", () =>
+    openDoc(el.dataset.p, true, el.dataset.q)));
+}
+
+document.getElementById("ftSearch").addEventListener("input", e => {
+  clearTimeout(FT_TIMER);
+  const q = e.target.value.trim();
+  FT_TIMER = setTimeout(() => runFullText(q), 300);
+});
+document.getElementById("ftSearch").addEventListener("keydown", e => {
+  if(e.key === "Enter"){ clearTimeout(FT_TIMER); runFullText(e.target.value.trim()); }
 });
 
 /* ═════════════════ ناوبری ═════════════════ */
