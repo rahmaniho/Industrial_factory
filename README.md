@@ -70,7 +70,7 @@
 | ۱۳ | معیارهای پذیرش (UAT) و چک‌لیست راه‌اندازی | [`docs/13-uat-checklist.md`](docs/13-uat-checklist.md) |
 | ۱۴ | آموزش و مدیریت تغییر | [`docs/14-change-management.md`](docs/14-change-management.md) |
 
-### مستندات تکمیلیِ اجرایی (۱۶ تا ۲۴)
+### مستندات تکمیلیِ اجرایی (۱۶ تا ۲۶)
 
 | # | مستند | کاربردِ عملی |
 |---|---|---|
@@ -82,6 +82,8 @@
 | ۲۲ | [`22-vendor-selection.md`](docs/22-vendor-selection.md) | مدل امتیازدهی، معیارهای حذف، POC دو‌هفته‌ای، بندهای قراردادی |
 | ۲۳ | [`23-cutover-migration.md`](docs/23-cutover-migration.md) | مهاجرت داده، Runbookـ T-‎۱۴ تا T+‎۳۰، درخت بازگشت، آشتی‌سازی |
 | ۲۴ | [`24-customer-questionnaire.md`](docs/24-customer-questionnaire.md) | پرسش‌نامهٔ ۳۰گانه برای تکمیل توسط مشتری — هر پاسخ یک «[فرض]» را حذف می‌کند |
+| ۲۵ | [`25-financial-model.md`](docs/25-financial-model.md) | ۱۰ محرک ارزش، جریان نقدی ۵ ساله، NPV/IRR، تحلیل حساسیت |
+| ۲۶ | [`26-ot-security-plan.md`](docs/26-ot-security-plan.md) | ۹ منطقهٔ امنیتی، ۱۸ کانال مجاز، قوانین غیرقابل‌مذاکره بر اساس IEC 62443 |
 
 مستندات مکمل: [`docs/01-inputs-and-assumptions.md`](docs/01-inputs-and-assumptions.md) ·
 [`docs/15-nfr-security-compliance.md`](docs/15-nfr-security-compliance.md) ·
@@ -115,12 +117,23 @@
 | `docs/16-open-questions.md` | `open_questions.csv` | ۳۰ پرسش با اولویت، پیش‌فرض و پاسخ‌گو |
 | `docs/19-event-catalog.md` | `event_catalog.csv` | ۵۴ رویداد با تولیدکننده، مصرف‌کننده و سیاستِ خطا |
 | `docs/24-customer-questionnaire.md` | `open_questions.csv` | نسخهٔ قابل چاپ و تکمیلِ پرسش‌ها برای مشتری |
+| `docs/25-financial-model.md` | `benefit_model.csv` + `financial_model.csv` | محرک‌های ارزش، جریان نقدی، NPV/IRR و تحلیل حساسیت |
+| `docs/26-ot-security-plan.md` | `ot_zones.csv` + `ot_conduits.csv` | منطقه‌بندیِ OT، کانال‌های مجاز و قوانین امنیتی |
 
 بازتولید همهٔ موارد بالا:
 
 ```bash
 python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 ```
+
+کیفیت این مخزن با ۲۰ تست خودکار پایش می‌شود؛ اجرا:
+
+```bash
+python3 tools/test_build.py
+```
+
+همین بررسی‌ها در GitHub Actions (`.github/workflows/docs.yml`) اجرا می‌شوند و اگر
+مستندِ تولید‌شده با CSV هم‌خوان نباشد، ساخت شکست می‌خورد.
 
 جزئیات خط لوله، قراردادهای CSV و شیوهٔ ویرایش ایمن: [`tools/README.md`](tools/README.md)
 

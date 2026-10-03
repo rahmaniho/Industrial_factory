@@ -89,6 +89,8 @@
   <button data-sec="sec-road">نقشهٔ راه</button>
   <button data-sec="sec-mdm">دادهٔ پایه</button>
   <button data-sec="sec-q">پرسش‌های باز</button>
+  <button data-sec="sec-fin">مدل مالی</button>
+  <button data-sec="sec-ot">امنیت OT</button>
 </nav>
 
 <main>
@@ -220,6 +222,46 @@
     </div>
   </section>
 
+  <!-- Finance -->
+  <section id="sec-fin">
+    <div class="card">
+      <h2>مدل مالی و توجیه اقتصادی</h2>
+      <p class="hint">سناریوی پایه = میانگینِ بازهٔ هر پارامتر. منفعت از سال ۳ سرعت می‌گیرد؛
+         سرمایهٔ اصلی در سال‌های ۱ و ۲ صرف می‌شود. محاسبهٔ کامل در
+         <code>docs/25-financial-model.md</code></p>
+      <div class="scroll" id="finSummary"></div>
+    </div>
+    <div class="card">
+      <h2>جریان نقدی پنج‌ساله (سناریوی پایه)</h2>
+      <div class="gantt" id="finChart"></div>
+      <div class="scroll" id="finTable"></div>
+    </div>
+    <div class="card">
+      <h2>محرک‌های ارزش</h2>
+      <p class="hint">ستون «وزن» سهم هر محرک از میانگینِ منفعتِ سالانه است.</p>
+      <div class="scroll" id="finLevers"></div>
+    </div>
+  </section>
+
+  <!-- OT Security -->
+  <section id="sec-ot">
+    <div class="card">
+      <h2>منطقه‌های امنیتی OT (IEC 62443)</h2>
+      <p class="hint">هر منطقه سطحِ امنیتِ هدفِ خود را دارد؛ تفاوتِ سطح دلیل دارد، نه سلیقه.</p>
+      <div class="scroll" id="otZones"></div>
+    </div>
+    <div class="card">
+      <h2>کانال‌های مجاز (Conduits)</h2>
+      <p class="hint">هرچه در این فهرست نیست، <b>مسدود</b> است. فیلتر کنید تا مسیرِ مورد نظر را بیابید.</p>
+      <div class="toolbar">
+        <input id="otSearch" placeholder="جست‌وجو در سرویس/پروتکل/مکانیزم…">
+        <select id="otDir"><option value="">همهٔ جهت‌ها</option></select>
+        <select id="otZone"><option value="">همهٔ مناطق</option></select>
+      </div>
+      <div class="scroll" id="otTable"></div>
+    </div>
+  </section>
+
   <!-- Roadmap -->
   <section id="sec-road">
     <div class="card">
@@ -260,7 +302,7 @@
 <footer>
   منبع داده: <code>data/integration_matrix.csv</code>، <code>data/kpi_catalog.csv</code>،
   <code>data/alarm_catalog.csv</code>، <code>data/event_catalog.csv</code>،
-  <code>data/risk_register.csv</code>، <code>data/open_questions.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
+  <code>data/risk_register.csv</code>، <code>data/open_questions.csv</code>، <code>data/benefit_model.csv</code>، <code>data/financial_model.csv</code>، <code>data/ot_zones.csv</code>، <code>data/ot_conduits.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
   مستندات تحلیلی در پوشهٔ <code>docs/</code>.
 </footer>
 
@@ -304,13 +346,15 @@ async function load(f){ const r=await fetch("../data/"+f); if(!r.ok) throw new E
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- boot ---------- */
-let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[];
+let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[], FIN=[], OZ=[], OC=[];
 (async ()=>{
   try{
-    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ] = await Promise.all([
+    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC] = await Promise.all([
       load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
       load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),
-      load("risk_register.csv"),load("open_questions.csv")
+      load("risk_register.csv"),load("open_questions.csv"),
+      load("benefit_model.csv"),load("financial_model.csv"),
+      load("ot_zones.csv"),load("ot_conduits.csv")
     ]);
   }catch(e){
     document.getElementById("loadErr").innerHTML =
@@ -350,6 +394,8 @@ function renderKpis(){
     ["رویداد یکپارچه‌سازی",EV.length,"با کلیدِ باید و سیاستِ خطا"],
     ["ریسک ثبت‌شده",RK.filter(r=>r.band==="بحرانی"||r.band==="بالا").length,"بحرانی یا بالا از "+RK.length],
     ["پرسشِ بلوکه‌کننده",QQ.filter(x=>x.priority==="بلوکه\u200cکننده").length,"از "+QQ.length+" پرسشِ باز"],
+    ["منفعتِ سالانه (پایه)",(BEN.reduce((a,b)=>a+(parseFloat(b.saving_low_musd)+parseFloat(b.saving_high_musd))/2,0)).toFixed(1),"میلیون دلار در سطح کامل"],
+    ["کانالِ امنِ OT",OC.length,"مسیر مجاز؛ بقیه مسدود"],
     ["موجودیت داده پایه",MDM.length,"با مالک مشخص"],
     ["بستهٔ کاری",ROAD.length,"در ۷ فاز"],
     ["مدت پروژه",maxW+" هفته","≈ "+Math.round(maxW/4.33)+" ماه"],
@@ -560,6 +606,112 @@ function drawQuestions(){
      (بلوکه‌کننده: ${QQ.filter(x=>x.priority==="بلوکه\u200cکننده").length})</p>`;
 }
 
+/* ---------- finance ---------- */
+const N = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+function renderFinance(){
+  const recLo=BEN.reduce((a,b)=>a+N(b.saving_low_musd),0), recHi=BEN.reduce((a,b)=>a+N(b.saving_high_musd),0);
+  const oneLo=BEN.reduce((a,b)=>a+N(b.oneoff_low_musd),0), oneHi=BEN.reduce((a,b)=>a+N(b.oneoff_high_musd),0);
+  const recMid=(recLo+recHi)/2, oneMid=(oneLo+oneHi)/2;
+
+  // جریان نقدی پایه
+  let cum=0; const rows=FIN.map(y=>{
+    const capex=(N(y.capex_low_musd)+N(y.capex_high_musd))/2;
+    const opex=(N(y.opex_low_musd)+N(y.opex_high_musd))/2;
+    const gross=recMid*(N(y.benefit_ramp_pct)/100);
+    const extra=(y.year==="2")?oneMid:0;
+    const net=gross+extra-opex-capex; cum+=net;
+    return {y:y.year,label:y.label,capex,opex,gross,extra,net,cum,milestone:y.milestone};
+  });
+  const maxAbs=Math.max(...rows.map(r=>Math.abs(r.net)));
+  const scale=v=>Math.round(Math.abs(v)/maxAbs*34);
+
+  // نمودار میله‌ای با محورِ مرکزی (چپ = خروج نقد، راست = ورود نقد)
+  const W=48, C=24, MAXB=20;
+  const bar = v => {
+    const w = Math.max(1, Math.round(Math.abs(v) / maxAbs * MAXB));
+    return v < 0
+      ? " ".repeat(C - w) + "█".repeat(w) + "│"
+      : " ".repeat(C) + "│" + "█".repeat(w);
+  };
+  let chart = " " .repeat(6) + "خروج نقد ◄" + " ".repeat(C - 12) + "│" +
+              " ".repeat(W - C - 8) + "► ورود نقد\n";
+  rows.forEach(r => {
+    chart += `سال ${r.y}  ${bar(r.net).padEnd(W)}  ${r.net >= 0 ? "+" : ""}${r.net.toFixed(2)}\n`;
+  });
+  chart += " " .repeat(6) + "─".repeat(W) + "\n";
+  chart += " " .repeat(6) + `تجمعی پایان سال ۵: ${rows[rows.length - 1].cum >= 0 ? "+" : ""}` +
+           `${rows[rows.length - 1].cum.toFixed(2)} میلیون دلار`;
+  document.getElementById("finChart").textContent = chart;
+
+  document.getElementById("finTable").innerHTML =
+    `<table><thead><tr><th>سال</th><th>سرمایه</th><th>منفعت ناخالص</th><th>آزادسازی نقد</th>
+     <th>هزینه جاری</th><th>خالص سالانه</th><th>تجمعی</th><th>نقطهٔ عطف</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.y)}</b></td><td>${r.capex.toFixed(2)}</td><td>${r.gross.toFixed(2)}</td>
+      <td>${r.extra?r.extra.toFixed(2):"—"}</td><td>${r.opex.toFixed(2)}</td>
+      <td><span class="pill p-${r.net<0?"crit":"low"}">${r.net.toFixed(2)}</span></td>
+      <td><b>${r.cum.toFixed(2)}</b></td><td>${esc(r.milestone)}</td></tr>`).join("") + "</tbody></table>";
+
+  const midTotal=BEN.reduce((a,b)=>a+(N(b.saving_low_musd)+N(b.saving_high_musd))/2,0);
+  document.getElementById("finLevers").innerHTML =
+    `<table><thead><tr><th>#</th><th>محرک</th><th>شاخص</th><th>از</th><th>به</th>
+     <th>منفعت سالانه</th><th>وزن</th><th>اطمینان</th><th>از فاز</th></tr></thead><tbody>` +
+    BEN.slice().sort((a,b)=>((N(b.saving_low_musd)+N(b.saving_high_musd))/2)-((N(a.saving_low_musd)+N(a.saving_high_musd))/2))
+      .map(b=>{const mid=(N(b.saving_low_musd)+N(b.saving_high_musd))/2; const w=Math.round(mid/midTotal*20);
+        const cls=b.confidence==="بالا"?"low":b.confidence==="متوسط"?"minor":"major";
+        return `<tr><td><b>${esc(b.id)}</b></td><td>${esc(b.lever)}</td><td>${esc(b.driver_kpi)}</td>
+        <td>${esc(b.baseline)}</td><td>${esc(b.target)}</td>
+        <td>${esc(b.saving_low_musd)}–${esc(b.saving_high_musd)}</td>
+        <td dir="ltr" style="text-align:left">${"█".repeat(w)}${"·".repeat(20-w)} ${Math.round(mid/midTotal*100)}٪</td>
+        <td><span class="pill p-${cls}">${esc(b.confidence)}</span></td><td>${esc(b.starts_phase)}</td></tr>`;}).join("") +
+    `</tbody></table>`;
+
+  const capexTot=rows.reduce((a,r)=>a+r.capex,0);
+  document.getElementById("finSummary").innerHTML =
+    `<table><thead><tr><th>شاخص</th><th>بدبینانه</th><th>پایه</th><th>خوش‌بینانه</th></tr></thead><tbody>
+     <tr><td>منفعتِ تکرارشونده در سال (سطح کامل)</td><td>${recLo.toFixed(2)}</td><td><b>${recMid.toFixed(2)}</b></td><td>${recHi.toFixed(2)}</td></tr>
+     <tr><td>آزادسازیِ یک‌بارهٔ سرمایهٔ در گردش</td><td>${oneLo.toFixed(2)}</td><td><b>${oneMid.toFixed(2)}</b></td><td>${oneHi.toFixed(2)}</td></tr>
+     <tr><td>جمع سرمایه‌گذاری</td><td>—</td><td><b>${capexTot.toFixed(2)}</b></td><td>—</td></tr>
+     <tr><td>تجمعی در پایان سال ۵</td><td>—</td><td><b>${rows[rows.length-1].cum.toFixed(2)}</b></td><td>—</td></tr>
+     </tbody></table>
+     <p class="hint" style="margin-top:10px">همهٔ اعداد به میلیون دلار. قیمت‌ها [فرض] و در مستند ۲۵ مستند شده‌اند.</p>`;
+}
+
+/* ---------- OT security ---------- */
+function renderOt(){
+  document.getElementById("otZones").innerHTML =
+    `<table><thead><tr><th>منطقه</th><th>سطح پردو</th><th>نام</th><th>دارایی‌های اصلی</th>
+     <th>سطح هدف</th><th>چرا این سطح</th><th>کنترل‌های کلیدی</th></tr></thead><tbody>` +
+    OZ.map(z=>`<tr><td><b>${esc(z.zone)}</b></td><td>${esc(z.purdue)}</td><td>${esc(z.name)}</td>
+      <td>${esc(z.main_assets)}</td><td><span class="pill p-${z.sl_target==="SL-3"?"crit":z.sl_target==="SL-2"?"major":"minor"}">${esc(z.sl_target)}</span></td>
+      <td>${esc(z.rationale)}</td><td>${esc(z.key_controls)}</td></tr>`).join("") + "</tbody></table>";
+
+  const dirs=[...new Set(OC.map(c=>c.direction))];
+  const zs=[...new Set(OC.flatMap(c=>[c.from_zone,c.to_zone]))];
+  document.getElementById("otDir").innerHTML = '<option value="">همهٔ جهت‌ها</option>'+dirs.map(d=>`<option>${esc(d)}</option>`).join("");
+  document.getElementById("otZone").innerHTML = '<option value="">همهٔ مناطق</option>'+zs.map(z=>`<option>${esc(z)}</option>`).join("");
+  drawOt();
+}
+function drawOt(){
+  const q=(document.getElementById("otSearch").value||"").toLowerCase();
+  const d=document.getElementById("otDir").value, z=document.getElementById("otZone").value;
+  const rows=OC.filter(c=>{
+    if(d && c.direction!==d) return false;
+    if(z && c.from_zone!==z && c.to_zone!==z) return false;
+    if(q && !(c.service+c.protocol+c.control+c.notes+c.conduit).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("otTable").innerHTML =
+    `<table><thead><tr><th>کانال</th><th>مسیر</th><th>سرویس</th><th>پروتکل (پورت)</th><th>جهت</th>
+     <th>مکانیزم کنترل</th><th>احراز</th><th>مسدودسازی پیش‌فرض</th></tr></thead><tbody>` +
+    rows.map(c=>`<tr><td><b>${esc(c.conduit)}</b></td>
+      <td dir="ltr" style="text-align:left">${esc(c.from_zone)} → ${esc(c.to_zone)}</td>
+      <td>${esc(c.service)}</td><td dir="ltr" style="text-align:left;font-size:11px">${esc(c.protocol)} (${esc(c.port)})</td>
+      <td>${esc(c.direction)}</td><td>${esc(c.control)}</td><td>${esc(c.authentication)}</td>
+      <td>${c.denied_by_default==="بله"?'<span class="pill p-low">✅ بله</span>':'<span class="pill p-crit">❌ خیر</span>'}</td></tr>`).join("") +
+    `</tbody></table>
+     <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${OC.length} کانال</p>`;
+}
+
 /* ---------- roadmap ---------- */
 function renderRoad(){
   const phases=[...new Map(ROAD.map(r=>[r.phase,{p:r.phase,fa:r.phase_fa}])).values()];
@@ -650,6 +802,9 @@ function wire(){
   document.getElementById("evPii").addEventListener("change",drawEvents);
   document.getElementById("rkSearch").addEventListener("input",drawRisk);
   document.getElementById("rkBand").addEventListener("change",drawRisk);
+  document.getElementById("otSearch").addEventListener("input",drawOt);
+  document.getElementById("otDir").addEventListener("change",drawOt);
+  document.getElementById("otZone").addEventListener("change",drawOt);
   document.getElementById("qSearch").addEventListener("input",drawQuestions);
   document.getElementById("qPrio").addEventListener("change",drawQuestions);
   document.getElementById("qGroup").addEventListener("change",drawQuestions);

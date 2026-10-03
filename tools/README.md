@@ -39,12 +39,16 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | `build_catalogs.py` | `data/risk_register.csv` | `docs/12-risk-register.md` (امتیاز، نقشهٔ حرارتی ۵×۵، راهبرد کاهش) |
 | `build_catalogs.py` | `data/event_catalog.csv` | `docs/19-event-catalog.md` (قراردادهای عمومی، جدول رویدادها، سیاست‌های ویژه) |
 | `build_catalogs.py` | `data/open_questions.csv` | `docs/16-open-questions.md` + `docs/24-customer-questionnaire.md` |
+| `build_catalogs.py` | `data/benefit_model.csv` + `data/financial_model.csv` | `docs/25-financial-model.md` (محرک‌ها، جریان نقدی، NPV/IRR، حساسیت) |
+| `build_catalogs.py` | `data/ot_zones.csv` + `data/ot_conduits.csv` | `docs/26-ot-security-plan.md` (منطقه‌ها، کانال‌ها، قوانین امنیتی) |
+| `test_build.py` | همهٔ فایل‌های `data/` و `docs/` | ۲۰ تست یکپارچگی و کیفیت (بدون خروجی) |
 
 ## ویرایش ایمن
 
 1. فایل CSV مربوطه را ویرایش کنید (ستون‌ها را تغییر ندهید؛ مقادیر را اصلاح کنید).
 2. اسکریپت را اجرا کنید.
 3. خروجی را در `git diff` ببینید و همراه با تغییر CSV در یک کامیت قرار دهید.
+4. `python3 tools/test_build.py` را اجرا کنید تا یکپارچگیِ داده بررسی شود.
 
 > اگر نیاز به ستون جدید دارید، اسکریپت را هم به‌روز کنید — هرگز مستندِ تولید‌شده را دستی ویرایش نکنید.
 
@@ -60,3 +64,7 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | `risk_register.csv` | `score` باید برابر `probability × impact` باشد (اگر نباشد هشدار می‌گیرد)؛ سطح‌ها بر اساس امتیاز محاسبه می‌شوند |
 | `event_catalog.csv` | نام‌گذاریِ موضوع `حوزه.زیرحوزه.موجودیت`؛ `dlq` یکی از `never/critical/standard/buffered`؛ `pii` فقط `yes/no` |
 | `open_questions.csv` | `priority` یکی از «بلوکه‌کننده/مهم/قابل تأخیر»؛ `blocks` شامل فاز، شمارهٔ ADR و شناسهٔ ریسک است |
+| `benefit_model.csv` | مبالغ به «میلیون دلار در سال»؛ محرک‌های یک‌باره در ستون‌های `oneoff_*` جداگانه می‌آیند |
+| `financial_model.csv` | جمعِ ستون‌های سرمایه باید با بودجهٔ مصوب (۴.۹۶ / ۸.۴۲) برابر باشد؛ شیبِ منفعت صعودی و در سال آخر ۱۰۰ است |
+| `ot_zones.csv` | `sl_target` یکی از `SL-1/SL-2/SL-3`؛ هر منطقه باید کنترل‌های کلیدی داشته باشد |
+| `ot_conduits.csv` | مناطق باید از `ot_zones.csv` باشند؛ `denied_by_default` برای همهٔ کانال‌ها باید «بله» باشد |

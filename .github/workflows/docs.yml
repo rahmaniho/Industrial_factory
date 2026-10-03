@@ -1,0 +1,47 @@
+name: مستندات (Docs)
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: اعتبارسنجی و بازتولید
+    runs-on: ubuntu-latest
+    steps:
+      - name: دریافت کد
+        uses: actions/checkout@v4
+
+      - name: آماده‌سازی پایتون
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: بازتولید مستندات از CSV
+        run: |
+          python3 tools/build_integration_matrix.py
+          python3 tools/build_catalogs.py
+
+      - name: بررسیِ به‌روزبودنِ خروجی‌ها
+        run: |
+          if ! git diff --quiet -- docs/; then
+            echo "::error::مستنداتِ تولید‌شده با CSVها هم‌خوان نیستند."
+            echo "مولّد را اجرا و خروجی را همراه تغییر CSV کامیت کنید."
+            git --no-pager diff --stat -- docs/
+            exit 1
+          fi
+          echo "✓ مستندات با منابع داده هم‌خوان‌اند"
+
+      - name: اجرای تست‌ها
+        run: python3 tools/test_build.py
+
+      - name: آمار مخزن
+        run: |
+          echo "تعداد مستندات: $(ls docs/*.md | wc -l)"
+          echo "تعداد مستندات واحد: $(ls docs/03-units/*.md | wc -l)"
+          echo "ردیف‌های داده:"
+          for f in data/*.csv; do
+            echo "  $(basename "$f"): $(( $(wc -l < "$f") - 1 ))"
+          done
