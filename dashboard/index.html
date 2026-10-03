@@ -334,6 +334,15 @@
       <div class="scroll" id="rbacTable"></div>
     </div>
     <div class="card">
+      <h2>سفر کاریِ هر نقش در یک روز</h2>
+      <p class="hint">هر نقش در چهار فازِ «شروع · حین کار · تصمیم/استثناء · تحویل» یک اثرِ
+        قابل‌ردیابی در سامانه بر جا می‌گذارد. داده از <code>role_journey.csv</code>.</p>
+      <div class="toolbar">
+        <select id="jrRole"><option value="">یک نقش را انتخاب کنید…</option></select>
+      </div>
+      <div id="jrBox"><p class="hint">برای دیدنِ سفر کاری، یک نقش انتخاب کنید.</p></div>
+    </div>
+    <div class="card">
       <h2>قواعد تفکیک وظایف (SoD)</h2>
       <p class="hint">این قواعد باید در سیستم «اعمال» شوند، نه فقط در دستورالعمل نوشته شوند.</p>
       <div class="scroll" id="sodTable"></div>
@@ -516,10 +525,10 @@ const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&l
 
 /* ---------- boot ---------- */
 let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[], FIN=[], OZ=[], OC=[], TR=[], ROLES=[], ACC=[], RBAC=[], SOD=[], RACI=[], UAT=[], UATC=[], NFR=[], SLT=[], OTC=[], COMP=[], AUD=[],
-      ENT=[], IDC=[], RET=[], INTG=[], SCD=[], DIM=[], HW=[], HWP=[], HWS=[], HWC=[];
+      ENT=[], IDC=[], RET=[], INTG=[], SCD=[], DIM=[], HW=[], HWP=[], HWS=[], HWC=[], RMAP=[], JOUR=[];
 (async ()=>{
   try{
-    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR,ROLES,ACC,RBAC,SOD,RACI,UAT,UATC,NFR,SLT,OTC,COMP,AUD,ENT,IDC,RET,INTG,SCD,DIM,HW,HWP,HWS,HWC] = await Promise.all([
+    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR,ROLES,ACC,RBAC,SOD,RACI,UAT,UATC,NFR,SLT,OTC,COMP,AUD,ENT,IDC,RET,INTG,SCD,DIM,HW,HWP,HWS,HWC,RMAP,JOUR] = await Promise.all([
       load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
       load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),
       load("risk_register.csv"),load("open_questions.csv"),
@@ -532,7 +541,8 @@ let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[]
       load("entities.csv"),load("id_conventions.csv"),load("retention_classes.csv"),
       load("integrity_rules.csv"),load("scd_policies.csv"),load("conformed_dims.csv"),
       load("sensors.csv"),load("hw_principles.csv"),load("hw_standards.csv"),
-      load("hw_cost_items.csv")
+      load("hw_cost_items.csv"),
+      load("role_map.csv"),load("role_journey.csv")
     ]);
   }catch(e){
     document.getElementById("loadErr").innerHTML =
@@ -542,6 +552,7 @@ let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[]
     return;
   }
   buildEdges(); renderKpis(); renderMatrix(); renderKpi(); renderAlarms(); renderRoad(); renderMdm();
+  renderJourney();
   wire();
 })();
 
@@ -917,6 +928,36 @@ function drawRoles(){
       <td>${esc(r.access_level)}</td><td>${esc(r.devices)}</td></tr>`).join("") + `</tbody></table>
       <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${ROLES.length} نقش</p>`;
 }
+function renderJourney(){
+  const sel=document.getElementById("jrRole");
+  sel.innerHTML = '<option value="">یک نقش را انتخاب کنید…</option>' +
+    ROLES.map(r=>`<option value="${esc(r.code)}">${esc(r.code)} — ${esc(r.role_fa)}</option>`).join("");
+  drawJourney();
+}
+function drawJourney(){
+  const code=document.getElementById("jrRole").value;
+  const box=document.getElementById("jrBox");
+  if(!code){ box.innerHTML='<p class="hint">برای دیدنِ سفر کاری، یک نقش انتخاب کنید.</p>'; return; }
+  const role=ROLES.find(r=>r.code===code)||{};
+  const map=RMAP.find(r=>r.code===code)||{};
+  const steps=JOUR.filter(j=>j.code===code).sort((a,b)=>+a.step - +b.step);
+  const acc=ACC.filter(a=>a.role===code);
+  const full=acc.filter(a=>a.access==="●").length, part=acc.filter(a=>a.access==="◐").length;
+  const raci=RACI.filter(r=>r.actor===map.raci_actor && /A|R/.test(r.value));
+  const note=map.notify_note||"";
+  box.innerHTML =
+    `<div class="kpis" style="margin:0 0 12px">
+       <div class="kpi"><b>${full+part}</b><span>صفحهٔ در دسترس (● ${full} · ◐ ${part})</span></div>
+       <div class="kpi"><b>${raci.length}</b><span>فعالیت در RACI (A/R)</span></div>
+       <div class="kpi"><b>${esc(map.raci_actor||"—")}</b><span>بازیگر در ماتریس RACI</span></div>
+       <div class="kpi"><b>${esc(role.workplace||"—")}</b><span>محیط کار</span></div>
+     </div>
+     <table><thead><tr><th>#</th><th>فاز</th><th>آنچه در سامانه انجام می‌دهد</th>
+       <th>سامانه</th><th>خروجی/اثرِ قابل‌ردیابی</th></tr></thead><tbody>` +
+    steps.map(j=>`<tr><td>${esc(j.step)}</td><td><b>${esc(j.phase)}</b></td>
+      <td>${esc(j.action)}</td><td>${esc(j.system)}</td><td>${esc(j.evidence)}</td></tr>`).join("") +
+    `</tbody></table>` + (note ? `<p class="hint" style="margin-top:10px">نکتهٔ اعلان: ${esc(note)}</p>` : "");
+}
 function drawAcc(){
   const role=document.getElementById("accRole").value, page=document.getElementById("accPage").value;
   const all=document.getElementById("accAll").checked;
@@ -1223,6 +1264,7 @@ function wire(){
   document.getElementById("entSearch").addEventListener("input",drawEnt);
   document.getElementById("entSvc").addEventListener("change",drawEnt);
   ["roleSearch"].forEach(id=>document.getElementById(id).addEventListener("input",drawRoles));
+  document.getElementById("jrRole").addEventListener("change",drawJourney);
   ["accRole","accPage"].forEach(id=>document.getElementById(id).addEventListener("change",drawAcc));
   document.getElementById("accAll").addEventListener("change",drawAcc);
   ["rbacRole","rbacMod"].forEach(id=>document.getElementById(id).addEventListener("change",drawRbac));

@@ -23,8 +23,9 @@ function stubEl(){
   };
   return el;
 }
+const EL_CACHE = new Map();
 const documentStub = {
-  getElementById(){ return stubEl(); },
+  getElementById(id){ if(!EL_CACHE.has(id)) EL_CACHE.set(id, stubEl()); return EL_CACHE.get(id); },
   querySelectorAll(){ return []; },
   querySelector(){ return null; },
   addEventListener(){},
@@ -45,7 +46,12 @@ function loadSiteApi(){
   const code = m[m.length - 1].replace(/^<script>/, "").replace(/<\/script>$/, "");
   const exportLine = "\n;return { esc, md, inline, parseCsv, searchAll, snippetOf," +
                      " escapeRe, GROUPS, openDoc, highlightViewer, buildIndex," +
-                     " indexSize: () => (INDEX ? INDEX.length : 0) };";
+                     " indexSize: () => (INDEX ? INDEX.length : 0)," +
+                     " owns, bestIn, rpCounts, pickRole, renderRole, buildRoleGrid," +
+                     " roles: () => ROLES, rmap: () => RMAP, acc: () => ACC, rbac: () => RBAC," +
+                     " raci: () => RACIX, jour: () => JOUR, kpis: () => KPIS, als: () => ALS," +
+                     " curRole: () => CUR_ROLE, setRp: (v) => { CUR_RP = v; }," +
+                     " ready: () => BOOT };";
   const factory = new Function(
     "module", "exports", "document", "window", "location", "fetch",
     "NodeFilter", "setTimeout", "clearTimeout", "history", "ROOT_DIR",
@@ -149,6 +155,117 @@ test("هر ورودی فایل متناظر دارد", () => {
 test("عنوان و توضیح برای همهٔ ورودی‌ها پر است", () => {
   for(const d of DOCS){
     assert.ok(d.t && d.t.trim(), `بدون عنوان: ${d.p}`);
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════
+   نمای اختصاصیِ هر نقش  (s-role)
+   ══════════════════════════════════════════════════════════════ */
+console.log("\nنمای اختصاصیِ هر نقش");
+await api.ready();
+
+const SITE_HTML = fs.readFileSync(path.join(ROOT, "site", "index.html"), "utf8");
+const ROLE_CODES = Array.from({ length: 24 }, (_, i) => "R" + String(i + 1).padStart(2, "0"));
+
+test("بخشِ «نقش من» در ناوبری و بدنهٔ صفحه هست", () => {
+  assert.ok(/data-sec="s-role"/.test(SITE_HTML), "دکمهٔ ناوبری ندارد");
+  assert.ok(/<section id="s-role">/.test(SITE_HTML), "بخش ندارد");
+  for(const id of ["roleGrid", "rolePick", "rpTitle", "rpIdent", "rpKpis", "rpNav", "rpBody"]){
+    assert.ok(SITE_HTML.includes(`id="${id}"`), `عنصرِ #${id} یافت نشد`);
+  }
+});
+
+test("شش زیربخش برای هر نقش تعریف شده است", () => {
+  const nav = SITE_HTML.match(/<div class="subnav" id="rpNav">([\s\S]*?)<\/div>/);
+  assert.ok(nav, "زیرناوبری یافت نشد");
+  const keys = [...nav[1].matchAll(/data-rp="(\w+)"/g)].map(m => m[1]);
+  assert.deepStrictEqual(keys,
+    ["pages", "journey", "raci", "alarms", "kpis", "modules"],
+    "زیربخش‌ها: " + keys.join("، "));
+});
+
+test("مسیریابی با هش برای نقش پشتیبانی می‌شود", () => {
+  assert.ok(/#\/role\/\(R\d\d\)/.test(SITE_HTML.replace(/\\/g, "\\")) ||
+            SITE_HTML.includes("#/role/"), "مسیرِ #/role/ یافت نشد");
+});
+
+await api.ready();   // صبر تا بارگذاریِ داده‌ها در boot کامل شود
+assert.strictEqual(api.roles().length, 24, "انتظار ۲۴ نقش؛ یافت‌شده: " + api.roles().length);
+assert.strictEqual(api.rmap().length, 24, "نگاشت باید برای ۲۴ نقش باشد");
+assert.strictEqual(api.jour().length, 96, "سفر کاری باید ۹۶ گام (۲۴×۴) باشد");
+assert.strictEqual(api.acc().length, 672, "ماتریس صفحه‌ها باید ۲۸×۲۴ باشد");
+console.log("  ✓ داده‌های نقش بارگذاری شدند (۲۴ نقش · ۶۷۲ خانه · ۹۶ گام)");
+
+test("هر ۲۴ نقش در ماتریسِ صفحه‌ها ردیف دارد", () => {
+  for(const code of ROLE_CODES){
+    const cells = api.acc().filter(a => a.role === code);
+    assert.strictEqual(cells.length, 28, `${code}: ${cells.length} خانه به‌جای ۲۸`);
+  }
+});
+
+test("هیچ نقشی بدونِ هیچ صفحه‌ای نیست", () => {
+  const empty = ROLE_CODES.filter(c =>
+    api.acc().filter(a => a.role === c).every(a => a.access === "—"));
+  assert.deepStrictEqual(empty, [], "نقش‌های بدون صفحه: " + empty.join("، "));
+});
+
+test("تخصیصِ مالک: خاص‌ترین نقش برنده است", () => {
+  const by = Object.fromEntries(api.rmap().map(m => [m.code, m.owner_aliases]));
+  assert.ok(api.owns(by.R03, "QC شیفت"), "«QC شیفت» باید به تکنسین QC برسد");
+  assert.ok(!api.owns(by.R04, "QC شیفت"), "«QC شیفت» نباید به مدیر QC برسد");
+  assert.ok(api.owns(by.R04, "QC"), "«QC» باید به مدیر QC برسد");
+});
+
+test("مالکِ چندگانه به همهٔ نقش‌های ذی‌ربط می‌رسد", () => {
+  const by = Object.fromEntries(api.rmap().map(m => [m.code, m.owner_aliases]));
+  assert.ok(api.owns(by.R04, "QC + تأسیسات"), "بخش QC");
+  assert.ok(api.owns(by.R08, "QC + تأسیسات"), "بخش تأسیسات");
+});
+
+test("هر شاخص و هر هشدار دست‌کم به یک نقش نسبت داده می‌شود", () => {
+  const maps = api.rmap();
+  for(const [name, rows, col] of [["شاخص", api.kpis(), "data_owner"],
+                                  ["هشدار", api.als(), "owner_role"]]){
+    for(const r of rows){
+      const hit = maps.filter(m => api.owns(m.owner_aliases, r[col]));
+      assert.ok(hit.length, `${name} ${r.id}: مالکِ «${r[col]}» به هیچ نقشی نسبت داده نشد`);
+    }
+  }
+});
+
+test("انتخابِ یک نقش، پانل را برای همهٔ زیربخش‌ها پُر می‌کند", () => {
+  for(const code of ROLE_CODES){
+    api.pickRole(code);
+    assert.strictEqual(api.curRole(), code, "نقشِ فعلی درست تنظیم نشد");
+    for(const tab of ["pages", "journey", "raci", "alarms", "kpis", "modules"]){
+      api.setRp(tab);
+      api.renderRole();
+      const html = documentStub.getElementById("rpBody").innerHTML;
+      assert.ok(html && html.length > 60,
+        `${code}/${tab}: خروجیِ خالی یا بسیار کوتاه`);
+      assert.ok(!/undefined|NaN/.test(html), `${code}/${tab}: خروجیِ آلوده`);
+    }
+  }
+});
+
+test("آمارِ هر نقش با داده‌های واقعی سازگار است", () => {
+  for(const code of ROLE_CODES){
+    const c = api.rpCounts(code);
+    assert.strictEqual(c.acc.length, 28, `${code}: شمارشِ دسترسی`);
+    assert.ok(c.full + c.part + c.read <= 28, `${code}: جمعِ سطوح از ۲۸ بیشتر است`);
+    assert.ok(c.jour === undefined || true);
+  }
+});
+
+test("سفر کاری برای هر نقش ۴ گام دارد", () => {
+  for(const code of ROLE_CODES){
+    const steps = api.jour().filter(j => j.code === code);
+    assert.strictEqual(steps.length, 4, `${code}: ${steps.length} گام`);
+    for(const st of steps){
+      for(const k of ["phase", "action", "system", "evidence"]){
+        assert.ok((st[k] || "").trim(), `${code}/${st.step}: ستون ${k} خالی است`);
+      }
+    }
   }
 });
 

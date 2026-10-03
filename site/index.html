@@ -64,6 +64,32 @@
   .p-low{color:var(--muted);border-color:var(--line);background:#1a1e26}
   .p-ok{color:var(--ok);border-color:#205c43;background:#142a22}
 
+  /* ── نمای نقش ── */
+  .rolegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:10px}
+  .rolecard{background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+            padding:10px 12px;cursor:pointer;transition:.15s;text-align:right}
+  .rolecard:hover{border-color:#3a4150;transform:translateY(-2px)}
+  .rolecard.on{border-color:var(--accent);background:#1b2942;box-shadow:0 0 0 1px var(--accent) inset}
+  .rolecard b{display:block;font-size:12.5px;color:#fff;line-height:1.6}
+  .rolecard span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+  .rolecard em{font-style:normal;color:var(--accent);font-size:11px}
+  .subnav{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 14px;
+          border-bottom:1px solid var(--line);padding-bottom:12px}
+  .subnav button{background:var(--panel2);color:var(--muted);border:1px solid var(--line);
+    border-radius:8px;padding:6px 13px;cursor:pointer;font-family:inherit;font-size:12.5px}
+  .subnav button:hover{color:var(--txt)}
+  .subnav button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .scrollbox{max-height:44vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
+  .scrollbox table{font-size:12px}
+  .ident{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin-bottom:4px}
+  .ident div{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px}
+  .ident label{display:block;color:var(--muted);font-size:11px;margin-bottom:3px}
+  .ident b{font-size:12.5px;color:#fff;font-weight:600}
+  .note{background:#221d14;border:1px solid #4a3c1c;border-radius:9px;padding:10px 13px;
+        color:#ffd08a;font-size:12.5px;margin-top:12px}
+  .sym{font-size:15px;line-height:1}
+  .sym-3{color:#7fe3ae}.sym-2{color:#ffc96b}.sym-1{color:#7fd8ff}.sym-0{color:#3d4553}
+
   /* ── مرور اسناد ── */
   .docwrap{display:grid;grid-template-columns:300px 1fr;gap:16px}
   @media(max-width:900px){.docwrap{grid-template-columns:1fr}}
@@ -119,7 +145,8 @@
 
 <nav>
   <button data-sec="s-home" class="active">نمای کلی</button>
-  <button data-sec="s-docs">مرور اسناد</button>
+  <button data-sec="s-role">نقش من</button>
+    <button data-sec="s-docs">مرور اسناد</button>
   <button data-sec="s-dash">داشبورد زنده</button>
   <button data-sec="s-how">چگونه استفاده کنیم</button>
   <span class="spacer"></span>
@@ -152,6 +179,12 @@
       <div class="tile"><b>مالی و امنیت</b><p>۱۰ محرک ارزش با مبنای محاسبه، جریان نقدی ۵ ساله،
         و ۹ منطقهٔ امنیتی با ۱۸ کانالِ مجاز بر اساس IEC 62443.</p>
         <span class="go" data-go="docs/25-financial-model.md">مدل مالی ←</span></div>
+      <div class="tile"><b>نمای هر نقش</b><p>۲۴ نقش تعریف‌شده؛ برای هر کدام دقیقاً همان
+        صفحه‌ها، هشدارها، شاخص‌ها و مسئولیت‌هایی که در سامانه دارد.</p>
+        <span class="go" data-go="@role">«من چه می‌بینم؟» ←</span></div>
+      <div class="tile"><b>سفر کاریِ هر نقش</b><p>هر نقش در چهار فازِ روز کاری یک اثرِ
+        قابل‌ردیابی بر جا می‌گذارد؛ اگر اثری نباشد، گام قابل اندازه‌گیری نیست.</p>
+        <span class="go" data-go="docs/07-ui-forms-by-role.md">سفر کاری ←</span></div>
     </div>
   </div>
 
@@ -176,6 +209,38 @@
     <h2>نقشهٔ اسناد</h2>
     <p class="hint">۴۰ مستند، در شش گروه موضوعی. روی هر مورد بزنید تا در همین صفحه باز شود.</p>
     <div id="docmap"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ نقش من ══════════════════════════ -->
+<section id="s-role">
+  <div class="card">
+    <h2>من با این نقش چه می‌بینم؟</h2>
+    <p class="hint">یکی از ۲۴ نقش را انتخاب کنید تا دقیقاً همان چیزی را ببینید که آن نقش در سامانه
+      می‌بیند: صفحه‌هایی که باز می‌کند، کاری که در هر فاز انجام می‌دهد، چیزی که در ماتریس RACI
+      بر عهده دارد، هشدارهایی که به او می‌رسد و شاخص‌هایی که مالک آن‌هاست.
+      همهٔ این‌ها مستقیماً از <code>data/*.csv</code> خوانده می‌شود.</p>
+    <div class="toolbar" style="display:flex;gap:8px;margin-bottom:14px">
+      <input id="rolePick" placeholder="جست‌وجو در نقش‌ها (نام، محیط کار، ابزار)…"
+        style="flex:1;min-width:200px;background:var(--panel2);border:1px solid var(--line);
+        color:var(--txt);border-radius:8px;padding:8px 11px;font-family:inherit">
+    </div>
+    <div class="rolegrid" id="roleGrid"></div>
+  </div>
+  <div class="card" id="rolePanel" style="display:none">
+    <h2 id="rpTitle"></h2>
+    <p class="hint" id="rpSub"></p>
+    <div class="ident" id="rpIdent"></div>
+    <div class="kpis" id="rpKpis" style="margin-top:14px"></div>
+    <div class="subnav" id="rpNav">
+      <button data-rp="pages" class="on">صفحه‌های من</button>
+      <button data-rp="journey">کاری که می‌کنم</button>
+      <button data-rp="raci">مسئولیت‌های من</button>
+      <button data-rp="alarms">هشدارهای من</button>
+      <button data-rp="kpis">شاخص‌های من</button>
+      <button data-rp="modules">دسترسی به ماژول‌ها</button>
+    </div>
+    <div id="rpBody"></div>
   </div>
 </section>
 
@@ -211,6 +276,11 @@
 <section id="s-how">
   <div class="card">
     <h2>این مخزن چگونه کار می‌کند؟</h2>
+    <div class="note" style="margin-bottom:16px">
+      <b>اگر فقط پنج دقیقه وقت دارید:</b> به بخشِ <a href="#/role/R01"
+      onclick="show('s-role');pickRole('R01');return false">«نقش من»</a> بروید و یک نقش را انتخاب کنید.
+      آن‌جا می‌بینید این طرح برای آن فرد، در آن لحظه، چه معنایی دارد.
+    </div>
     <p class="hint">فلسفهٔ این مجموعه: داده در CSV، مستند به‌صورت تولیدی، و داشبورد نمای زندهٔ همان داده.</p>
     <table>
       <thead><tr><th>لایه</th><th>نقش</th><th>قاعده</th></tr></thead>
@@ -359,8 +429,9 @@ function parseCsv(text){
 }
 
 async function csv(name){
-  const r = await fetch(ROOT + "data/" + name);
-  if(!r.ok) throw new Error(name + " → " + r.status);
+  const file = name.endsWith(".csv") ? name : name + ".csv";
+  const r = await fetch(ROOT + "data/" + file);
+  if(!r.ok) throw new Error(file + " → " + r.status);
   const rows = parseCsv(await r.text());
   const head = rows[0].map(h => h.trim());
   return rows.slice(1).map(r => {
@@ -599,8 +670,223 @@ document.querySelectorAll("nav button[data-sec]").forEach(b =>
 document.getElementById("btnGithub").addEventListener("click", () => window.open(REPO_URL,"_blank"));
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-go]");
-  if(t) openDoc(t.dataset.go);
+  if(!t) return;
+  if(t.dataset.go === "@role"){ show("s-role"); return; }
+  openDoc(t.dataset.go);
 });
+
+/* ═════════════════ نمای اختصاصیِ هر نقش ═════════════════ */
+let ROLES=[], ACC=[], RBAC=[], RACIX=[], RMAP=[], JOUR=[], KPIS=[], ALS=[];
+let CUR_ROLE = "", CUR_RP = "pages";
+
+const SYM = {"●":["sym-3","ایجاد/ویرایش"], "◐":["sym-2","ویرایش محدود/تأیید"],
+             "○":["sym-1","فقط خواندن"], "—":["sym-0","بدون دسترسی"]};
+const RACI_FA = {"A":"پاسخ‌گو (Accountable)", "R":"مجری (Responsible)",
+                 "C":"مشورت‌شونده", "I":"مطلع"};
+
+/* مالکِ یک ردیف می‌تواند چندگانه باشد («QC + سرپرست انبار»)؛ بنابراین روی
+   بخش‌های جدا‌شده با + تطبیق می‌دهیم. برای این‌که هشدارِ «QC شیفت» به مدیرِ QC
+   نرود، ردیف به نقشی نسبت داده می‌شود که **خاص‌ترین** نامِ مستعار را دارد
+   (تطبیقِ بلندتر برنده است) و در صورت تساوی به هر دو. */
+function bestIn(aliases, part){
+  let best = 0;
+  for(const a of (aliases||"").split("|")) if(a && part.includes(a)) best = Math.max(best, a.length);
+  return best;
+}
+function owns(aliases, field){
+  /* هر «بخشِ» مالک به خاص‌ترین نقشی که آن را پوشش می‌دهد نسبت داده می‌شود؛
+     بنابراین یک ردیف با مالکِ چندگانه به همهٔ نقش‌هایِ ذی‌ربط می‌رسد. */
+  for(const raw of (field||"").split("+")){
+    const q = raw.trim(); if(!q) continue;
+    const mine = bestIn(aliases, q);
+    if(mine && RMAP.every(m => bestIn(m.owner_aliases, q) <= mine)) return true;
+  }
+  return false;
+}
+function rpCounts(code){
+  const acc = ACC.filter(a => a.role === code);
+  const map = RMAP.find(r => r.code === code) || {};
+  const raci = RACIX.filter(r => r.actor === map.raci_actor && /[AR]/.test(r.value || ""));
+  const al = ALS.filter(a => owns(map.owner_aliases, a.owner_role || ""));
+  const kp = KPIS.filter(k => owns(map.owner_aliases, k.data_owner || ""));
+  const mod = RBAC.filter(r => r.role.startsWith(code) && !/^—$/.test(r.access || ""));
+  return {acc, full: acc.filter(a=>a.access==="●").length,
+          part: acc.filter(a=>a.access==="◐").length,
+          read: acc.filter(a=>a.access==="○").length,
+          raci, al, kp, mod,
+          a: raci.filter(r=>/A/.test(r.value||"")).length};
+}
+function buildRoleGrid(filter){
+  const g = document.getElementById("roleGrid");
+  const q = (filter||"").toLowerCase();
+  const rows = ROLES.filter(r => !q ||
+    (r.code + " " + r.role_fa + " " + r.workplace + " " + r.devices).toLowerCase().includes(q));
+  g.innerHTML = rows.map(r => {
+    const c = rpCounts(r.code);
+    return `<div class="rolecard ${r.code===CUR_ROLE?"on":""}" data-code="${esc(r.code)}">
+      <b>${esc(r.code)} · ${esc(r.role_fa)}</b>
+      <span>${esc(r.workplace)}</span>
+      <em>${c.full + c.part} صفحه · ${c.al.length} هشدار</em></div>`;
+  }).join("") || '<p class="hint">نتیجه‌ای یافت نشد</p>';
+  g.querySelectorAll(".rolecard").forEach(el =>
+    el.addEventListener("click", () => pickRole(el.dataset.code)));
+}
+function pickRole(code){
+  CUR_ROLE = code; CUR_RP = "pages";
+  document.getElementById("rolePanel").style.display = "";
+  document.querySelectorAll("#rpNav button").forEach(b =>
+    b.classList.toggle("on", b.dataset.rp === CUR_RP));
+  buildRoleGrid(document.getElementById("rolePick").value.trim().toLowerCase());
+  renderRole();
+  if(location.hash !== "#/role/" + code) history.replaceState(null, "", "#/role/" + code);
+  const panel = document.getElementById("rolePanel");
+  if(panel) panel.scrollIntoView({behavior:"smooth", block:"start"});
+}
+function renderRole(){
+  const code = CUR_ROLE; if(!code) return;
+  const role = ROLES.find(r => r.code === code) || {};
+  const map  = RMAP.find(r => r.code === code) || {};
+  const c    = rpCounts(code);
+
+  document.getElementById("rpTitle").textContent = `${code} — ${role.role_fa || ""}`;
+  document.getElementById("rpSub").textContent =
+    `این نمای کاملِ همان چیزی است که «${role.role_fa || code}» در سامانه می‌بیند و انجام می‌دهد.`;
+
+  document.getElementById("rpIdent").innerHTML = [
+    ["محیط کار", role.workplace], ["سطح دسترسیِ پیش‌فرض", role.access_level],
+    ["ابزار", role.devices], ["بازیگر در ماتریس RACI", map.raci_actor]
+  ].map(([k,v]) => `<div><label>${esc(k)}</label><b>${esc(v || "—")}</b></div>`).join("");
+
+  document.getElementById("rpKpis").innerHTML = [
+    [c.full, "صفحه با دسترسیِ کامل (●)"], [c.part, "صفحه با دسترسیِ محدود (◐)"],
+    [c.mod.length, "ماژولِ دارای مجوز"], [c.a, "فعالیت که پاسخ‌گوی آن است (A)"],
+    [c.al.length, "هشدارِ ارجاعی"], [c.kp.length, "شاخص در مالکیت او"]
+  ].map(t => `<div class="kpi"><b>${t[0]}</b><span>${t[1]}</span></div>`).join("");
+
+  const box = document.getElementById("rpBody");
+  const jour = JOUR.filter(j => j.code === code).sort((a,b) => (+a.step) - (+b.step));
+
+  if(CUR_RP === "pages"){
+    const rows = c.acc.filter(a => a.access !== "—")
+      .sort((a,b) => (SYM[b.access]?1:0) - 0);
+    const order = {"●":0,"◐":1,"○":2};
+    rows.sort((a,b) => (order[a.access]??9) - (order[b.access]??9));
+    box.innerHTML = rows.length
+      ? `<div class="scrollbox"><table><thead><tr><th style="width:52px">سطح</th>
+           <th>صفحه / فرم</th><th style="width:190px">معنای دسترسی</th></tr></thead><tbody>` +
+        rows.map(a => `<tr><td class="sym ${SYM[a.access][0]}">${esc(a.access)}</td>
+          <td>${esc(a.page)}</td><td>${esc(SYM[a.access][1])}</td></tr>`).join("") +
+        `</tbody></table></div>
+         <p class="hint" style="margin-top:10px">${rows.length} صفحه از ۲۸ صفحهٔ سامانه برای این نقش باز است.</p>`
+      : '<p class="hint">این نقش به هیچ صفحه‌ای از ماتریس دسترسی ندارد (دسترسیِ آن از طریق پورتال یا کنسولِ جداگانه است).</p>';
+
+  }else if(CUR_RP === "journey"){
+    box.innerHTML = `<div class="scrollbox"><table><thead><tr><th style="width:44px">#</th>
+        <th style="width:130px">فاز</th><th>آنچه در سامانه انجام می‌دهد</th>
+        <th style="width:170px">سامانه</th><th style="width:260px">خروجی/اثرِ قابل‌ردیابی</th>
+      </tr></thead><tbody>` +
+      jour.map(j => `<tr><td>${esc(j.step)}</td><td><b>${esc(j.phase)}</b></td>
+        <td>${esc(j.action)}</td><td>${esc(j.system)}</td><td>${esc(j.evidence)}</td></tr>`).join("") +
+      `</tbody></table></div>` +
+      (map.notify_note ? `<div class="note">نکتهٔ اعلان: ${esc(map.notify_note)}</div>` : "");
+
+  }else if(CUR_RP === "raci"){
+    const order = {"A":0,"R":1,"C":2,"I":3};
+    const rows = c.raci.slice().sort((a,b) => {
+      const av = (a.value||"").replace(/\*/g,""), bv = (b.value||"").replace(/\*/g,"");
+      return (order[av[0]] ?? 9) - (order[bv[0]] ?? 9);
+    });
+    box.innerHTML = rows.length
+      ? `<div class="scrollbox"><table><thead><tr><th style="width:44px">#</th>
+           <th>فعالیت / تصمیم</th><th style="width:180px">نقشِ این فرد</th></tr></thead><tbody>` +
+        rows.map(r => `<tr><td>${esc(r.activity_id)}</td><td>${esc(r.activity)}</td>
+          <td><span class="pill ${/A/.test(r.value)?"p-crit":"p-ok"}">${esc(r.value)}</span>
+          <br><span style="color:var(--muted);font-size:11px">${esc(RACI_FA[(r.value||"").replace(/\*/g,"")] || "")}</span></td></tr>`).join("") +
+        `</tbody></table></div>
+         <p class="hint" style="margin-top:10px">این نقش در ${c.a} فعالیت «پاسخ‌گو» (A) و
+         در مجموع در ${rows.length} فعالیت از ۲۵ فعالیتِ کلیدی درگیر است
+         (بازیگرِ معادل در ماتریس: <code>${esc(map.raci_actor||"")}</code>).</p>`
+      : '<p class="hint">این نقش در ماتریس RACI نقشی ندارد.</p>';
+
+  }else if(CUR_RP === "alarms"){
+    const sev = {"Critical":"p-crit","Major":"p-major","Minor":"p-low","Warning":"p-ok"};
+    box.innerHTML = c.al.length
+      ? `<div class="scrollbox"><table><thead><tr><th style="width:56px">کد</th>
+           <th>هشدار</th><th style="width:100px">سطح</th><th style="width:110px">زمان پاسخ</th>
+           <th style="width:230px">اقدام خودکار</th></tr></thead><tbody>` +
+        c.al.map(a => `<tr><td>${esc(a.id)}</td><td>${esc(a.alarm_fa)}</td>
+          <td><span class="pill ${sev[a.severity]||"p-low"}">${esc(a.severity)}</span></td>
+          <td>${esc(a.response_sla)}</td><td>${esc(a.auto_action)}</td></tr>`).join("") +
+        `</tbody></table></div>
+         <p class="hint" style="margin-top:10px">${c.al.length} هشدار از ۱۰۵ هشدارِ تعریف‌شده
+         به این نقش ارجاع می‌شود.</p>`
+      : `<p class="hint">هیچ هشداری مستقیماً به این نقش ارجاع نمی‌شود.
+          این یک تصمیمِ طراحی است، نه یک خلأ: اعلانِ عملیاتی به سرپرستِ مربوط می‌رود تا
+          صفِ اعلان برای این نقش قابل‌مدیریت بماند.</p>` +
+        (map.notify_note ? `<div class="note">${esc(map.notify_note)}</div>` : "") +
+        `<div class="scrollbox"><table><thead><tr><th style="width:56px">کد</th>
+           <th>هشدارهای نزدیک به حوزهٔ این نقش</th><th style="width:100px">سطح</th>
+           <th style="width:150px">گیرنده</th></tr></thead><tbody>` +
+        (function(rel){
+          return rel.length ? rel.map(a => `<tr><td>${esc(a.id)}</td><td>${esc(a.alarm_fa)}</td>
+            <td>${esc(a.severity)}</td><td>${esc(a.owner_role)}</td></tr>`).join("") +
+            `</tbody></table></div>`
+            : `<tr><td colspan="4" style="color:var(--muted)">هشداری با واژهٔ حوزهٔ این نقش
+                تطبیق نکرد؛ همهٔ ۱۰۵ هشدار در بخشِ «داشبورد زنده» در دسترس است.</td></tr>
+               </tbody></table></div>`;
+        })(ALS.filter(a => (role.role_fa || "").split(/[ /]/).some(
+              w => w.length > 3 && (a.owner_role || "").includes(w))).slice(0, 12));
+
+  }else if(CUR_RP === "kpis"){
+    box.innerHTML = c.kp.length
+      ? `<div class="scrollbox"><table><thead><tr><th style="width:56px">کد</th>
+           <th>شاخص</th><th style="width:110px">هدف</th><th style="width:150px">منبع داده</th>
+           <th style="width:110px">تناوب</th></tr></thead><tbody>` +
+        c.kp.map(k => `<tr><td>${esc(k.id)}</td><td>${esc(k.kpi_fa)}</td>
+          <td><span class="pill p-ok">${esc(k.target)}</span></td>
+          <td>${esc(k.source_system)}</td><td>${esc(k.frequency)}</td></tr>`).join("") +
+        `</tbody></table></div>
+         <p class="hint" style="margin-top:10px">${c.kp.length} شاخص از ۱۲۰ شاخص در مالکیتِ این نقش است.</p>`
+      : `<p class="hint">این نقش مالکِ هیچ شاخصی نیست. شاخص‌های عملیاتی در مالکیتِ
+          سرپرست یا مدیرِ همان حوزه ثبت شده‌اند؛ این نقش «ورودیِ داده» را فراهم می‌کند،
+          نه «مالکیتِ شاخص» را. با این همه در <b>${c.full + c.part}</b> صفحه و
+          <b>${c.al.length}</b> هشدار درگیر است.</p>` +
+        `<div class="scrollbox"><table><thead><tr><th style="width:56px">کد</th>
+           <th>نمونه شاخص‌های مرتبط با حوزهٔ این نقش</th><th style="width:110px">هدف</th>
+           <th style="width:150px">مالک داده</th></tr></thead><tbody>` +
+        (function(rel){
+          return rel.length ? rel.map(k => `<tr><td>${esc(k.id)}</td><td>${esc(k.kpi_fa)}</td>
+            <td><span class="pill p-ok">${esc(k.target)}</span></td>
+            <td>${esc(k.data_owner)}</td></tr>`).join("") + `</tbody></table></div>`
+            : `<tr><td colspan="4" style="color:var(--muted)">شاخصی با واژهٔ حوزهٔ این نقش
+                تطبیق نکرد؛ همهٔ ۱۲۰ شاخص در بخشِ «داشبورد زنده» در دسترس است.</td></tr>
+               </tbody></table></div>`;
+        })(KPIS.filter(k => (role.role_fa || "").split(/[ /]/).some(
+              w => w.length > 3 && (k.data_owner || "").includes(w))).slice(0, 12));
+
+  }else{
+    box.innerHTML = c.mod.length
+      ? `<div class="scrollbox"><table><thead><tr><th>ماژول</th>
+           <th style="width:220px">سطح دسترسی</th></tr></thead><tbody>` +
+        c.mod.map(m => `<tr><td>${esc(m.module)}</td><td><code>${esc(m.access)}</code></td></tr>`).join("") +
+        `</tbody></table></div>
+         <p class="hint" style="margin-top:10px">راهنما: <code>R</code> خواندن ·
+         <code>C</code> ایجاد · <code>U</code> ویرایش · <code>D</code> حذف ·
+         <code>A</code> تأیید · پرانتز محدودیت را نشان می‌دهد.</p>`
+      : `<p class="hint">این نقش در مدلِ RBAC مجوزِ ماژولی ندارد، چون بیرون از مرزِ
+          سازمانی یا صرفاً مصرف‌کنندهٔ پورتال است
+          (سطح دسترسیِ اعلام‌شده: <b>${esc(role.access_level || "—")}</b>).</p>`;
+  }
+}
+document.querySelectorAll("#rpNav button").forEach(b =>
+  b.addEventListener("click", () => {
+    CUR_RP = b.dataset.rp;
+    document.querySelectorAll("#rpNav button").forEach(x =>
+      x.classList.toggle("on", x.dataset.rp === CUR_RP));
+    renderRole();
+  }));
+document.getElementById("rolePick").addEventListener("input", e =>
+  buildRoleGrid(e.target.value.trim().toLowerCase()));
 
 /* ═════════════════ ساخت رابط ═════════════════ */
 function buildSide(filter){
@@ -649,7 +935,7 @@ const TARGETS = [
   ["انرژی ویژه", "۱۱۵ kWh/تن", "۹۰ kWh/تن", "Historian"],
 ];
 
-(async () => {
+const BOOT = (async () => {
   ROOT = await detectRoot();
   const frame = document.getElementById("dashFrame");
   if(frame) frame.src = ROOT + frame.dataset.src;
@@ -669,10 +955,15 @@ const TARGETS = [
      <a href="${REPO_URL}" target="_blank" rel="noopener">مخزن در گیت‌هاب ↗</a>`;
 
   try{
-    const [kpi, alarm, events, matrix, master, road, risk, ques, ben, fin, oz, oc] =
+    const [kpi, alarm, events, matrix, master, road, risk, ques, ben, fin, oz, oc,
+           roles, acc, rbac, raci, rmap, jour] =
       await Promise.all(["kpi_catalog","alarm_catalog","event_catalog","integration_matrix",
         "master_data","roadmap","risk_register","open_questions",
-        "benefit_model","financial_model","ot_zones","ot_conduits"].map(csv));
+        "benefit_model","financial_model","ot_zones","ot_conduits",
+        "roles","ui_matrix","rbac","raci","role_map","role_journey"].map(csv));
+    ROLES = roles; ACC = acc; RBAC = rbac; RACIX = raci; RMAP = rmap; JOUR = jour;
+    KPIS = kpi; ALS = alarm;
+    buildRoleGrid("");
 
     const capex = fin.reduce((a,r) => a + (N(r.capex_low_musd) + N(r.capex_high_musd)) / 2, 0);
     const recMid = ben.reduce((a,b) => a + (N(b.saving_low_musd) + N(b.saving_high_musd)) / 2, 0);
@@ -703,17 +994,21 @@ const TARGETS = [
       <tr><td>بزرگ‌ترین ریسک‌ها</td><td>کیفیت دادهٔ پایه · مقاومت فرهنگی · PLCهای قدیمی · امنیت OT</td></tr>`;
   }catch(e){
     document.getElementById("kpis").innerHTML =
-      `<div class="kpi"><b>۴۰</b><span>مستند</span></div>
-       <div class="kpi"><b>۱۲</b><span>منبع دادهٔ CSV</span></div>
-       <div class="kpi"><b>۲۰</b><span>تست خودکار</span></div>
-       <div class="kpi" style="flex:2"><span>جزئیاتِ آماری پس از دسترسی به پوشهٔ data نمایش داده می‌شود</span></div>`;
+      `<div class="kpi"><b>۴۱</b><span>مستند</span></div>
+       <div class="kpi"><b>۳۷</b><span>منبع دادهٔ CSV</span></div>
+       <div class="kpi"><b>۲۴</b><span>نقش تعریف‌شده</span></div>
+       <div class="kpi" style="flex:2"><span>آمارِ زنده پس از دسترسی به پوشهٔ data نمایش داده می‌شود</span></div>`;
   }
 
+  const hr = location.hash.match(/^#\/role\/(R\d\d)$/);
+  if(hr && ROLES.some(r => r.code === hr[1])) pickRole(hr[1]);
   const h = location.hash.match(/^#\/doc\/(.+)$/);
   if(h) openDoc(h[1], false);
 })();
 
 window.addEventListener("hashchange", () => {
+  const r = location.hash.match(/^#\/role\/(R\d\d)$/);
+  if(r && r[1] !== CUR_ROLE){ pickRole(r[1]); return; }
   const m = location.hash.match(/^#\/doc\/(.+)$/);
   if(m && m[1] !== CURRENT) openDoc(m[1], false);
 });

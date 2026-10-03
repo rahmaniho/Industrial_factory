@@ -55,6 +55,24 @@ def simple_table(rows, headers, keys, default="—"):
     return "\n".join(out)
 
 
+def role_journey_blocks(rows, roles, headers, keys):
+    """سفرِ کاریِ هر نقش: به‌ازای هر نقش یک بلوک با جدولِ گام‌ها."""
+    by = OrderedDict()
+    for r in rows:
+        by.setdefault(r["code"], []).append(r)
+    out = []
+    for code in roles:
+        items = by.get(code)
+        if not items:
+            continue
+        name = items[0].get("role_fa", "")
+        out.append(f"**{code} — {name}**\n")
+        items.sort(key=lambda r: int(r["step"]))
+        out.append(simple_table(items, headers, keys))
+        out.append("")
+    return "\n".join(out).rstrip()
+
+
 def wide_table(rows, row_key, col_key, val_key, row_header, default="—",
                col_order=None, row_prefix=None):
     """جدولِ پهن (ماتریس): از قالبِ طویلِ CSV به نمایشِ ماتریسی باز می‌گردد.
@@ -178,6 +196,24 @@ def build_placeholders():
     p["conformed_dims"] = simple_table(
         read("conformed_dims.csv"), ["بُعد", "منبع", "کلید", "ویژگی‌های کلیدی"],
         ["dimension", "source", "key", "features"])
+
+
+    # ── نگاشتِ نقش و سفرِ کاری ──
+    roles_by_code = {r["code"]: r for r in read("roles.csv")}
+    rmap = read("role_map.csv")
+    for r in rmap:
+        r["role_fa"] = roles_by_code.get(r["code"], {}).get("role_fa", "")
+    p["role_raci_map"] = simple_table(
+        rmap, ["کد", "نقش", "بازیگر در ماتریس RACI", "ردیف در ماتریس صفحه‌ها"],
+        ["code", "role_fa", "raci_actor", "ui_role"])
+
+    jour = read("role_journey.csv")
+    for r in jour:
+        r["role_fa"] = roles_by_code.get(r["code"], {}).get("role_fa", "")
+    p["role_journey"] = role_journey_blocks(
+        jour, [r["code"] for r in read("roles.csv")],
+        ["#", "فاز", "آنچه در سامانه انجام می‌دهد", "سامانه", "خروجی/اثرِ قابل‌ردیابی"],
+        ["step", "phase", "action", "system", "evidence"])
 
     return p
 

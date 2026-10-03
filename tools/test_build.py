@@ -140,6 +140,84 @@ class TestCsvIntegrity(unittest.TestCase):
         with self.subTest(check="کامل‌بودنِ ماتریس"):
             self.assertEqual(len(seen), len(pages) * len(roles),
                              "هر ترکیبِ صفحه×نقش باید دقیقاً یک خانه داشته باشد")
+        all_roles = {r["code"] for r in read_csv("roles.csv")}
+        with self.subTest(check="پوششِ همهٔ نقش‌ها"):
+            self.assertEqual(roles, all_roles,
+                             "نقش‌های بدونِ ردیف در ماتریس: %s" % sorted(all_roles - roles))
+        empty = [c for c in sorted(all_roles)
+                 if all(r["access"] == "—" for r in rows if r["role"] == c)]
+        with self.subTest(check="نقشِ بدونِ هیچ صفحه‌ای"):
+            self.assertEqual(empty, [], "این نقش‌ها هیچ صفحه‌ای ندارند: %s" % empty)
+        for r in rows:
+            with self.subTest(cell=(r["page"], r["role"])):
+                self.assertIn(r["access"], ("●", "◐", "○", "—"),
+                              "نمادِ نامعتبر: %s" % r["access"])
+
+    def test_role_map_covers_every_role(self):
+        rmap = {r["code"]: r for r in read_csv("role_map.csv")}
+        for r in read_csv("roles.csv"):
+            self.assertIn(r["code"], rmap, "نقشِ بدون نگاشت: %s" % r["code"])
+        actors = {r["actor"] for r in read_csv("raci.csv")}
+        for code, r in rmap.items():
+            with self.subTest(role=code):
+                self.assertIn(r["raci_actor"], actors,
+                              "%s → بازیگرِ نامعتبر %r" % (code, r["raci_actor"]))
+                self.assertTrue(r["owner_aliases"].strip(),
+                                "%s باید دست‌کم یک نامِ مستعار داشته باشد" % code)
+
+    def test_role_aliases_match_real_owners(self):
+        """هیچ نامِ مستعاری نباید بی‌اثر باشد (مگر نقشی که آگاهانه در صفِ اعلان نیست)."""
+        RMAP = read_csv("role_map.csv")
+
+        def best_in(aliases, part):
+            """طولِ بلندترین نامِ مستعاری که در این بخش پدیدار می‌شود."""
+            return max((len(a) for a in aliases.split("|") if a and a in part), default=0)
+
+        def owns(aliases, field):
+            """هر بخش از مالک به «خاص‌ترین» نقشِ پوشش‌دهنده نسبت داده می‌شود؛
+            در نتیجه یک ردیفِ چندمالکه به همهٔ نقش‌های ذی‌ربط می‌رسد."""
+            for raw in (field or "").split("+"):
+                q = raw.strip()
+                if not q:
+                    continue
+                mine = best_in(aliases, q)
+                if mine and all(best_in(m["owner_aliases"], q) <= mine for m in RMAP):
+                    return True
+            return False
+
+        total = {m["code"]: 0 for m in RMAP}
+        for f, col in (("kpi_catalog.csv", "data_owner"), ("alarm_catalog.csv", "owner_role")):
+            for r in read_csv(f):
+                hit = [m["code"] for m in RMAP if owns(m["owner_aliases"], r[col])]
+                with self.subTest(source=f, id=r["id"]):
+                    self.assertTrue(hit, "مالکِ بدون نقش → %r" % r[col])
+                for code in hit:
+                    total[code] += 1
+        dead = [(m["code"], m["owner_aliases"]) for m in RMAP
+                if total[m["code"]] == 0 and not m["notify_note"].strip()]
+        self.assertEqual(dead, [], "نام‌های مستعارِ بی‌اثر: %s" % dead)
+
+        # خاص‌ترین تطبیق برنده است: هشدارِ «QC شیفت» برای تکنسین است، نه مدیرِ QC
+        by_code = {m["code"]: m["owner_aliases"] for m in RMAP}
+        self.assertTrue(owns(by_code["R03"], "QC شیفت"), "«QC شیفت» باید به R03 برسد")
+        self.assertFalse(owns(by_code["R04"], "QC شیفت"), "«QC شیفت» نباید به مدیر QC برسد")
+        self.assertTrue(owns(by_code["R04"], "QC"), "«QC» باید به مدیر QC برسد")
+        # و یک مالکِ چندگانه به هر دو نقش می‌رسد
+        self.assertTrue(owns(by_code["R04"], "QC + تأسیسات"))
+        self.assertTrue(owns(by_code["R08"], "QC + تأسیسات"))
+
+    def test_role_journey_is_complete(self):
+        by = {}
+        for r in read_csv("role_journey.csv"):
+            by.setdefault(r["code"], []).append(int(r["step"]))
+        for r in read_csv("roles.csv"):
+            with self.subTest(role=r["code"]):
+                self.assertEqual(by.get(r["code"], []), [1, 2, 3, 4],
+                                 "%s باید ۴ گامِ پیوسته داشته باشد" % r["code"])
+        for r in read_csv("role_journey.csv"):
+            for col in ("phase", "action", "system", "evidence"):
+                with self.subTest(role=r["code"], step=r["step"]):
+                    self.assertTrue(r[col].strip(), "ستون %s خالی است" % col)
 
     def test_roles_and_rbac_are_consistent(self):
         codes = [r["code"] for r in read_csv("roles.csv")]
@@ -408,6 +486,33 @@ class TestTemplates(unittest.TestCase):
                 continue
             with self.subTest(doc=f):
                 self.assertNotIn("این قالب، منبعِ متنِ", read_text(os.path.join(DOCS, f)))
+
+
+class TestSiteData(unittest.TestCase):
+    """سایت داده‌ها را با همان نامِ فایل می‌خواند؛ یک اشتباهِ تایپی نباید بی‌صدا بگذرد."""
+
+    def _site_sources(self):
+        html = open(os.path.join(BASE, "site", "index.html"), encoding="utf-8").read()
+        m = re.search(r"await Promise\.all\(\[([^\]]+)\]\.map\(csv\)\)", html)
+        self.assertTrue(m, "فهرستِ منابعِ داده در site/index.html یافت نشد")
+        return [x.strip().strip('"') for x in m.group(1).split(",") if x.strip()]
+
+    def test_site_csv_names_resolve_to_files(self):
+        for name in self._site_sources():
+            path = os.path.join(BASE, "data", name + ".csv")
+            self.assertTrue(os.path.exists(path), "سایت منبعِ ناموجود می‌خواند: %s" % name)
+
+    def test_site_reads_every_role_related_source(self):
+        need = {"roles", "ui_matrix", "rbac", "raci", "role_map", "role_journey",
+                "kpi_catalog", "alarm_catalog"}
+        self.assertEqual(need - set(self._site_sources()), set(),
+                         "نمای نقش بدون این منابع کار نمی‌کند")
+
+    def test_site_csv_helper_appends_extension(self):
+        html = open(os.path.join(BASE, "site", "index.html"), encoding="utf-8").read()
+        self.assertIn('name.endsWith(".csv")', html,
+                      "csv() باید پسوند را خودش اضافه کند؛ در غیر این صورت همهٔ "
+                      "درخواست‌ها ۴۰۴ می‌شوند و صفحه بی‌صدا به مقدارِ جایگزین می‌افتد")
 
 
 class TestSite(unittest.TestCase):
