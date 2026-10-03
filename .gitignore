@@ -1,9 +1,10 @@
-__pycache__/
+*.bak
 *.py[cod]
 *.pyo
+*.swp
 .DS_Store
-Thumbs.db
 .idea/
 .vscode/
-*.swp
-*.bak
+Thumbs.db
+__pycache__/
+_site/

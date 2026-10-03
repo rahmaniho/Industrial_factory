@@ -30,7 +30,7 @@ PRD,RMW,"درخواست مواد (کشش)، مصرف واقعی، برگشت م�
 PRD,QCL,"درخواست آزمون، نتیجه، تصمیم کیفیت، SPC",two-way,Event+API,Real-time,QCL,Critical,"گیت کیفیت ورودی/در‌حین/خروجی"
 PRD,FGW,"اعلام بچ آماده، انتقال به انبار، SSCC و مشخصات بچ",one-way,Event,On-event,FGW,Critical,-
 PRD,MNT,"درخواست کار خرابی، توقف برنامه‌ریزی‌شده، کارکرد تجهیز",two-way,Event+API,Real-time,MNT,Critical,اسکن QR روی ماشین
-PRD,ELE,"وضعیت برق خط، توقف‌های منتسب به برق",two-way,Event,OPC-UA,Real-time,ELE,High,-
+PRD,ELE,"وضعیت برق خط، توقف‌های منتسب به برق",two-way,OPC-UA+Event,Real-time,ELE,High,-
 PRD,MEC,"توقف‌های مکانیکی، وضعیت تجهیزات دوار خط",two-way,Event+API,Real-time,MEC,High,-
 PRD,UTL,"دریافت خدمات (بخار/هوا/آب/سرما)، محدودیت تأمین",two-way,OPC-UA+Event,Real-time,UTL,Critical,"کیفیت خارج از حد ⇒ قفل مصرف"
 PRD,HRM,"تخصیص نیرو، مهارت و گواهی، کارکرد روی دستور کار",two-way,API,Per-shift,HRM,High,گیت صلاحیت اپراتور

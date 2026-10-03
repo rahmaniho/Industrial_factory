@@ -14,6 +14,7 @@ import os
 import re
 import sys
 import unittest
+from glob import glob
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(BASE, "data")
@@ -65,6 +66,18 @@ class TestCsvIntegrity(unittest.TestCase):
                         continue
                     filled = sum(1 for r in rows if (r.get(col) or "").strip())
                     self.assertGreater(filled, 0, f"{f}: ستون «{col}» کاملاً خالی است")
+
+    def test_csv_rows_have_consistent_width(self):
+        """همهٔ ردیف‌های هر CSV باید به تعدادِ ستون‌های سرآیند باشند."""
+        import csv as _csv
+        for f in sorted(x for x in os.listdir(DATA) if x.endswith(".csv")):
+            with self.subTest(file=f):
+                with open(os.path.join(DATA, f), encoding="utf-8") as fh:
+                    rows = list(_csv.reader(fh))
+                width = len(rows[0])
+                for i, r in enumerate(rows[1:], start=2):
+                    self.assertEqual(len(r), width,
+                                     f"{f}:{i}: تعداد ستون ({len(r)}) با سرآیند ({width}) یکی نیست")
 
     def test_risk_scores_consistent(self):
         for r in read_csv("risk_register.csv"):
@@ -271,6 +284,60 @@ class TestDashboard(unittest.TestCase):
         sections = set(re.findall(r'<section id="(sec-[a-z]+)"', html))
         buttons = set(re.findall(r'data-sec="(sec-[a-z]+)"', html))
         self.assertEqual(sections, buttons, "هر بخش باید دکمهٔ ناوبری داشته باشد و برعکس")
+
+
+class TestSite(unittest.TestCase):
+    """صفحهٔ منتشرشده در GitHub Pages باید با محتوای مخزن هم‌خوان باشد."""
+
+    SITE = os.path.join(BASE, "site", "index.html")
+
+    def setUp(self):
+        if not os.path.exists(self.SITE):
+            self.skipTest("site/index.html وجود ندارد")
+        self.html = read_text(self.SITE)
+
+    def test_doc_manifest_paths_exist(self):
+        paths = re.findall(r'\{p:"([^"]+)"', self.html)
+        self.assertGreaterEqual(len(paths), 40, "فهرست اسناد باید همهٔ مستندات را پوشش دهد")
+        for pth in paths:
+            with self.subTest(path=pth):
+                self.assertTrue(os.path.exists(os.path.join(BASE, pth)),
+                                f"مسیر در فهرست سایت وجود ندارد: {pth}")
+
+    def test_doc_manifest_is_complete(self):
+        paths = set(re.findall(r'\{p:"([^"]+)"', self.html))
+        real = {"README.md"}
+        real |= {"docs/" + os.path.basename(f) for f in glob(os.path.join(DOCS, "*.md"))}
+        real |= {"docs/03-units/" + os.path.basename(f)
+                 for f in glob(os.path.join(DOCS, "03-units", "*.md"))}
+        with self.subTest(compare="مستنداتِ بدون ورودی در سایت"):
+            self.assertEqual(sorted(real - paths), [],
+                             "این مستندات در فهرست سایت نیستند")
+        with self.subTest(compare="ورودی‌های بدون فایل"):
+            self.assertEqual(sorted(paths - real), [],
+                             "این ورودی‌ها فایل متناظر ندارند")
+
+    def test_no_external_dependencies(self):
+        """صفحه نباید به هیچ منبع خارجی (CDN/فونت/کتابخانه) وابسته باشد."""
+        for m in re.finditer(r'(?:src|href)="(https?://[^"]+)"', self.html):
+            with self.subTest(url=m.group(1)):
+                self.assertTrue(m.group(1).startswith("https://github.com/"),
+                                f"منبع خارجیِ غیرمجاز: {m.group(1)}")
+        self.assertNotIn("cdn.", self.html.lower().replace("githubusercontent", ""))
+        self.assertNotIn('rel="stylesheet" href="http', self.html)
+
+    def test_pages_workflow_publishes_needed_paths(self):
+        wf = os.path.join(BASE, ".github", "workflows", "pages.yml")
+        self.assertTrue(os.path.exists(wf), "workflow انتشار در Pages وجود ندارد")
+        body = read_text(wf)
+        for token in ("_site/data", "_site/docs", "_site/dashboard", "site/index.html",
+                      "docs/03-units", ".nojekyll"):
+            with self.subTest(token=token):
+                self.assertIn(token, body, f"{token} در workflow کپی نشده است")
+
+    def test_dashboard_is_embedded(self):
+        self.assertIn('id="dashFrame"', self.html)
+        self.assertIn("dashboard/index.html", self.html)
 
 
 if __name__ == "__main__":

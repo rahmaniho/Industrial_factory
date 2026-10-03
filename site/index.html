@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>طراحی و پیاده‌سازی اتوماسیون یکپارچه کارخانه — مستندات زنده</title>
+<meta name="description" content="مستندات طراحی تفصیلی اتوماسیون یکپارچه کارخانه: معماری Purdue/ISA-95، ۱۴ واحد، ماتریس یکپارچگی، ۱۲۰ شاخص، نقشهٔ راه و مدل مالی.">
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d212a; --line:#2a2f3a;
+    --txt:#e6e9ef; --muted:#9aa4b2; --accent:#4f8cff; --accent2:#7c5cff;
+    --crit:#ff5c5c; --major:#ffa23e; --minor:#ffd84d; --ok:#5ad2a0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:"Vazirmatn","Tahoma","Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.85}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ── سربرگ ── */
+  header{padding:26px 30px;border-bottom:1px solid var(--line);
+    background:linear-gradient(120deg,#141822,#191f2b 55%,#1a2333)}
+  .brand{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;justify-content:space-between}
+  header h1{margin:0;font-size:22px;line-height:1.5}
+  header .sub{margin:6px 0 0;color:var(--muted);font-size:13px}
+  .repo{background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    padding:9px 14px;font-size:12.5px;color:var(--muted);white-space:nowrap}
+  .kpis{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    padding:9px 16px;min-width:132px;flex:1 1 132px}
+  .kpi b{display:block;font-size:21px;color:#fff;line-height:1.4}
+  .kpi span{color:var(--muted);font-size:11.5px}
+
+  /* ── ناوبری ── */
+  nav{display:flex;flex-wrap:wrap;gap:6px;padding:11px 30px;border-bottom:1px solid var(--line);
+      position:sticky;top:0;background:#12151c;z-index:20}
+  nav button{background:var(--panel);color:var(--muted);border:1px solid var(--line);
+    border-radius:8px;padding:8px 15px;cursor:pointer;font-family:inherit;font-size:13px;transition:.15s}
+  nav button:hover{color:var(--txt);border-color:#3a4150}
+  nav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .spacer{flex:1}
+
+  section{display:none;padding:24px 30px 70px}
+  section.active{display:block}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:18px}
+  .card h2{font-size:17px;margin:0 0 6px}
+  .card h3{font-size:14.5px;margin:20px 0 8px;color:#cfd6e3}
+  .hint{color:var(--muted);font-size:12.5px;margin:0 0 14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+  .tile{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:14px;
+        border-right:3px solid var(--accent);transition:.15s}
+  .tile:hover{border-color:#3a4150;transform:translateY(-2px)}
+  .tile b{display:block;font-size:13.5px;margin-bottom:5px}
+  .tile p{margin:0;color:var(--muted);font-size:12px;line-height:1.75}
+  .tile .go{display:inline-block;margin-top:9px;font-size:12px;color:var(--accent)}
+
+  table{border-collapse:collapse;width:100%;font-size:12.5px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:right;vertical-align:top}
+  th{background:#20252f;color:#cfd6e3;font-weight:600}
+  tbody tr:nth-child(even){background:#141821}
+  .pill{display:inline-block;padding:1px 9px;border-radius:99px;font-size:11px;border:1px solid}
+  .p-crit{color:var(--crit);border-color:#5c2626;background:#2a1616}
+  .p-major{color:var(--major);border-color:#5c4420;background:#2a2214}
+  .p-low{color:var(--muted);border-color:var(--line);background:#1a1e26}
+  .p-ok{color:var(--ok);border-color:#205c43;background:#142a22}
+
+  /* ── مرور اسناد ── */
+  .docwrap{display:grid;grid-template-columns:300px 1fr;gap:16px}
+  @media(max-width:900px){.docwrap{grid-template-columns:1fr}}
+  .side{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+        padding:12px;max-height:78vh;overflow:auto}
+  .side .grp{margin:0 0 4px;padding:8px 6px 4px;font-size:11.5px;color:var(--accent);
+        border-bottom:1px solid var(--line);letter-spacing:.3px}
+  .side a{display:block;padding:6px 9px;border-radius:7px;font-size:12.5px;color:var(--txt);cursor:pointer}
+  .side a:hover{background:var(--panel2);text-decoration:none}
+  .side a.on{background:var(--accent);color:#fff}
+  .viewer{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+          padding:22px 26px;max-height:78vh;overflow:auto;font-size:13.5px}
+  .viewer h1{font-size:20px;line-height:1.6;border-bottom:1px solid var(--line);padding-bottom:10px}
+  .viewer h2{font-size:16.5px;margin-top:26px;color:#fff}
+  .viewer h3{font-size:14.5px;margin-top:20px;color:#cfd6e3}
+  .viewer blockquote{margin:12px 0;padding:9px 14px;background:var(--panel2);
+        border-right:3px solid var(--accent);border-radius:8px;color:var(--muted);font-size:12.5px}
+  .viewer pre{background:#0c0e13;border:1px solid var(--line);border-radius:9px;
+        padding:12px 14px;overflow:auto;direction:ltr;text-align:left;font-size:12px;line-height:1.6}
+  .viewer code{background:#0c0e13;border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12px}
+  .viewer pre code{background:none;border:none;padding:0}
+  .viewer .tw{overflow:auto;margin:12px 0;border:1px solid var(--line);border-radius:9px}
+  .viewer table{font-size:12px}
+  .viewer hr{border:none;border-top:1px solid var(--line);margin:22px 0}
+  .viewer ul,.viewer ol{padding-inline-start:22px}
+  .viewer li{margin:3px 0}
+
+  /* ── داشبورد ── */
+  iframe{width:100%;height:82vh;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+
+  footer{padding:20px 30px 40px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+  .err{background:#2a1616;border:1px solid #5c2626;color:#ffb4b4;padding:14px;border-radius:10px;font-size:13px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div>
+      <h1>طراحی و پیاده‌سازی اتوماسیون یکپارچه کارخانه</h1>
+      <p class="sub">مستندِ طراحی تفصیلی (DDD) بر پایهٔ Purdue / ISA-95 — قابل اجرا، با عدد و سناریو</p>
+    </div>
+    <div class="repo" id="repoBox">در حال بارگذاری…</div>
+  </div>
+  <div class="kpis" id="kpis"><div class="kpi"><b>…</b><span>در حال خواندن داده‌ها</span></div></div>
+</header>
+
+<nav>
+  <button data-sec="s-home" class="active">نمای کلی</button>
+  <button data-sec="s-docs">مرور اسناد</button>
+  <button data-sec="s-dash">داشبورد زنده</button>
+  <button data-sec="s-how">چگونه استفاده کنیم</button>
+  <span class="spacer"></span>
+  <button id="btnGithub">مخزن در گیت‌هاب ↗</button>
+</nav>
+
+<!-- ══════════════════════════ نمای کلی ══════════════════════════ -->
+<section id="s-home" class="active">
+
+  <div class="card">
+    <h2>این پروژه چیست؟</h2>
+    <p class="hint">طرحی جامع برای اتوماسیونِ «همهٔ واحدهای کارخانه» — از سنسور تا داشبورد مدیریتی —
+      که در آن هیچ ادعایی بی‌عدد نیست و هر فرض با برچسب «[فرض]» مشخص شده است.</p>
+    <div class="grid">
+      <div class="tile"><b>معماری لایه‌ای</b><p>شش لایه از سطح ۰ (سنسور) تا سطح ۴ (ERP)،
+        به‌همراه منطقهٔ غیرنظامی صنعتی (IDMZ) و کانال‌های تعریف‌شده.</p>
+        <span class="go" data-go="docs/02-reference-architecture.md">معماری مرجع ←</span></div>
+      <div class="tile"><b>پوشش ۱۴ واحد</b><p>هر واحد با ۹ محور یکسان: مأموریت، فرآیند، دادهٔ پایه،
+        اتوماسیون، سخت‌افزار، رابط کاربر، قواعد، شاخص و یکپارچگی.</p>
+        <span class="go" data-go="docs/03-units/u01-security-access.md">مستندات واحدها ←</span></div>
+      <div class="tile"><b>ماتریس یکپارچگی</b><p>۲۰۴ رابطهٔ تعریف‌شده بین ۱۸ گره؛
+        هیچ خانه‌ای بدون پاسخ نمی‌ماند و «—» یعنی «نیازی نیست»، نه «نمی‌دانیم».</p>
+        <span class="go" data-go="docs/04-integration-matrix.md">ماتریس ←</span></div>
+      <div class="tile"><b>ردیابی سرتاسری</b><p>مسیرِ داده از سنسور تا داشبورد مدیریت،
+        با شجره‌نامهٔ گرافی و امکانِ بازسازیِ دامنهٔ فراخوان در کمتر از ۳۰ ثانیه.</p>
+        <span class="go" data-go="docs/21-sequence-flows.md">سناریوهای توالی ←</span></div>
+      <div class="tile"><b>قفل‌های سیستمی سخت</b><p>گیت‌های کیفیت و ایمنی در نرم‌افزار قفل می‌شوند،
+        نه در دستورالعمل؛ دور زدن نیازمند مجوزِ مستند و زمان‌دار است.</p>
+        <span class="go" data-go="docs/17-architecture-decisions.md">تصمیمات معماری ←</span></div>
+      <div class="tile"><b>مالی و امنیت</b><p>۱۰ محرک ارزش با مبنای محاسبه، جریان نقدی ۵ ساله،
+        و ۹ منطقهٔ امنیتی با ۱۸ کانالِ مجاز بر اساس IEC 62443.</p>
+        <span class="go" data-go="docs/25-financial-model.md">مدل مالی ←</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>هدف‌های کمّی پروژه</h2>
+    <p class="hint">اعدادِ «وضعیت فعلی» مفروض‌اند و با پاسخ به پرسش‌نامهٔ مشتری جایگزین می‌شوند.</p>
+    <table>
+      <thead><tr><th>شاخص</th><th>اکنون [فرض]</th><th>هدف</th><th>منبعِ سنجش</th></tr></thead>
+      <tbody id="targets"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>سرمایه، زمان و بازگشت</h2>
+    <table>
+      <thead><tr><th>مورد</th><th>مقدار</th></tr></thead>
+      <tbody id="finance"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>نقشهٔ اسناد</h2>
+    <p class="hint">۴۰ مستند، در شش گروه موضوعی. روی هر مورد بزنید تا در همین صفحه باز شود.</p>
+    <div id="docmap"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ مرور اسناد ══════════════════════════ -->
+<section id="s-docs">
+  <div class="card" style="padding:14px">
+    <div class="toolbar" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <input id="docSearch" placeholder="جست‌وجو در عنوان و توضیح اسناد…" style="flex:1;min-width:200px;
+        background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 11px;font-family:inherit">
+    </div>
+    <div class="docwrap">
+      <div class="side" id="side"></div>
+      <div class="viewer" id="viewer"><p class="hint">یک سند را از فهرست سمت راست انتخاب کنید.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ داشبورد ══════════════════════════ -->
+<section id="s-dash">
+  <div class="card">
+    <h2>داشبورد داده‌محور</h2>
+    <p class="hint">همهٔ جدول‌های این داشبورد مستقیماً از فایل‌های <code>data/*.csv</code> خوانده می‌شوند؛
+      یعنی اگر داده اصلاح شود، اینجا هم اصلاح می‌شود. ده بخش دارد: یکپارچگی، شاخص‌ها، هشدارها،
+      رویدادها، ریسک، پرسش‌های باز، مدل مالی، امنیت OT، نقشهٔ راه و دادهٔ پایه.</p>
+    <iframe id="dashFrame" src="about:blank" data-src="dashboard/index.html" title="داشبورد یکپارچه" loading="lazy"></iframe>
+  </div>
+</section>
+
+<!-- ══════════════════════════ چگونه استفاده کنیم ══════════════════════════ -->
+<section id="s-how">
+  <div class="card">
+    <h2>این مخزن چگونه کار می‌کند؟</h2>
+    <p class="hint">فلسفهٔ این مجموعه: داده در CSV، مستند به‌صورت تولیدی، و داشبورد نمای زندهٔ همان داده.</p>
+    <table>
+      <thead><tr><th>لایه</th><th>نقش</th><th>قاعده</th></tr></thead>
+      <tbody>
+        <tr><td><code>data/*.csv</code></td><td>منبعِ ماشین‌خوان و یگانهٔ حقیقت</td>
+            <td>هر تغییر در یک جدول، از اینجا شروع می‌شود</td></tr>
+        <tr><td><code>tools/build_*.py</code></td><td>مولّدِ مستندات</td>
+            <td>مستندِ تولید‌شده هرگز دستی ویرایش نمی‌شود</td></tr>
+        <tr><td><code>docs/*.md</code></td><td>نمای انسانیِ همان داده</td>
+            <td>با مولّد بازتولید و در CI بررسی می‌شود</td></tr>
+        <tr><td><code>dashboard/</code></td><td>نمای تعاملی برای بررسی سریع</td>
+            <td>CSVها را با fetch می‌خواند؛ بدون کتابخانهٔ خارجی</td></tr>
+        <tr><td><code>tools/test_build.py</code></td><td>۲۰ تست یکپارچگی و کیفیت</td>
+            <td>هر ناسازگاریِ داده در CI شکست می‌خورد</td></tr>
+      </tbody>
+    </table>
+    <h3>تولیدِ مجدد و اجرای تست‌ها</h3>
+    <pre dir="ltr" style="background:#0c0e13;border:1px solid var(--line);border-radius:9px;padding:12px 14px;overflow:auto;font-size:12px">python3 tools/build_integration_matrix.py &amp;&amp; python3 tools/build_catalogs.py
+python3 tools/test_build.py</pre>
+  </div>
+
+  <div class="card">
+    <h2>از کجا شروع کنید؟</h2>
+    <div class="grid">
+      <div class="tile"><b>۱. خلاصهٔ مدیریتی</b><p>یک صفحه برای درکِ کلِ طرح، اعدادِ کلیدی و بازگشت سرمایه.</p>
+        <span class="go" data-go="docs/00-executive-summary.md">باز کردن ←</span></div>
+      <div class="tile"><b>۲. مفروضات ورودی</b><p>همهٔ پیش‌فرض‌ها در یک جا؛ نقطهٔ شروعِ نقد کردنِ طرح.</p>
+        <span class="go" data-go="docs/01-inputs-and-assumptions.md">باز کردن ←</span></div>
+      <div class="tile"><b>۳. پرسش‌نامهٔ مشتری</b><p>۳۰ پرسش که هر پاسخ‌شان یک «[فرض]» را حذف می‌کند.</p>
+        <span class="go" data-go="docs/24-customer-questionnaire.md">باز کردن ←</span></div>
+      <div class="tile"><b>۴. نقشهٔ راه</b><p>۴۳ بستهٔ کار در ۷ فاز، با بودجه و وابستگی‌ها.</p>
+        <span class="go" data-go="docs/11-roadmap.md">باز کردن ←</span></div>
+      <div class="tile"><b>۵. سناریوهای توالی</b><p>هفت جریانِ سرتاسری با نمودار و مسیرِ شکست.</p>
+        <span class="go" data-go="docs/21-sequence-flows.md">باز کردن ←</span></div>
+      <div class="tile"><b>۶. طرحِ انتقال</b><p>مهاجرت داده، Runbook و درختِ تصمیمِ بازگشت.</p>
+        <span class="go" data-go="docs/23-cutover-migration.md">باز کردن ←</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>زبان و قراردادهای نگارش</h2>
+    <ul style="color:var(--muted);font-size:13px;line-height:2">
+      <li>همهٔ اسناد <b>فارسی/RTL</b> هستند و اصطلاحات فنی کنار معادل انگلیسی می‌آیند.</li>
+      <li>هر ادعای کمّی یا با <b>[فرض]</b> برچسب خورده یا به یک شاخص/ماژول/ردیف جدول ارجاع داده شده است.</li>
+      <li>خانه‌های خالی در ماتریس مجاز نیستند؛ «ندانستن» به پرسش تبدیل می‌شود، نه به سکوت.</li>
+      <li>هیچ بخش مهمی با «در فاز بعد مشخص می‌شود» تمام نمی‌شود.</li>
+    </ul>
+  </div>
+</section>
+
+<footer id="footer"></footer>
+
+<script>
+/* ═════════════════ فهرست اسناد ═════════════════ */
+const GROUPS = [
+  { name:"شروع", items:[
+    {p:"README.md", t:"خانهٔ مخزن", d:"فهرست تحویل‌دادنی‌ها، نحوهٔ اجرا و قراردادهای مخزن"},
+    {p:"docs/00-executive-summary.md", t:"۰. خلاصهٔ مدیریتی", d:"یک صفحه: وضعیت، هدف‌ها، سرمایه، ریسک‌ها و اولین سه کار"},
+    {p:"docs/01-inputs-and-assumptions.md", t:"۱. ورودی‌ها و مفروضات", d:"همهٔ پیش‌فرض‌ها (A1–A8) که جای خالیِ پارامترهای مشتری را پر کرده‌اند"},
+  ]},
+  { name:"معماری و یکپارچگی", items:[
+    {p:"docs/02-reference-architecture.md", t:"۲. معماری مرجع", d:"شش لایهٔ Purdue، IDMZ، کانال‌ها، موضوعات UNS، آفلاین-اول و HA/DR"},
+    {p:"docs/04-integration-matrix.md", t:"۴. ماتریس یکپارچگی", d:"۲۰۴ رابطه بین ۱۸ گره، آمار، الگوها و ضدالگوها"},
+    {p:"docs/17-architecture-decisions.md", t:"۱۷. تصمیمات معماری (ADR)", d:"۱۴ تصمیم با گزینه‌های ردشده، پیامدها و شرط بازنگری"},
+    {p:"docs/18-data-model.md", t:"۱۸. مدل داده", d:"مرزهای دامنه، شجره‌نامهٔ گرافی، قرارداد شناسه‌ها و کلاس‌های نگه‌داری"},
+    {p:"docs/19-event-catalog.md", t:"۱۹. کاتالوگ رویدادها", d:"۵۴ رویداد با تولیدکننده، مصرف‌کننده، کلیدِ باید و سیاستِ خطا"},
+    {p:"docs/20-api-contract.md", t:"۲۰. قرارداد سرویس‌ها", d:"نسخه‌بندی، مدل خطا، نقاط پایانیِ کلیدی و شاخص‌های سلامت"},
+    {p:"docs/21-sequence-flows.md", t:"۲۱. سناریوهای توالی", d:"هفت جریانِ سرتاسری با نمودار، مسیر شکست و تستِ پذیرش متناظر"},
+  ]},
+  { name:"واحدهای سازمانی", items:[
+    {p:"docs/03-units/u01-security-access.md", t:"واحد ۱ — حراست", d:"تردد، بازرسی، مجوز خروج و چهار شرطِ خروج کالا"},
+    {p:"docs/03-units/u02-hse.md", t:"واحد ۲ — ایمنی (HSE)", d:"PTW/LOTO، رخداد، پایش محیطی و گیت‌های Fail-Safe"},
+    {p:"docs/03-units/u03-production-qc.md", t:"واحد ۳ — تولید و QC", d:"دستور کار، مصرف، بچ، شجره‌نامه و OEE"},
+    {p:"docs/03-units/u04-mro-store.md", t:"واحد ۴ — انبار فنی", d:"قطعات یدکی، رزرو بر اساس دستور کار و سطحِ سرویس"},
+    {p:"docs/03-units/u05-raw-material-warehouse.md", t:"واحد ۵ — انبار مواد", d:"رسید، قرنطینه، FEFO و کسرِ خودکارِ مصرف"},
+    {p:"docs/03-units/u06-finished-goods-warehouse.md", t:"واحد ۶ — انبار محصول", d:"بچ، SSCC، تخصیص و ارسال"},
+    {p:"docs/03-units/u07-hr.md", t:"واحد ۷ — منابع انسانی", d:"صلاحیت، شیفت، کارکرد و گیتِ اپراتورِ واجد شرایط"},
+    {p:"docs/03-units/u08-sales-domestic.md", t:"واحد ۸ — بازرگانی داخلی", d:"سفارش، ATP، OTIF و صورت‌حساب"},
+    {p:"docs/03-units/u09-trade-foreign.md", t:"واحد ۹ — بازرگانی خارجی", d:"واردات، ارز، گمرک و ردیابی صادراتی"},
+    {p:"docs/03-units/u10-finance.md", t:"واحد ۱۰ — مالی", d:"بهای تمام‌شده، اسناد خودکار و بستنِ ماهانه"},
+    {p:"docs/03-units/u11-maintenance-cmms.md", t:"واحد ۱۱ — نگهداشت", d:"دارایی، PM، PdM، واکنش به خرابی و MTBF/MTTR"},
+    {p:"docs/03-units/u12-electrical.md", t:"واحد ۱۲ — برق", d:"پایش انرژی، کیفیت توان و ژنراتور اضطراری"},
+    {p:"docs/03-units/u13-mechanical.md", t:"واحد ۱۳ — مکانیک", d:"ارتعاش، روانکاری و وضعیت تجهیز دوار"},
+    {p:"docs/03-units/u14-utilities.md", t:"واحد ۱۴ — تأسیسات", d:"بخار، سرمایش، هوای فشرده و آب"},
+  ]},
+  { name:"داده، شاخص و رابط کاربر", items:[
+    {p:"docs/05-master-data-ownership.md", t:"۵. دادهٔ پایه و مالکیت", d:"۵۸ موجودیت با مالک واحد و سیستم مرجع"},
+    {p:"docs/06-hardware-sensors-catalog.md", t:"۶. کاتالوگ سخت‌افزار", d:"سنسورها، دروازه‌ها و تجهیز OT با معیار انتخاب"},
+    {p:"docs/07-ui-forms-by-role.md", t:"۷. فرم‌ها بر اساس نقش", d:"ماتریس نقش × صفحه و ۲۴ نقش کاربری"},
+    {p:"docs/08-kpi-catalog.md", t:"۸. کاتالوگ شاخص‌ها", d:"۱۲۰ شاخص با فرمول، منبع داده، مالک و هدف"},
+    {p:"docs/09-alarm-map.md", t:"۹. نقشهٔ هشدارها", d:"۱۰۵ هشدار با سطح، مالک و SLA بر اساس ISA-18.2"},
+  ]},
+  { name:"اجرا، پذیرش و انتقال", items:[
+    {p:"docs/10-raci-rbac.md", t:"۱۰. RACI و RBAC", d:"ماتریس مسئولیت، الگوی دسترسی و تفکیک وظایف"},
+    {p:"docs/11-roadmap.md", t:"۱۱. نقشهٔ راه", d:"۴۳ بستهٔ کار در ۷ فاز، گانت و بودجه"},
+    {p:"docs/12-risk-register.md", t:"۱۲. ثبت ریسک", d:"۲۰ ریسک با امتیاز، نقشهٔ حرارتی و راهبرد کاهش"},
+    {p:"docs/13-uat-checklist.md", t:"۱۳. چک‌لیست UAT", d:"سناریوهای پذیرش و معیار خروج از دورهٔ پشتیبانی"},
+    {p:"docs/14-change-management.md", t:"۱۴. مدیریت تغییر", d:"نقش‌ها، آموزش، ارتباطات و مقاومت سازمانی"},
+    {p:"docs/22-vendor-selection.md", t:"۲۲. انتخاب تأمین‌کننده", d:"امتیازدهی، معیارهای حذف، POC و بندهای قرارداد"},
+    {p:"docs/23-cutover-migration.md", t:"۲۳. برنامهٔ انتقال", d:"مهاجرت داده، Runbook و درختِ بازگشت"},
+  ]},
+  { name:"امنیت، انطباق و اقتصاد", items:[
+    {p:"docs/15-nfr-security-compliance.md", t:"۱۵. امنیت و انطباق", d:"الزامات غیرکارکردی، IEC 62443 و قوانین OT"},
+    {p:"docs/26-ot-security-plan.md", t:"۲۶. طرح امنیت OT", d:"۹ منطقه، ۱۸ کانال مجاز و ۸ قانون غیرقابل‌مذاکره"},
+    {p:"docs/25-financial-model.md", t:"۲۵. مدل مالی", d:"۱۰ محرک ارزش، جریان نقدی، NPV/IRR و تحلیل حساسیت"},
+  ]},
+  { name:"پرسش‌ها", items:[
+    {p:"docs/16-open-questions.md", t:"۱۶. پرسش‌های باز", d:"۳۰ پرسش با اولویت، پیش‌فرض و پاسخ‌گو"},
+    {p:"docs/24-customer-questionnaire.md", t:"۲۴. پرسش‌نامهٔ مشتری", d:"نسخهٔ قابل چاپ و تکمیل برای کارفرما"},
+  ]},
+];
+
+/* ═════════════════ ابزارها ═════════════════ */
+/* این صفحه هم در ریشهٔ Pages و هم در مسیر site/ کار می‌کند */
+let ROOT = "";
+async function detectRoot(){
+  for(const cand of ["", "../"]){
+    try{
+      const r = await fetch(cand + "data/kpi_catalog.csv", {method:"HEAD"});
+      if(r.ok) return cand;
+    }catch(e){}
+  }
+  return "";
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const N = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+const REPO_URL = "https://github.com/rahmaniho/Industrial_factory";
+
+function parseCsv(text){
+  const rows = []; let row = [], cur = "", q = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(q){
+      if(c === '"'){ if(text[i+1] === '"'){ cur += '"'; i++; } else q = false; }
+      else cur += c;
+    }else{
+      if(c === '"') q = true;
+      else if(c === ","){ row.push(cur); cur = ""; }
+      else if(c === "\n"){ row.push(cur); rows.push(row); row = []; cur = ""; }
+      else if(c !== "\r") cur += c;
+    }
+  }
+  if(cur !== "" || row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r => r.length && r.some(c => c.trim() !== ""));
+}
+
+async function csv(name){
+  const r = await fetch(ROOT + "data/" + name);
+  if(!r.ok) throw new Error(name + " → " + r.status);
+  const rows = parseCsv(await r.text());
+  const head = rows[0].map(h => h.trim());
+  return rows.slice(1).map(r => {
+    const o = {};
+    head.forEach((h,i) => o[h] = (r[i] || "").trim());
+    return o;
+  });
+}
+
+/* ═════════════════ نمایشگر مارک‌داون ═════════════════ */
+function inline(s){
+  s = esc(s);
+  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m,t,u) => {
+    const ext = /^https?:/i.test(u);
+    return `<a href="${u}"${ext ? ' target="_blank" rel="noopener"' : ` data-doc="${u}"`}>${t}</a>`;
+  });
+  return s;
+}
+const splitRow = l => l.trim().replace(/^\|/,"").replace(/\|$/,"").split("|").map(s=>s.trim());
+
+function md(src){
+  const blocks = [];
+  src = src.replace(/```([\s\S]*?)```/g, (m, code) => {
+    blocks.push('<pre><code>' + esc(code.replace(/^\n/,"")) + '</code></pre>');
+    return " B" + (blocks.length - 1) + " ";
+  });
+  const lines = src.split("\n");
+  const out = [];
+  let i = 0;
+  const isBlock = l => /^ B\d+ $/.test(l.trim());
+  const isHead  = l => /^#{1,6}\s/.test(l);
+  const isRule  = l => /^(-{3,}|\*{3,}|_{3,})\s*$/.test(l);
+  const isUl    = l => /^\s*[-*+]\s+/.test(l);
+  const isOl    = l => /^\s*\d+[.)]\s+/.test(l);
+  const isQt    = l => /^\s*>/.test(l);
+  const isTbl   = l => /^\s*\|/.test(l);
+
+  while(i < lines.length){
+    const ln = lines[i];
+    if(!ln.trim()){ i++; continue; }
+    if(isBlock(ln)){ out.push(ln.trim()); i++; continue; }
+    if(isRule(ln)){ out.push("<hr>"); i++; continue; }
+
+    let m;
+    if(m = ln.match(/^(#{1,6})\s+(.*)$/)){
+      const lvl = Math.min(6, m[1].length + 1);
+      out.push(`<h${lvl}>${inline(m[2])}</h${lvl}>`); i++; continue;
+    }
+    if(isTbl(ln) && i+1 < lines.length && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i+1])){
+      const head = splitRow(lines[i]); i += 2;
+      const rows = [];
+      while(i < lines.length && isTbl(lines[i])){ rows.push(splitRow(lines[i])); i++; }
+      out.push('<div class="tw"><table><thead><tr>' +
+        head.map(c => "<th>"+inline(c)+"</th>").join("") + "</tr></thead><tbody>" +
+        rows.map(r => "<tr>" + r.map(c => "<td>"+inline(c)+"</td>").join("") + "</tr>").join("") +
+        "</tbody></table></div>");
+      continue;
+    }
+    if(isQt(ln)){
+      const buf = [];
+      while(i < lines.length && isQt(lines[i])){ buf.push(lines[i].replace(/^\s*>\s?/,"")); i++; }
+      out.push("<blockquote>" + md(buf.join("\n")) + "</blockquote>"); continue;
+    }
+    if(isUl(ln) || isOl(ln)){
+      const ordered = isOl(ln);
+      const re = ordered ? /^\s*\d+[.)]\s+/ : /^\s*[-*+]\s+/;
+      const items = [];
+      while(i < lines.length && re.test(lines[i])){ items.push(lines[i].replace(re,"")); i++; }
+      const tag = ordered ? "ol" : "ul";
+      out.push("<" + tag + ">" + items.map(t => "<li>"+inline(t)+"</li>").join("") + "</" + tag + ">");
+      continue;
+    }
+    const buf = [];
+    while(i < lines.length && lines[i].trim() && !isBlock(lines[i]) && !isHead(lines[i]) &&
+          !isRule(lines[i]) && !isUl(lines[i]) && !isOl(lines[i]) && !isQt(lines[i]) && !isTbl(lines[i])){
+      buf.push(lines[i]); i++;
+    }
+    if(buf.length) out.push("<p>" + inline(buf.join(" ")) + "</p>");
+    else i++;
+  }
+  return out.join("\n").replace(/ B(\d+) /g, (mm,n) => blocks[+n]);
+}
+
+/* ═════════════════ مرورگر اسناد ═════════════════ */
+let CURRENT = "";
+function resolve(base, rel){
+  const parts = base.split("/");
+  parts.pop();
+  rel.split("/").forEach(p => {
+    if(p === "..") parts.pop(); else if(p && p !== ".") parts.push(p);
+  });
+  return parts.join("/");
+}
+async function openDoc(path, push){
+  try{
+    const r = await fetch(ROOT + path);
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const txt = await r.text();
+    CURRENT = path;
+    document.getElementById("viewer").innerHTML = md(txt);
+    document.querySelectorAll("#side a").forEach(a =>
+      a.classList.toggle("on", a.dataset.p === path));
+    if(push !== false) location.hash = "#/doc/" + path;
+    show("s-docs");
+    document.getElementById("viewer").scrollTop = 0;
+  }catch(e){
+    document.getElementById("viewer").innerHTML =
+      `<p class="err">بارگذاریِ «${esc(path)}» ناموفق بود (${esc(e.message)}).</p>
+       <p class="hint">اگر این صفحه را مستقیماً از فایل باز کرده‌اید، آن را از طریق یک سرور محلی
+       یا GitHub Pages ببینید.</p>`;
+  }
+}
+document.getElementById("viewer").addEventListener("click", e => {
+  const a = e.target.closest("a[data-doc]");
+  if(!a) return;
+  e.preventDefault();
+  openDoc(resolve(CURRENT, a.dataset.doc));
+});
+
+/* ═════════════════ ناوبری ═════════════════ */
+function show(id){
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("active", s.id === id));
+  document.querySelectorAll("nav button[data-sec]").forEach(b =>
+    b.classList.toggle("active", b.dataset.sec === id));
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+document.querySelectorAll("nav button[data-sec]").forEach(b =>
+  b.addEventListener("click", () => { show(b.dataset.sec); if(location.hash) history.replaceState(null,""," "); }));
+document.getElementById("btnGithub").addEventListener("click", () => window.open(REPO_URL,"_blank"));
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-go]");
+  if(t) openDoc(t.dataset.go);
+});
+
+/* ═════════════════ ساخت رابط ═════════════════ */
+function buildSide(filter){
+  const side = document.getElementById("side");
+  let html = "";
+  GROUPS.forEach(g => {
+    const items = g.items.filter(it =>
+      !filter || (it.t + " " + it.d).toLowerCase().includes(filter));
+    if(!items.length) return;
+    html += `<div class="grp">${esc(g.name)}</div>`;
+    items.forEach(it => html += `<a data-p="${it.p}" title="${esc(it.d)}">${esc(it.t)}</a>`);
+  });
+  side.innerHTML = html || '<div class="grp">نتیجه‌ای یافت نشد</div>';
+  side.querySelectorAll("a").forEach(a =>
+    a.addEventListener("click", ev => { ev.preventDefault(); openDoc(a.dataset.p); }));
+}
+document.getElementById("docSearch").addEventListener("input", e =>
+  buildSide(e.target.value.trim().toLowerCase()));
+
+function buildDocMap(){
+  const box = document.getElementById("docmap");
+  let html = "";
+  GROUPS.forEach(g => {
+    html += `<h3 style="font-size:14px;margin:18px 0 10px;color:#cfd6e3">${esc(g.name)}</h3><div class="grid">`;
+    g.items.forEach(it => {
+      html += `<div class="tile" style="cursor:pointer" data-go="${it.p}">
+        <b>${esc(it.t)}</b><p>${esc(it.d)}</p>
+        <span class="go">مشاهدهٔ سند ←</span></div>`;
+    });
+    html += "</div>";
+  });
+  box.innerHTML = html;
+}
+
+/* ═════════════════ بارگذاری داده ═════════════════ */
+const TARGETS = [
+  ["OEE", "۵۲٪", "۷۵٪", "MES + Historian"],
+  ["ثبت دستی دادهٔ تولید", "۱۰۰٪", "< ۵٪", "MES"],
+  ["زمان ردیابی بچ (عقب/جلو)", "~۴ ساعت", "< ۳۰ ثانیه", "شجره‌نامهٔ MES"],
+  ["دقت موجودی انبار", "۸۴٪", "≥ ۹۸.۵٪", "WMS"],
+  ["OTIF", "۷۶٪", "۹۵٪", "WMS + ERP"],
+  ["انجام به‌موقع PM", "۵۵٪", "۹۵٪", "CMMS"],
+  ["MTBF پمپ‌های بحرانی", "۲٬۲۰۰ ساعت", "۵٬۰۰۰ ساعت", "CMMS + PdM"],
+  ["LTIFR", "۳.۸", "۱.۲", "HSE"],
+  ["بستنِ ماهانه", "۱۲ روز", "۲ روز", "ERP ↔ MES"],
+  ["انرژی ویژه", "۱۱۵ kWh/تن", "۹۰ kWh/تن", "Historian"],
+];
+
+(async () => {
+  ROOT = await detectRoot();
+  const frame = document.getElementById("dashFrame");
+  if(frame) frame.src = ROOT + frame.dataset.src;
+
+  document.getElementById("repoBox").innerHTML =
+    `<a href="${REPO_URL}" target="_blank" rel="noopener">rahmaniho/Industrial_factory ↗</a>`;
+  buildSide("");
+  buildDocMap();
+
+  document.getElementById("targets").innerHTML =
+    TARGETS.map(t => `<tr><td>${esc(t[0])}</td><td>${esc(t[1])}</td>
+      <td><span class="pill p-ok">${esc(t[2])}</span></td><td>${esc(t[3])}</td></tr>`).join("");
+
+  document.getElementById("footer").innerHTML =
+    `منبعِ یگانهٔ حقیقت: فایل‌های <code>data/*.csv</code> · مستندات با <code>tools/build_*.py</code>
+     تولید می‌شوند · کیفیت با <code>tools/test_build.py</code> پایش می‌شود ·
+     <a href="${REPO_URL}" target="_blank" rel="noopener">مخزن در گیت‌هاب ↗</a>`;
+
+  try{
+    const [kpi, alarm, events, matrix, master, road, risk, ques, ben, fin, oz, oc] =
+      await Promise.all(["kpi_catalog","alarm_catalog","event_catalog","integration_matrix",
+        "master_data","roadmap","risk_register","open_questions",
+        "benefit_model","financial_model","ot_zones","ot_conduits"].map(csv));
+
+    const capex = fin.reduce((a,r) => a + (N(r.capex_low_musd) + N(r.capex_high_musd)) / 2, 0);
+    const recMid = ben.reduce((a,b) => a + (N(b.saving_low_musd) + N(b.saving_high_musd)) / 2, 0);
+    const weeks = Math.max(...road.map(r => N(r.start_week) + N(r.duration_weeks)));
+
+    const tiles = [
+      [GROUPS.reduce((a,g)=>a+g.items.length,0), "مستند"],
+      [kpi.length, "شاخص کلیدی"],
+      [alarm.length, "هشدار تعریف‌شده"],
+      [events.length, "رویداد یکپارچه‌سازی"],
+      [matrix.length, "رابطه در ماتریس"],
+      [master.length, "موجودیت دادهٔ پایه"],
+      [road.length, "بستهٔ کاری"],
+      [risk.length, "ریسک ثبت‌شده"],
+      [ques.length, "پرسشِ باز"],
+      [oz.length, "منطقهٔ امنیتی"],
+      [oc.length, "کانالِ امن"],
+    ];
+    document.getElementById("kpis").innerHTML =
+      tiles.map(t => `<div class="kpi"><b>${t[0]}</b><span>${t[1]}</span></div>`).join("");
+
+    document.getElementById("finance").innerHTML = `
+      <tr><td>سرمایه‌گذاری (جمعِ ۴۳ بستهٔ کار)</td><td><b>۴.۹۶–۸.۴۲ میلیون دلار</b></td></tr>
+      <tr><td>مدت اجرا</td><td>${weeks} هفته (≈ ۲۴ ماه؛ تا ۳۰ ماه با احتیاط)</td></tr>
+      <tr><td>منفعتِ تکرارشوندهٔ سالانه</td><td>${recMid.toFixed(2)} میلیون دلار (سناریوی پایه)</td></tr>
+      <tr><td>بازگشت سرمایه</td><td><span class="pill p-ok">۳.۸ سال</span> · IRR ≈ ۲۵٪ · NPV@۱۵٪ ≈ ۰.۹۲</td></tr>
+      <tr><td>ترکیب هزینه</td><td>۴۲٪ خدمات نرم‌افزاری · ۳۸٪ سخت‌افزار OT/IT · ۲۰٪ احتیاطی</td></tr>
+      <tr><td>بزرگ‌ترین ریسک‌ها</td><td>کیفیت دادهٔ پایه · مقاومت فرهنگی · PLCهای قدیمی · امنیت OT</td></tr>`;
+  }catch(e){
+    document.getElementById("kpis").innerHTML =
+      `<div class="kpi"><b>۴۰</b><span>مستند</span></div>
+       <div class="kpi"><b>۱۲</b><span>منبع دادهٔ CSV</span></div>
+       <div class="kpi"><b>۲۰</b><span>تست خودکار</span></div>
+       <div class="kpi" style="flex:2"><span>جزئیاتِ آماری پس از دسترسی به پوشهٔ data نمایش داده می‌شود</span></div>`;
+  }
+
+  const h = location.hash.match(/^#\/doc\/(.+)$/);
+  if(h) openDoc(h[1], false);
+})();
+
+window.addEventListener("hashchange", () => {
+  const m = location.hash.match(/^#\/doc\/(.+)$/);
+  if(m && m[1] !== CURRENT) openDoc(m[1], false);
+});
+</script>
+</body>
+</html>
