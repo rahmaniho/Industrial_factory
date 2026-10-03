@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>داشبورد طراحی اتوماسیون یکپارچه کارخانه</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d212a; --line:#2a2f3a;
+    --txt:#e6e9ef; --muted:#9aa4b2; --accent:#4f8cff; --accent2:#7c5cff;
+    --crit:#ff5c5c; --major:#ffa23e; --minor:#ffd84d; --warn:#5ad2a0;
+    --ok:#5ad2a0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:"Vazirmatn","Tahoma","Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.8}
+  header{padding:22px 26px;border-bottom:1px solid var(--line);
+    background:linear-gradient(120deg,#141822,#191f2b 60%,#1a2333)}
+  header h1{margin:0;font-size:20px;letter-spacing:.2px}
+  header p{margin:6px 0 0;color:var(--muted);font-size:13px}
+  .kpis{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 16px;min-width:150px}
+  .kpi b{display:block;font-size:20px;color:#fff}
+  .kpi span{color:var(--muted);font-size:12px}
+  nav{display:flex;flex-wrap:wrap;gap:6px;padding:12px 26px;border-bottom:1px solid var(--line);
+      position:sticky;top:0;background:#12151c;z-index:10}
+  nav button{background:var(--panel);color:var(--muted);border:1px solid var(--line);
+    border-radius:8px;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:13px;transition:.15s}
+  nav button:hover{color:var(--txt);border-color:#3a4150}
+  nav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  main{padding:20px 26px 60px}
+  section{display:none}
+  section.active{display:block}
+  h2{font-size:17px;margin:0 0 4px}
+  .hint{color:var(--muted);font-size:12.5px;margin:0 0 16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+  input,select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    border-radius:8px;padding:7px 11px;font-family:inherit;font-size:13px;min-width:170px}
+  input:focus,select:focus{outline:none;border-color:var(--accent)}
+  table{border-collapse:collapse;width:100%;font-size:12.5px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:right;vertical-align:top}
+  th{background:#20252f;position:sticky;top:0;color:#cfd6e3;font-weight:600;z-index:2}
+  tbody tr:nth-child(even){background:#141821}
+  tbody tr:hover{background:#1b212c}
+  .scroll{max-height:70vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
+  .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;border:1px solid}
+  .p-crit{color:var(--crit);border-color:#5c2626;background:#2a1616}
+  .p-major{color:var(--major);border-color:#5c4420;background:#2a2214}
+  .p-minor{color:var(--minor);border-color:#5c5320;background:#2a2714}
+  .p-warn{color:var(--warn);border-color:#205c43;background:#142a22}
+  .p-low{color:var(--muted);border-color:var(--line);background:#1a1e26}
+  .p-high{color:#7fb0ff;border-color:#26435c;background:#141f2a}
+  /* matrix */
+  .mx th, .mx td{text-align:center;padding:5px 4px;font-size:11px;min-width:82px}
+  .mx th:first-child,.mx td:first-child{text-align:right;position:sticky;right:0;background:#20252f;z-index:3;min-width:120px}
+  .mx td:first-child{background:#181d26;font-weight:600}
+  .cell{border-radius:6px;padding:3px 2px;display:block;cursor:default}
+  .c0{background:#151922;color:#3d4553}
+  .c1{background:#16303f;color:#7fd8ff}
+  .c2{background:#1b3a2a;color:#7fe3ae}
+  .c3{background:#3d2f16;color:#ffc96b}
+  .c4{background:#40191c;color:#ff8b8b;font-weight:700}
+  .cell.crit{box-shadow:inset 0 0 0 1px #ff5c5c}
+  /* gantt */
+  .gantt{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;line-height:1.55;
+    white-space:pre;overflow:auto;background:#12151c;border:1px solid var(--line);border-radius:10px;padding:12px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:12px;margin-top:10px}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-left:6px;vertical-align:-2px}
+  footer{padding:18px 26px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+  code{background:#1b2029;padding:1px 5px;border-radius:4px;font-size:12px}
+  a{color:var(--accent)}
+  .err{background:#40191c;border:1px solid #7a2b2b;padding:12px;border-radius:10px;color:#ffb4b4}
+</style>
+</head>
+<body>
+<header>
+  <h1>داشبورد طراحی اتوماسیون یکپارچه کارخانه</h1>
+  <p>نمای تعاملیِ مستندات طراحی — داده‌ها مستقیماً از فایل‌های <code>data/*.csv</code> خوانده می‌شوند.</p>
+  <div class="kpis" id="kpis"></div>
+</header>
+
+<nav>
+  <button class="active" data-sec="sec-mx">ماتریس یکپارچگی</button>
+  <button data-sec="sec-kpi">کاتالوگ KPI</button>
+  <button data-sec="sec-alarm">نقشهٔ هشدارها</button>
+  <button data-sec="sec-road">نقشهٔ راه</button>
+  <button data-sec="sec-mdm">دادهٔ پایه</button>
+</nav>
+
+<main>
+  <div id="loadErr"></div>
+
+  <!-- Integration matrix -->
+  <section id="sec-mx" class="active">
+    <div class="card">
+      <h2>ماتریس یکپارچگی بین‌واحدی</h2>
+      <p class="hint">هر خانه: <code>جهت + مکانیزم · فرکانس</code>. نشان <b>*</b> یعنی رابطهٔ بحرانی.
+         برای مشاهدهٔ دادهٔ مبادله‌شده روی خانه توقف کنید (tooltip).</p>
+      <div class="toolbar">
+        <input id="mxFilter" placeholder="جست‌وجو در داده/ملاحظه…" >
+        <select id="mxCrit">
+          <option value="">همهٔ حساسیت‌ها</option>
+          <option value="Critical">فقط بحرانی</option>
+          <option value="High">فقط بالا</option>
+          <option value="Medium">فقط متوسط</option>
+        </select>
+        <label class="hint" style="margin:0"><input type="checkbox" id="mxOnlyCrit"> فقط روابط بحرانی</label>
+      </div>
+      <div class="scroll" id="mxWrap"></div>
+      <div class="legend">
+        <span><i style="background:#16303f"></i>متوسط</span>
+        <span><i style="background:#1b3a2a"></i>بالا</span>
+        <span><i style="background:#3d2f16"></i>بالا + بلادرنگ</span>
+        <span><i style="background:#40191c"></i>بحرانی</span>
+        <span><i style="background:#151922"></i>بدون رابطهٔ مستقیم</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>جزئیات یال‌ها</h2>
+      <p class="hint">جدول زیر با فیلتر بالا هماهنگ است.</p>
+      <div class="scroll" id="mxTable"></div>
+    </div>
+  </section>
+
+  <!-- KPI -->
+  <section id="sec-kpi">
+    <div class="card">
+      <h2>کاتالوگ شاخص‌های کلیدی (KPI)</h2>
+      <p class="hint">هر شاخص دارای فرمول، هدف، منبع داده و مالک است.</p>
+      <div class="toolbar">
+        <input id="kpiSearch" placeholder="جست‌وجو در نام/فرمول/منبع…">
+        <select id="kpiUnit"></select>
+        <select id="kpiFreq">
+          <option value="">همهٔ فرکانس‌ها</option>
+        </select>
+      </div>
+      <div class="scroll" id="kpiTable"></div>
+    </div>
+  </section>
+
+  <!-- Alarms -->
+  <section id="sec-alarm">
+    <div class="card">
+      <h2>نقشهٔ هشدارها</h2>
+      <p class="hint">سطح‌بندی بر اساس ISA-18.2: بحرانی / مهم / جزئی / هشدار.</p>
+      <div class="toolbar">
+        <input id="alSearch" placeholder="جست‌وجو در عنوان/محرک/اقدام…">
+        <select id="alSev">
+          <option value="">همهٔ سطوح</option>
+          <option>Critical</option><option>Major</option><option>Minor</option><option>Warning</option>
+        </select>
+        <select id="alUnit"></select>
+      </div>
+      <div class="scroll" id="alTable"></div>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section id="sec-road">
+    <div class="card">
+      <h2>نقشهٔ راه و گانت</h2>
+      <p class="hint">محور افقی: هفتهٔ پروژه. هر میله یک بستهٔ کاری است.</p>
+      <div class="gantt" id="gantt"></div>
+    </div>
+    <div class="card">
+      <h2>خلاصهٔ فازها</h2>
+      <div id="roadSummary"></div>
+    </div>
+    <div class="card">
+      <h2>بسته‌های کاری</h2>
+      <div class="toolbar">
+        <select id="roadPhase"></select>
+      </div>
+      <div class="scroll" id="roadTable"></div>
+    </div>
+  </section>
+
+  <!-- Master data -->
+  <section id="sec-mdm">
+    <div class="card">
+      <h2>داده‌های پایه و مالکیت</h2>
+      <p class="hint">برای هر موجودیت: یک مالک، یک سیستم مرجع، مصرف‌کنندگان مشخص.</p>
+      <div class="toolbar">
+        <input id="mdmSearch" placeholder="جست‌وجو…">
+        <select id="mdmCrit">
+          <option value="">همهٔ حساسیت‌ها</option>
+          <option>Critical</option><option>High</option><option>Medium</option>
+        </select>
+      </div>
+      <div class="scroll" id="mdmTable"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  منبع داده: <code>data/integration_matrix.csv</code>، <code>data/kpi_catalog.csv</code>،
+  <code>data/alarm_catalog.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
+  مستندات تحلیلی در پوشهٔ <code>docs/</code>.
+</footer>
+
+<script>
+const NODES = ["SEC","HSE","PRD","QCL","MRO","RMW","FGW","HRM","SAL","EXP","FIN","MNT","ELE","MEC","UTL","MDM","ERP","BI"];
+const NODE_FA = {SEC:"حراست",HSE:"HSE",PRD:"تولید",QCL:"QC/LIMS",MRO:"انبار فنی",RMW:"انبار مواد",
+  FGW:"انبار محصول",HRM:"منابع انسانی",SAL:"بازرگانی داخلی",EXP:"بازرگانی خارجی",FIN:"مالی",
+  MNT:"نگهداشت",ELE:"برق",MEC:"مکانیک",UTL:"تأسیسات",MDM:"داده پایه",ERP:"ERP",BI:"BI/DWH"};
+const MECH={ "API":"API","Event":"EV","Event+API":"EV","API+Event":"EV","OPC-UA":"OPC","OPC-UA+Event":"OPC",
+  "OPC-UA+API":"OPC","API+OPC-UA":"OPC","API+File":"File","DB+Event":"DB","DB":"DB","Event+DB":"DB" };
+const FREQ={ "Real-time":"RT","Minutes":"MIN","Hourly":"H","Daily":"D","Weekly":"W","Monthly":"M","Per-shift":"SH","On-event":"OE" };
+const FREQ_FA={ "Real-time":"بلادرنگ","Minutes":"دقیقه‌ای","Hourly":"ساعتی","Daily":"روزانه","Weekly":"هفتگی",
+  "Monthly":"ماهانه","Per-shift":"شیفتی","On-event":"رویدادی" };
+const SEV_FA={Critical:"بحرانی",Major:"مهم",Minor:"جزئی",Warning:"هشدار",High:"بالا",Medium:"متوسط",Low:"پایین"};
+const CRIT_RANK={Critical:4,High:3,Medium:2,Low:1};
+const RTL_FIX = s => (s||"").replace(/[A-Za-z0-9._\-]+/g, m => "\u2066"+m+"\u2069");
+
+/* ---------- CSV ---------- */
+function parseCSV(text){
+  const rows=[]; let row=[], cur="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; }
+      else cur+=c;
+    } else {
+      if(c==='"') q=true;
+      else if(c===','){ row.push(cur); cur=""; }
+      else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=""; }
+      else if(c==='\r'){}
+      else cur+=c;
+    }
+  }
+  if(cur.length||row.length){ row.push(cur); rows.push(row); }
+  const head=rows.shift().map(h=>h.trim());
+  return rows.filter(r=>r.length===head.length && r.some(x=>x.trim()!==""))
+             .map(r=>Object.fromEntries(head.map((h,i)=>[h,(r[i]||"").trim()])));
+}
+async function load(f){ const r=await fetch("../data/"+f); if(!r.ok) throw new Error(f+" "+r.status); return parseCSV(await r.text()); }
+
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- boot ---------- */
+let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[];
+(async ()=>{
+  try{
+    [MX,KPI,AL,ROAD,MDM] = await Promise.all([
+      load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
+      load("roadmap.csv"),load("master_data.csv")
+    ]);
+  }catch(e){
+    document.getElementById("loadErr").innerHTML =
+      '<div class="err">خطا در بارگذاری داده‌ها: '+esc(e.message)+
+      '<br>این داشبورد باید از طریق یک سرور HTTP از ریشهٔ مخزن اجرا شود، نه با باز کردن مستقیم فایل. '+
+      'مثال: <code>python3 -m http.server 8080 --bind 0.0.0.0</code> در ریشهٔ مخزن، سپس باز کردن <code>/dashboard/</code></div>';
+    return;
+  }
+  buildEdges(); renderKpis(); renderMatrix(); renderKpi(); renderAlarms(); renderRoad(); renderMdm();
+  wire();
+})();
+
+function buildEdges(){
+  EDGES={};
+  MX.forEach(r=>{
+    const s=r.source,t=r.target; if(s===t) return;
+    const pairs = r.direction==="two-way" ? [[s,t],[t,s]] : [[s,t]];
+    pairs.forEach(([a,b])=>{
+      const k=a+">"+b;
+      if(!EDGES[k] || (CRIT_RANK[r.criticality]||0) > (CRIT_RANK[EDGES[k].criticality]||0)) EDGES[k]=r;
+    });
+  });
+}
+
+function renderKpis(){
+  const crit = Object.values(EDGES).filter(e=>e.criticality==="Critical").length;
+  const lo=ROAD.reduce((a,r)=>a+parseFloat(r.cost_low_musd||0),0);
+  const hi=ROAD.reduce((a,r)=>a+parseFloat(r.cost_high_musd||0),0);
+  const maxW=Math.max(...ROAD.map(r=>+r.start_week + +r.duration_weeks));
+  const data=[
+    ["واحد/گره",NODES.length,"در ماتریس یکپارچگی"],
+    ["رابطهٔ تعریف‌شده",MX.length,"ردیف در CSV"],
+    ["یال جهت‌دار",Object.keys(EDGES).length,"شامل روابط دوطرفه"],
+    ["یال بحرانی",crit,"قطع آن تولید/انطباق را متوقف می‌کند"],
+    ["شاخص کلیدی",KPI.length,"دارای فرمول و مالک"],
+    ["هشدار تعریف‌شده",AL.length,"سطح‌بندی‌شده"],
+    ["موجودیت داده پایه",MDM.length,"با مالک مشخص"],
+    ["بستهٔ کاری",ROAD.length,"در ۷ فاز"],
+    ["مدت پروژه",maxW+" هفته","≈ "+Math.round(maxW/4.33)+" ماه"],
+    ["برآورد هزینه",lo.toFixed(1)+"–"+hi.toFixed(1)+" M USD","≈ "+(lo*100).toFixed(0)+"–"+(hi*100).toFixed(0)+" میلیارد تومان [فرض]"],
+  ];
+  document.getElementById("kpis").innerHTML = data.map(([l,v,s])=>
+    `<div class="kpi"><b>${esc(v)}</b><span>${esc(l)} — ${esc(s)}</span></div>`).join("");
+}
+
+/* ---------- matrix ---------- */
+function filteredEdges(){
+  const q=(document.getElementById("mxFilter").value||"").trim().toLowerCase();
+  const c=document.getElementById("mxCrit").value;
+  const only=document.getElementById("mxOnlyCrit").checked;
+  return Object.entries(EDGES).filter(([k,e])=>{
+    if(c && e.criticality!==c) return false;
+    if(only && e.criticality!=="Critical") return false;
+    if(q && !((e.data+" "+e.notes+" "+e.mechanism+" "+e.owner).toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+function cellClass(e){
+  if(!e) return "c0";
+  if(e.criticality==="Critical") return "c4";
+  if(e.frequency==="Real-time" && (e.criticality==="High")) return "c3";
+  if(e.criticality==="High") return "c2";
+  return "c1";
+}
+function renderMatrix(){
+  const set=new Map(filteredEdges());
+  const G=4, cols=[];
+  for(let i=0;i<NODES.length;i+=G) cols.push(NODES.slice(i,i+G));
+  let html="";
+  cols.forEach(group=>{
+    html+='<table class="mx" style="margin-bottom:18px"><thead><tr><th>مبدأ \\ مقصد</th>'+
+      group.map(c=>`<th>${esc(NODE_FA[c])}</th>`).join("")+'</tr></thead><tbody>';
+    NODES.forEach(s=>{
+      html+=`<tr><td>${esc(NODE_FA[s])} <span style="color:#5b6474">${s}</span></td>`;
+      group.forEach(t=>{
+        const e = set.get(s+">"+t);
+        const raw = EDGES[s+">"+t];
+        const dim = raw && !e ? ' style="opacity:.25"' : '';
+        if(!raw){ html+=`<td><span class="cell c0">—</span></td>`; return; }
+        const d = raw.direction==="two-way" ? "↔" : "→";
+        const m = MECH[raw.mechanism]||raw.mechanism;
+        const f = FREQ[raw.frequency]||raw.frequency;
+        const star = raw.criticality==="Critical" ? "*" : "";
+        const tip = `${NODE_FA[s]} → ${NODE_FA[t]}\n${raw.data}\nمکانیزم: ${raw.mechanism} | فرکانس: ${FREQ_FA[raw.frequency]||raw.frequency} | مالک: ${raw.owner} | حساسیت: ${raw.criticality}`+(raw.notes && raw.notes!=="-" ? "\nملاحظه: "+raw.notes : "");
+        html+=`<td><span class="cell ${cellClass(raw)} ${raw.criticality==="Critical"?"crit":""}" title="${esc(tip)}"${dim}>${d}${esc(m)}·${esc(f)}${star}</span></td>`;
+      });
+      html+="</tr>";
+    });
+    html+="</tbody></table>";
+  });
+  document.getElementById("mxWrap").innerHTML=html;
+
+  // detail table
+  const rows=filteredEdges().map(([k,e])=>{
+    const [s,t]=k.split(">");
+    return `<tr><td>${esc(NODE_FA[s])} → ${esc(NODE_FA[t])}</td><td>${esc(e.data)}</td>
+      <td>${e.direction==="two-way"?"↔ دوطرفه":"→ یک‌طرفه"}</td><td>${esc(e.mechanism)}</td>
+      <td>${esc(FREQ_FA[e.frequency]||e.frequency)}</td><td>${esc(e.owner)}</td>
+      <td><span class="pill p-${(e.criticality||"").toLowerCase()}">${esc(SEV_FA[e.criticality]||e.criticality)}</span></td>
+      <td>${esc(e.notes==="-"?"":e.notes)}</td></tr>`;
+  }).join("");
+  document.getElementById("mxTable").innerHTML =
+    `<table><thead><tr><th>مسیر</th><th>دادهٔ مبادله‌شده</th><th>جهت</th><th>مکانیزم</th><th>فرکانس</th><th>مالک</th><th>حساسیت</th><th>ملاحظه</th></tr></thead><tbody>${rows}</tbody></table>
+     <p class="hint" style="margin-top:10px">تعداد نمایش‌داده‌شده: ${filteredEdges().length} یال</p>`;
+}
+
+/* ---------- KPI ---------- */
+function renderKpi(){
+  const sel=document.getElementById("kpiUnit");
+  const units=[...new Set(KPI.map(k=>k.unit))];
+  sel.innerHTML='<option value="">همهٔ حوزه‌ها</option>'+units.map(u=>`<option value="${esc(u)}">${esc(u)} — ${esc(NODE_FA[u]||u)}</option>`).join("");
+  const fsel=document.getElementById("kpiFreq");
+  fsel.innerHTML='<option value="">همهٔ فرکانس‌ها</option>'+[...new Set(KPI.map(k=>k.frequency))].map(f=>`<option>${esc(f)}</option>`).join("");
+  drawKpi();
+}
+function drawKpi(){
+  const q=(document.getElementById("kpiSearch").value||"").toLowerCase();
+  const u=document.getElementById("kpiUnit").value, f=document.getElementById("kpiFreq").value;
+  const rows=KPI.filter(k=>{
+    if(u && k.unit!==u) return false;
+    if(f && k.frequency!==f) return false;
+    if(q && !(k.kpi_fa+k.formula+k.source_system+k.data_owner+k.id).toLowerCase().includes(q)) return false;
+    return true;
+  }).map(k=>`<tr><td>${esc(k.id)}</td><td>${esc(k.unit)}</td><td><b>${esc(k.kpi_fa)}</b></td>
+    <td dir="ltr" style="text-align:left">${esc(k.formula)}</td><td>${esc(k.target)}</td>
+    <td>${esc(k.source_system)}</td><td>${esc(k.data_owner)}</td><td>${esc(k.frequency)}</td></tr>`).join("");
+  document.getElementById("kpiTable").innerHTML =
+    `<table><thead><tr><th>شناسه</th><th>حوزه</th><th>شاخص</th><th>فرمول</th><th>هدف</th><th>منبع داده</th><th>مالک</th><th>فرکانس</th></tr></thead><tbody>${rows}</tbody></table>
+     <p class="hint" style="margin-top:10px">تعداد نمایش‌داده‌شده: ${KPI.filter(k=>(!document.getElementById("kpiUnit").value||k.unit===document.getElementById("kpiUnit").value)&&(!document.getElementById("kpiFreq").value||k.frequency===document.getElementById("kpiFreq").value)&&(!q||(k.kpi_fa+k.formula+k.source_system+k.data_owner+k.id).toLowerCase().includes(q))).length} از ${KPI.length}</p>`;
+}
+
+/* ---------- alarms ---------- */
+function renderAlarms(){
+  const usel=document.getElementById("alUnit");
+  usel.innerHTML='<option value="">همهٔ واحدها</option>'+[...new Set(AL.map(a=>a.unit))].map(u=>`<option value="${esc(u)}">${esc(u)} — ${esc(NODE_FA[u]||u)}</option>`).join("");
+  drawAlarms();
+}
+function drawAlarms(){
+  const q=(document.getElementById("alSearch").value||"").toLowerCase();
+  const s=document.getElementById("alSev").value, u=document.getElementById("alUnit").value;
+  const rows=AL.filter(a=>{
+    if(s && a.severity!==s) return false;
+    if(u && a.unit!==u) return false;
+    if(q && !(a.alarm_fa+a.trigger+a.auto_action+a.owner_role+a.id).toLowerCase().includes(q)) return false;
+    return true;
+  }).map(a=>`<tr><td>${esc(a.id)}</td><td>${esc(a.unit)}</td><td><b>${esc(a.alarm_fa)}</b></td>
+    <td>${esc(a.trigger)}</td><td><span class="pill p-${a.severity.toLowerCase()}">${esc(SEV_FA[a.severity]||a.severity)}</span></td>
+    <td>${esc(a.owner_role)}</td><td>${esc(a.notification)}</td><td>${esc(a.response_sla)}</td>
+    <td>${esc(a.auto_action)}</td><td>${esc(a.escalation==="-"?"":a.escalation)}</td></tr>`).join("");
+  document.getElementById("alTable").innerHTML =
+    `<table><thead><tr><th>شناسه</th><th>واحد</th><th>هشدار</th><th>محرک</th><th>سطح</th><th>مسئول</th><th>اعلان</th><th>SLA</th><th>اقدام خودکار</th><th>ارتقا</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- roadmap ---------- */
+function renderRoad(){
+  const phases=[...new Map(ROAD.map(r=>[r.phase,{p:r.phase,fa:r.phase_fa}])).values()];
+  const psel=document.getElementById("roadPhase");
+  psel.innerHTML='<option value="">همهٔ فازها</option>'+phases.map(p=>`<option value="${esc(p.p)}">${esc(p.fa)}</option>`).join("");
+
+  // gantt
+  const maxW=Math.max(...ROAD.map(r=>+r.start_week + +r.duration_weeks));
+  const W=64, T=16, slot=W/T;
+  let g="هفته:"+" ".repeat(1);
+  for(let i=0;i<=T;i++) g+= String(Math.round(i*maxW/T)).padEnd(slot," ");
+  g+="\n"+" ".repeat(5);
+  for(let i=0;i<T;i++) g+= ("|").padEnd(slot," ");
+  g+="\n";
+  phases.forEach(ph=>{
+    ROAD.filter(r=>r.phase===ph.p).forEach(r=>{
+      const s=+r.start_week, d=+r.duration_weeks;
+      const a=Math.round(s/maxW*W), b=Math.max(Math.round((s+d)/maxW*W), a+1);
+      g += r.wbs.padEnd(6) + " ".repeat(a) + "█".repeat(b-a) + "  " + r.work_package + "\n";
+    });
+    g += "\n";
+  });
+  document.getElementById("gantt").textContent=g;
+
+  // summary
+  const tlo=ROAD.reduce((a,r)=>a+parseFloat(r.cost_low_musd||0),0);
+  const thi=ROAD.reduce((a,r)=>a+parseFloat(r.cost_high_musd||0),0);
+  let s=`<table><thead><tr><th>فاز</th><th>بسته‌ها</th><th>بازه (هفته)</th><th>هزینه (M USD)</th><th>سهم از بودجه</th></tr></thead><tbody>`;
+  phases.forEach(ph=>{
+    const it=ROAD.filter(r=>r.phase===ph.p);
+    const lo=it.reduce((a,r)=>a+parseFloat(r.cost_low_musd||0),0);
+    const hi=it.reduce((a,r)=>a+parseFloat(r.cost_high_musd||0),0);
+    const ws=it.map(r=>+r.start_week), we=it.map(r=>+r.start_week+ +r.duration_weeks);
+    s+=`<tr><td>${esc(ph.fa)}</td><td>${it.length}</td><td>${Math.min(...ws)}–${Math.max(...we)}</td>
+        <td>${lo.toFixed(2)}–${hi.toFixed(2)}</td><td>${(lo/tlo*100).toFixed(0)}٪</td></tr>`;
+  });
+  s+=`<tr style="font-weight:700"><td>جمع</td><td>${ROAD.length}</td><td>۱–${maxW}</td><td>${tlo.toFixed(2)}–${thi.toFixed(2)}</td><td>۱۰۰٪</td></tr></tbody></table>`;
+  document.getElementById("roadSummary").innerHTML=s;
+  drawRoad();
+}
+function drawRoad(){
+  const p=document.getElementById("roadPhase").value;
+  const rows=ROAD.filter(r=>!p||r.phase===p).map(r=>`<tr><td>${esc(r.wbs)}</td><td>${esc(r.work_package)}</td>
+    <td>${esc(r.start_week)}</td><td>${esc(r.duration_weeks)}</td><td>${esc(r.depends_on||"—")}</td>
+    <td>${esc(r.deliverable)}</td><td>${esc(r.owner_role)}</td><td>${esc(r.cost_low_musd)}–${esc(r.cost_high_musd)}</td>
+    <td>${esc(r.risk_ref)}</td></tr>`).join("");
+  document.getElementById("roadTable").innerHTML =
+    `<table><thead><tr><th>WBS</th><th>بستهٔ کاری</th><th>شروع</th><th>مدت</th><th>پیش‌نیاز</th><th>خروجی</th><th>مسئول</th><th>هزینه (M USD)</th><th>ریسک</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- master data ---------- */
+function renderMdm(){ drawMdm(); }
+function drawMdm(){
+  const q=(document.getElementById("mdmSearch").value||"").toLowerCase();
+  const c=document.getElementById("mdmCrit").value;
+  const rows=MDM.filter(m=>{
+    if(c && m.criticality!==c) return false;
+    if(q && !(m.entity_fa+m.entity+m.owner_role+m.system_of_record+m.key_fields).toLowerCase().includes(q)) return false;
+    return true;
+  }).map(m=>`<tr><td><b>${esc(m.entity_fa)}</b><br><span style="color:#5b6474">${esc(m.entity)}</span></td>
+    <td>${esc(m.owner_role)}</td><td>${esc(m.system_of_record)}</td><td>${esc(m.key_fields)}</td>
+    <td>${esc(m.consumers.replace(/;/g,"، "))}</td><td>${esc(m.update_freq)}</td>
+    <td><span class="pill p-${(m.criticality||"").toLowerCase()}">${esc(SEV_FA[m.criticality]||m.criticality)}</span></td></tr>`).join("");
+  document.getElementById("mdmTable").innerHTML =
+    `<table><thead><tr><th>موجودیت</th><th>مالک داده</th><th>سیستم مرجع</th><th>فیلدهای کلیدی</th><th>مصرف‌کنندگان</th><th>تناوب</th><th>حساسیت</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- wiring ---------- */
+function wire(){
+  document.querySelectorAll("nav button").forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+      document.querySelectorAll("section").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      document.getElementById(b.dataset.sec).classList.add("active");
+    };
+  });
+  ["mxFilter","mxCrit"].forEach(id=>document.getElementById(id).addEventListener("input",renderMatrix));
+  document.getElementById("mxOnlyCrit").addEventListener("change",renderMatrix);
+  document.getElementById("kpiSearch").addEventListener("input",drawKpi);
+  document.getElementById("kpiUnit").addEventListener("change",drawKpi);
+  document.getElementById("kpiFreq").addEventListener("change",drawKpi);
+  document.getElementById("alSearch").addEventListener("input",drawAlarms);
+  document.getElementById("alSev").addEventListener("change",drawAlarms);
+  document.getElementById("alUnit").addEventListener("change",drawAlarms);
+  document.getElementById("roadPhase").addEventListener("change",drawRoad);
+  document.getElementById("mdmSearch").addEventListener("input",drawMdm);
+  document.getElementById("mdmCrit").addEventListener("change",drawMdm);
+}
+</script>
+</body>
+</html>
