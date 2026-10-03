@@ -1,0 +1,23 @@
+entity,service,key,refs,retention_class
+WorkOrder,MES,`wo_id`,product، recipe_ver، routing، line، shift,عملیاتی ۷y
+Batch,MES,`batch_id`,wo، product، quality_status,عملیاتی ۷y
+MaterialConsumption,MES,`consumption_id` (ULID),wo، vendor_batch، bin، scale، operator,عملیاتی ۷y
+BatchGenealogyEdge,MES,`edge_id`,parent، child، qty,عملیاتی ۷y
+DowntimeEvent,MES,`downtime_id`,equipment، reason، wo,عملیاتی ۳y
+VendorBatch,WMS,`vendor_batch_id`,item، supplier، bin، quality_status,عملیاتی ۷y
+StockMovement,WMS,`movement_id`,item، batch، from_bin، to_bin، ref_doc,عملیاتی ۷y
+SSCC/Pallet,WMS,`sscc`,batches، shipment، bin,عملیاتی ۷y
+Sample / QualityResult,LIMS,`sample_id` / `result_id`,batch، spec، method، instrument,انطباق ۱۰y
+NCR / CAPA,QMS,`ncr_id` / `capa_id`,batch، item، root_cause,انطباق ۱۰y
+Asset,CMMS,`asset_id`,parent، class، cost_center، criticality,عمر دارایی + ۵y
+WorkRequest / WorkOrder(MNT),CMMS,`wo_mnt_id`,asset، skill، ptw، parts,عملیاتی ۱۰y
+FailureEvent,CMMS,`failure_id`,asset، failure_mode، cause,عملیاتی ۱۰y
+PTW / LOTO,HSE,`ptw_id`,asset، wo_mnt، approvals، gas_reading,انطباق ۱۰y
+Incident,HSE,`incident_id`,person، location، severity,انطباق ۱۰y
+AccessEvent,ACS,`access_id` (ULID),person، zone، door، result,امنیتی ۱y (ویدئو ۳۰d)
+GatePass,ACS/WMS,`gate_pass_id`,shipment، vehicle، approvals,عملیاتی ۳y
+Person / Competency,HRM,`person_id`,org_unit، skills، certs,طبق قانون کار
+ShiftAssignment,HRM/T&A,`assignment_id`,person، shift، line، date,عملیاتی ۳y
+SalesOrder / Invoice,ERP,`so_id` / `invoice_id`,customer، items، shipment,مالی ۱۰y
+FinancialPosting,ERP,`posting_id`,source_event_id، accounts، cost_center,مالی ۱۰y
+AuditEvent,Audit Store,`event_id` (ULID),actor، entity، correlation_id,WORM طبق کلاس

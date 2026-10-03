@@ -95,6 +95,9 @@
   <button data-sec="sec-role">نقش‌ها و دسترسی</button>
   <button data-sec="sec-raci">مسئولیت‌ها (RACI)</button>
   <button data-sec="sec-uat">برنامهٔ پذیرش</button>
+  <button data-sec="sec-nfr">الزامات و انطباق</button>
+  <button data-sec="sec-dm">مدل داده</button>
+  <button data-sec="sec-hw">سخت‌افزار</button>
 </nav>
 
 <main>
@@ -223,6 +226,80 @@
         <select id="qGroup"><option value="">همهٔ گروه‌ها</option></select>
       </div>
       <div class="scroll" id="qTable"></div>
+    </div>
+  </section>
+
+  <!-- NFR & Compliance -->
+  <section id="sec-nfr">
+    <div class="card">
+      <h2>الزامات غیرکارکردی (NFR)</h2>
+      <p class="hint">هر الزام مقدارِ هدف و روشِ اندازه‌گیری دارد؛ الزامِ بدون عدد، قابل پذیرش نیست.</p>
+      <div class="toolbar">
+        <input id="nfrSearch" placeholder="جست‌وجو در الزامات…">
+        <select id="nfrCat"><option value="">همهٔ دسته‌ها</option></select>
+        <select id="nfrPrio"><option value="">همهٔ اولویت‌ها</option></select>
+      </div>
+      <div class="scroll" id="nfrTable"></div>
+    </div>
+    <div class="card">
+      <h2>کنترل‌های امنیت OT</h2>
+      <p class="hint">۲۵ کنترل با وضعیتِ الزام؛ «الزامی» یعنی بدون آن، پذیرش انجام نمی‌شود.</p>
+      <div class="toolbar">
+        <input id="otcSearch" placeholder="جست‌وجو…">
+        <select id="otcStatus"><option value="">همهٔ وضعیت‌ها</option></select>
+      </div>
+      <div class="scroll" id="otcTable"></div>
+    </div>
+    <div class="card">
+      <h2>سطح امنیت هدف (SL) و استانداردها</h2>
+      <div class="scroll" id="slTable"></div>
+      <h3 style="margin-top:18px">استانداردها و مدرکِ شاهد</h3>
+      <div class="scroll" id="compTable"></div>
+      <h3 style="margin-top:18px">گزارش‌های ممیزیِ خودکار</h3>
+      <div class="scroll" id="audTable"></div>
+    </div>
+  </section>
+
+  <!-- Data model -->
+  <section id="sec-dm">
+    <div class="card">
+      <h2>موجودیت‌های هسته و سرویسِ مالک</h2>
+      <p class="hint">هر موجودیت دقیقاً یک سرویسِ مالک دارد؛ سرویس‌های دیگر فقط مصرف‌کننده‌اند.</p>
+      <div class="toolbar">
+        <input id="entSearch" placeholder="جست‌وجو…">
+        <select id="entSvc"><option value="">همهٔ سرویس‌ها</option></select>
+      </div>
+      <div class="scroll" id="entTable"></div>
+    </div>
+    <div class="card">
+      <h2>قراردادهای شناسه، نگه‌داری و یکپارچگی</h2>
+      <h3>قالبِ شناسه‌ها</h3>
+      <div class="scroll" id="idcTable"></div>
+      <h3 style="margin-top:18px">کلاس‌های نگه‌داری</h3>
+      <div class="scroll" id="retTable"></div>
+      <h3 style="margin-top:18px">یکپارچگیِ ارجاعی بدون کلید خارجی</h3>
+      <div class="scroll" id="intTable"></div>
+      <h3 style="margin-top:18px">سیاستِ تغییرِ ابعاد (SCD)</h3>
+      <div class="scroll" id="scdTable"></div>
+      <h3 style="margin-top:18px">ابعادِ یکسان (Conformed)</h3>
+      <div class="scroll" id="dimTable"></div>
+    </div>
+  </section>
+
+  <!-- Hardware -->
+  <section id="sec-hw">
+    <div class="card">
+      <h2>حجم تجهیزات بر حسب واحد</h2>
+      <p class="hint">شمارش‌ها و سهمِ بودجه [فرض] هستند و پس از بازدید میدانی باید به‌روز شوند.</p>
+      <div class="scroll" id="hwTable"></div>
+    </div>
+    <div class="card">
+      <h2>اصول انتخاب سخت‌افزار</h2>
+      <div class="scroll" id="hwpTable"></div>
+      <h3 style="margin-top:18px">مراجع استاندارد</h3>
+      <div class="scroll" id="hwsTable"></div>
+      <h3 style="margin-top:18px">ردیف‌های هزینه‌ای که معمولاً فراموش می‌شوند</h3>
+      <div class="scroll" id="hwcTable"></div>
     </div>
   </section>
 
@@ -394,7 +471,7 @@
 <footer>
   منبع داده: <code>data/integration_matrix.csv</code>، <code>data/kpi_catalog.csv</code>،
   <code>data/alarm_catalog.csv</code>، <code>data/event_catalog.csv</code>،
-  <code>data/risk_register.csv</code>، <code>data/open_questions.csv</code>، <code>data/benefit_model.csv</code>، <code>data/financial_model.csv</code>، <code>data/ot_zones.csv</code>، <code>data/ot_conduits.csv</code>، <code>data/traceability.csv</code>، <code>data/roles.csv</code>، <code>data/ui_matrix.csv</code>، <code>data/rbac.csv</code>، <code>data/sod_rules.csv</code>، <code>data/raci.csv</code>، <code>data/uat_scenarios.csv</code>، <code>data/uat_criteria.csv</code>، <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
+  <code>data/risk_register.csv</code>، <code>data/open_questions.csv</code>، <code>data/benefit_model.csv</code>، <code>data/financial_model.csv</code>، <code>data/ot_zones.csv</code>، <code>data/ot_conduits.csv</code>، <code>data/traceability.csv</code>، <code>data/roles.csv</code>، <code>data/ui_matrix.csv</code>، <code>data/rbac.csv</code>، <code>data/sod_rules.csv</code>، <code>data/raci.csv</code>، <code>data/uat_scenarios.csv</code>، <code>data/uat_criteria.csv</code>، <code>data/nfr.csv</code>، <code>data/ot_controls.csv</code>، <code>data/compliance.csv</code>، <code>data/entities.csv</code>، <code>data/sensors.csv</code> و دیگر فایل‌های <code>data/</code> · <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
   مستندات تحلیلی در پوشهٔ <code>docs/</code>.
 </footer>
 
@@ -438,17 +515,24 @@ async function load(f){ const r=await fetch("../data/"+f); if(!r.ok) throw new E
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- boot ---------- */
-let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[], FIN=[], OZ=[], OC=[], TR=[], ROLES=[], ACC=[], RBAC=[], SOD=[], RACI=[], UAT=[], UATC=[];
+let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[], FIN=[], OZ=[], OC=[], TR=[], ROLES=[], ACC=[], RBAC=[], SOD=[], RACI=[], UAT=[], UATC=[], NFR=[], SLT=[], OTC=[], COMP=[], AUD=[],
+      ENT=[], IDC=[], RET=[], INTG=[], SCD=[], DIM=[], HW=[], HWP=[], HWS=[], HWC=[];
 (async ()=>{
   try{
-    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR,ROLES,ACC,RBAC,SOD,RACI,UAT,UATC] = await Promise.all([
+    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR,ROLES,ACC,RBAC,SOD,RACI,UAT,UATC,NFR,SLT,OTC,COMP,AUD,ENT,IDC,RET,INTG,SCD,DIM,HW,HWP,HWS,HWC] = await Promise.all([
       load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
       load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),
       load("risk_register.csv"),load("open_questions.csv"),
       load("benefit_model.csv"),load("financial_model.csv"),
       load("ot_zones.csv"),load("ot_conduits.csv"),load("traceability.csv"),
       load("roles.csv"),load("ui_matrix.csv"),load("rbac.csv"),load("sod_rules.csv"),
-      load("raci.csv"),load("uat_scenarios.csv"),load("uat_criteria.csv")
+      load("raci.csv"),load("uat_scenarios.csv"),load("uat_criteria.csv"),
+      load("nfr.csv"),load("sl_targets.csv"),load("ot_controls.csv"),
+      load("compliance.csv"),load("audit_reports.csv"),
+      load("entities.csv"),load("id_conventions.csv"),load("retention_classes.csv"),
+      load("integrity_rules.csv"),load("scd_policies.csv"),load("conformed_dims.csv"),
+      load("sensors.csv"),load("hw_principles.csv"),load("hw_standards.csv"),
+      load("hw_cost_items.csv")
     ]);
   }catch(e){
     document.getElementById("loadErr").innerHTML =
@@ -493,6 +577,8 @@ function renderKpis(){
     ["نیازمندیِ ردیابی‌شده",TR.length,"با مستند، داده و روش راستی‌آزمایی"],
     ["نقشِ کاربری",ROLES.length,"با ماتریس دسترسی و SoD"],
     ["سناریوی پذیرش",UAT.length,"با معیارِ عبورِ عددی"],
+    ["الزامِ غیرکارکردی",NFR.length,"با مقدار هدف و روش اندازه‌گیری"],
+    ["موجودیتِ داده",ENT.length,"هر کدام با سرویسِ مالک"],
     ["موجودیت داده پایه",MDM.length,"با مالک مشخص"],
     ["بستهٔ کاری",ROAD.length,"در ۷ فاز"],
     ["مدت پروژه",maxW+" هفته","≈ "+Math.round(maxW/4.33)+" ماه"],
@@ -701,6 +787,107 @@ function drawQuestions(){
      <tbody>${body}</tbody></table>
      <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${QQ.length} پرسش
      (بلوکه‌کننده: ${QQ.filter(x=>x.priority==="بلوکه\u200cکننده").length})</p>`;
+}
+
+/* ---------- NFR، مدل داده، سخت‌افزار ---------- */
+function renderNfr(){
+  fillSelect("nfrCat", NFR.map(r=>r.category), "همهٔ دسته‌ها");
+  fillSelect("nfrPrio", NFR.map(r=>r.priority), "همهٔ اولویت‌ها");
+  fillSelect("otcStatus", OTC.map(r=>r.status), "همهٔ وضعیت‌ها");
+  drawNfr(); drawOtc();
+  document.getElementById("slTable").innerHTML =
+    `<table><thead><tr><th>زون</th><th>SL هدف</th><th>توضیح</th></tr></thead><tbody>` +
+    SLT.map(r=>`<tr><td><b>${esc(r.zone)}</b></td>
+      <td><span class="pill ${r.sl_target.includes("SL-3")?"p-crit":"p-major"}">${esc(r.sl_target)}</span></td>
+      <td>${esc(r.description)}</td></tr>`).join("") + `</tbody></table>`;
+  document.getElementById("compTable").innerHTML =
+    `<table><thead><tr><th>استاندارد/الزام</th><th>دامنه</th><th>الزامات مرتبط</th><th>مدرک/شاهد</th></tr></thead><tbody>` +
+    COMP.map(r=>`<tr><td><b>${esc(r.standard)}</b></td><td>${esc(r.scope)}</td>
+      <td>${esc(r.requirements)}</td><td>${esc(r.evidence)}</td></tr>`).join("") + `</tbody></table>`;
+  document.getElementById("audTable").innerHTML =
+    `<table><thead><tr><th>گزارش</th><th>محتوا</th><th>منبع</th></tr></thead><tbody>` +
+    AUD.map(r=>`<tr><td><b>${esc(r.report)}</b></td><td>${esc(r.content)}</td><td>${esc(r.source)}</td></tr>`).join("") +
+    `</tbody></table>`;
+}
+function drawNfr(){
+  const q=(document.getElementById("nfrSearch").value||"").toLowerCase();
+  const c=document.getElementById("nfrCat").value, pr=document.getElementById("nfrPrio").value;
+  const rows=NFR.filter(r=>{
+    if(c && r.category!==c) return false;
+    if(pr && r.priority!==pr) return false;
+    if(q && !(r.requirement+r.target+r.measurement+r.category).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("nfrTable").innerHTML =
+    `<table><thead><tr><th>دسته</th><th>نیازمندی</th><th>مقدار هدف</th><th>روش اندازه‌گیری</th><th>اولویت</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>${esc(r.category)}</td><td>${esc(r.requirement)}</td>
+      <td><b>${esc(r.target)}</b></td><td>${esc(r.measurement)}</td><td>${esc(r.priority)}</td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${NFR.length} الزام</p>`;
+}
+function drawOtc(){
+  const q=(document.getElementById("otcSearch").value||"").toLowerCase();
+  const st=document.getElementById("otcStatus").value;
+  const rows=OTC.filter(r=>{
+    if(st && r.status!==st) return false;
+    if(q && !(r.area+r.control).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const cls=v => /الزامی/.test(v) ? "p-crit" : /توصیه/.test(v) ? "p-minor" : "p-low";
+  document.getElementById("otcTable").innerHTML =
+    `<table><thead><tr><th>حوزه</th><th>کنترل</th><th>وضعیت الزام</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>${esc(r.area)}</td><td>${esc(r.control)}</td>
+      <td><span class="pill ${cls(r.status)}">${esc(r.status)}</span></td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${OTC.length} کنترل</p>`;
+}
+
+function renderDataModel(){
+  fillSelect("entSvc", ENT.map(r=>r.service), "همهٔ سرویس‌ها");
+  drawEnt();
+  const tbl = (rows, head, cols) =>
+    `<table><thead><tr>${head.map(h=>"<th>"+h+"</th>").join("")}</tr></thead><tbody>` +
+    rows.map(r=>"<tr>" + cols.map(c=>"<td>"+esc(r[c])+"</td>").join("") + "</tr>").join("") +
+    "</tbody></table>";
+  document.getElementById("idcTable").innerHTML =
+    tbl(IDC, ["نوع","قالب","مثال","توضیح"], ["type","fmt","example","note"]);
+  document.getElementById("retTable").innerHTML =
+    tbl(RET, ["کلاس","دامنه","مدت","رسانه","قابل حذف؟"], ["cls","scope","duration","media","deletable"]);
+  document.getElementById("intTable").innerHTML =
+    tbl(INTG, ["رابطه","سیاست","مکانیزم کنترل"], ["relation","policy","mechanism"]);
+  document.getElementById("scdTable").innerHTML =
+    tbl(SCD, ["نوع تغییر","سیاست","مثال"], ["change_type","policy","example"]);
+  document.getElementById("dimTable").innerHTML =
+    tbl(DIM, ["بُعد","منبع","کلید","ویژگی‌های کلیدی"], ["dimension","source","key","features"]);
+}
+function drawEnt(){
+  const q=(document.getElementById("entSearch").value||"").toLowerCase();
+  const sv=document.getElementById("entSvc").value;
+  const rows=ENT.filter(r=>{
+    if(sv && r.service!==sv) return false;
+    if(q && !(r.entity+r.service+r.key+r.refs).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("entTable").innerHTML =
+    `<table><thead><tr><th>موجودیت</th><th>سرویس مالک</th><th>کلید</th><th>ارجاع‌های اصلی</th><th>کلاس نگه‌داری</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.entity)}</b></td><td>${esc(r.service)}</td>
+      <td dir="ltr" style="text-align:left">${esc(r.key)}</td><td>${esc(r.refs)}</td>
+      <td>${esc(r.retention_class)}</td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${ENT.length} موجودیت</p>`;
+}
+
+function renderHw(){
+  document.getElementById("hwTable").innerHTML =
+    `<table><thead><tr><th>واحد</th><th>گروه‌های اصلی تجهیزات</th><th>شمار تقریبی نقطه/دستگاه</th><th>سهم از بودجهٔ سخت‌افزار</th></tr></thead><tbody>` +
+    HW.map(r=>`<tr><td><b>${esc(r.unit)}</b></td><td>${esc(r.groups)}</td>
+      <td>${esc(r.count)}</td><td>${esc(r.budget_share)}</td></tr>`).join("") + `</tbody></table>`;
+  document.getElementById("hwpTable").innerHTML =
+    `<table><thead><tr><th>اصل</th><th>الزام</th><th>دلیل</th></tr></thead><tbody>` +
+    HWP.map(r=>`<tr><td><b>${esc(r.principle)}</b></td><td>${esc(r.requirement)}</td><td>${esc(r.reason)}</td></tr>`).join("") + `</tbody></table>`;
+  document.getElementById("hwsTable").innerHTML =
+    `<table><thead><tr><th>حوزه</th><th>مرجع</th></tr></thead><tbody>` +
+    HWS.map(r=>`<tr><td>${esc(r.area)}</td><td>${esc(r.reference)}</td></tr>`).join("") + `</tbody></table>`;
+  document.getElementById("hwcTable").innerHTML =
+    `<table><thead><tr><th>ردیف هزینه‌ای</th><th>چرا مهم است</th></tr></thead><tbody>` +
+    HWC.map(r=>`<tr><td><b>${esc(r.item)}</b></td><td>${esc(r.why)}</td></tr>`).join("") + `</tbody></table>`;
 }
 
 /* ---------- نقش‌ها، دسترسی، RACI، UAT ---------- */
@@ -1029,6 +1216,12 @@ function wire(){
   document.getElementById("evPii").addEventListener("change",drawEvents);
   document.getElementById("rkSearch").addEventListener("input",drawRisk);
   document.getElementById("rkBand").addEventListener("change",drawRisk);
+  document.getElementById("nfrSearch").addEventListener("input",drawNfr);
+  ["nfrCat","nfrPrio"].forEach(id=>document.getElementById(id).addEventListener("change",drawNfr));
+  document.getElementById("otcSearch").addEventListener("input",drawOtc);
+  document.getElementById("otcStatus").addEventListener("change",drawOtc);
+  document.getElementById("entSearch").addEventListener("input",drawEnt);
+  document.getElementById("entSvc").addEventListener("change",drawEnt);
   ["roleSearch"].forEach(id=>document.getElementById(id).addEventListener("input",drawRoles));
   ["accRole","accPage"].forEach(id=>document.getElementById(id).addEventListener("change",drawAcc));
   document.getElementById("accAll").addEventListener("change",drawAcc);

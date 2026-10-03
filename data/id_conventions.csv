@@ -1,0 +1,15 @@
+type,fmt,example,note
+`event_id`,ULID (26 حرف),`01J9Z8X7K2M3N4P5Q6R7S8T9V0`,قابل مرتب‌سازی زمانی؛ تولید آفلاین
+`correlation_id`,ULID,—,یکتا برای هر زنجیرهٔ فرآیند
+`batch_id` (محصول),`B-YYMMDD-XX`,`B-14040711-03`,سال/ماه/روز شمسی + شمارندهٔ خط
+`vendor_batch_id`,`RM-YYMMDD-<کد تامین‌کننده>`,`RM-14040701-A2`,کد تأمین‌کننده از MDM
+`wo_id`,`WO-YYMMDD-NNNN`,`WO-14040711-0012`,—
+`wo_mnt_id`,`MW-YYYY-NNNNNN`,`MW-1404-001234`,سال مالی + شمارنده
+`asset_id`,مطابق درخت دارایی,`THR1-PRD-LN1-PMP-P04`,هم‌راستا با قرارداد نام تگ
+`bin_id`,`ZONE-AISLE-RACK-BIN`,`RM-Z1-A03-R12-B4`,مکان‌محوری دو لایه‌ای
+`sscc`,GS1 SSCC-18,—,تخصیص از محدودهٔ GS1 سازمان
+GTIN,GS1 (۸/۱۲/۱۳/۱۴ رقم),`6260000000013`,کالای تجاری
+GLN,GS1 (۱۳ رقم),—,مکان/طرف تجاری
+`person_id`,`EMP-NNNNN`,`EMP-00431`,شمارهٔ پرسنلی
+`sample_id`,`SMP-YYMMDD-NNN`,`SMP-14040711-014`,—
+`posting_id`,داخلی ERP,—,با ارجاع به `source_event_id`

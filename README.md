@@ -146,6 +146,9 @@
 | `docs/07-ui-forms-by-role.md` | `roles.csv` + `ui_matrix.csv` | نقش‌ها و ماتریسِ دسترسیِ نقش × صفحه |
 | `docs/10-raci-rbac.md` | `raci.csv` + `rbac.csv` + `sod_rules.csv` | مسئولیت‌ها، دسترسی و تفکیک وظایف |
 | `docs/13-uat-checklist.md` | `uat_scenarios.csv` + `uat_criteria.csv` | سناریوهای پذیرش و معیارهای کمّی |
+| `docs/06-hardware-sensors-catalog.md` | `sensors.csv` + `hw_principles.csv` + `hw_standards.csv` + `hw_cost_items.csv` | حجم تجهیزات، اصول انتخاب، مراجع و ردیف‌های هزینه‌ایِ فراموش‌شده |
+| `docs/15-nfr-security-compliance.md` | `nfr.csv` + `ot_controls.csv` + `compliance.csv` + … | ۲۹ الزام غیرکارکردی، ۲۵ کنترل OT، استانداردها و گزارش‌های ممیزی |
+| `docs/18-data-model.md` | `entities.csv` + `id_conventions.csv` + `retention_classes.csv` + … | موجودیت‌ها، قرارداد شناسه، کلاس‌های نگه‌داری و سیاست‌های تغییر |
 
 بازتولید همهٔ موارد بالا:
 
@@ -163,7 +166,7 @@ node tools/test_site.js         # ۱۸ تستِ سایت و داشبورد (جا
 همین بررسی‌ها در GitHub Actions (`.github/workflows/docs.yml`) اجرا می‌شوند و اگر
 مستندِ تولید‌شده با CSV هم‌خوان نباشد، ساخت شکست می‌خورد.
 
-سه مستند (۷، ۱۰، ۱۳) ترکیبی‌اند: متن در قالب (`tools/templates/`) و جدول‌ها از CSV.
+شش مستند (۶، ۷، ۱۰، ۱۳، ۱۵، ۱۸) ترکیبی‌اند: متن در قالب (`tools/templates/`) و جدول‌ها از CSV.
 بازتولید آن‌ها:
 
 ```bash

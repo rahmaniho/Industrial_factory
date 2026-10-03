@@ -32,7 +32,7 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | ابزار | ورودی | خروجی |
 |---|---|---|
 | `build_integration_matrix.py` | `data/integration_matrix.csv` | `docs/04-integration-matrix.md` (ماتریس ۱۸×۱۸، آمار، جزئیات یال‌ها، الگوها، ضدالگوها) |
-| `build_templates.py` | `tools/templates/*.md` + چند CSV | `docs/07`، `docs/10`، `docs/13` (متنِ ثابت + جدولِ داده‌محور) |
+| `build_templates.py` | `tools/templates/*.md` + چند CSV | `docs/06`، `07`، `10`، `13`، `15`، `18` (متنِ ثابت + جدولِ داده‌محور) |
 | `build_catalogs.py` | `data/master_data.csv` | `docs/05-master-data-ownership.md` |
 | `build_catalogs.py` | `data/kpi_catalog.csv` | `docs/08-kpi-catalog.md` |
 | `build_catalogs.py` | `data/alarm_catalog.csv` | `docs/09-alarm-map.md` |
@@ -74,4 +74,7 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | `raci.csv` | قالبِ طویل (فعالیت × نقش × مقدار)؛ هر فعالیت باید **دقیقاً یک A** و **حداقل یک R** داشته باشد |
 | `ui_matrix.csv` | قالبِ طویل و **کامل**: هر ترکیبِ صفحه×نقش یک ردیف دارد (بدون دسترسی = `—`) |
 | `roles.csv` | کدهای نقش یکتا هستند و ماتریس فقط به همین کدها ارجاع می‌دهد |
+| `nfr.csv` | هر الزام باید «مقدار هدف» و «روش اندازه‌گیری» داشته باشد |
+| `ot_controls.csv` | `status` یکی از مقادیرِ موجود در مستند (الزامی / توصیه‌ای / …) |
+| `retention_classes.csv` | ستونِ `deletable` باید صریحاً بله/خیر باشد |
 | `traceability.csv` | `group` یکی از «معیار پذیرش / تحویل‌دادنی / الزام نگارش / کیفیت مخزن»؛ هر ردیف باید روشِ راستی‌آزمایی داشته باشد |

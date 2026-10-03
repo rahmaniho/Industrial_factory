@@ -1,0 +1,7 @@
+zone,sl_target,description
+Enterprise (L4),SL-2,حفاظت در برابر مهاجمِ هدفمند با منابع محدود
+Industrial DMZ (L3.5),SL-3,مرز حیاتی؛ دسترسی کاملاً کنترل‌شده
+Manufacturing/Operations (L3),SL-2 (هدف SL-3 برای MES/Historian),
+Supervisory/Control (L2),SL-2,
+Basic Control (L1),SL-2 (و SIL برای عملکرد ایمنی — مسیر مستقل),
+Safety Instrumented System,مستقل؛ جداسازی عملکردی طبق IEC 61511,
