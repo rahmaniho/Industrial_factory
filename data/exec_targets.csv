@@ -1,0 +1,14 @@
+metric,unit,baseline,target_18m,target_30m,source
+OEE کل خطوط,٪,۵۲,۶۸,۷۵,MES
+Availability,٪,۶۴,۷۸,۸۳,MES Downtime
+Performance,٪,۸۵,۹۰,۹۳,MES Counter
+Quality (FPY),٪,۹۴,۹۷.۵,۹۸.۵,MES + LIMS
+دقت موجودی انبار مواد,٪,۸۴,۹۵,۹۸.۵,WMS Cycle Count
+OTIF تحویل,٪,۷۶,۹۰,۹۵,WMS/ERP
+زمان ردیابی بچ,ثانیه,۱۴٬۴۰۰,۶۰,۳۰,MES Genealogy
+درصد PM به‌موقع,٪,۵۵,۸۵,۹۵,CMMS
+MTBF پمپ‌های بحرانی,ساعت,۲٬۲۰۰,۳٬۵۰۰,۵٬۰۰۰,CMMS
+LTIFR,در هر ۱M ساعت,۳.۸,۲.۰,۱.۲,HSE
+زمان بستن ماه مالی,روز,۱۲,۵,۲,ERP
+سهم ثبت دستی داده,٪,۱۰۰,۲۰,< ۵,MES/MDM
+انرژی ویژه,kWh/تن,۱۱۵,۱۰۰,۹۰,Historian/تأسیسات

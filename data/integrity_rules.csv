@@ -1,0 +1,7 @@
+relation,policy,mechanism
+WorkOrder → Recipe,نسخهٔ Recipe در لحظهٔ صدور **قفل** می‌شود,ذخیرهٔ `recipe_ver` روی WO
+WorkOrder → Asset,ارجاع با شناسه؛ در صورت حذف دارایی، WO تاریخچه می‌ماند,حذف منطقی (Soft Delete)
+Consumption → VendorBatch,اعتبارسنجی در لحظهٔ اسکن (نه پس از آن),فراخوانی همزمان به WMS (گیت)
+Batch → QualityResult,Batch بدون نتیجهٔ اجباری، قابل ترخیص نیست,گیت کیفیت در MES
+StockMovement → FinancialPosting,هر حرکتِ ارزش‌دار باید دقیقاً یک سند داشته باشد,شمارش انطباق + هشدار `A096`
+AuditEvent → هر موجودیت,ارجاع با `entity.type` + `entity.id`,بدون وابستگی سخت

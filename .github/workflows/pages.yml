@@ -1,0 +1,82 @@
+name: انتشار در گیت‌هاب پیج (Pages)
+
+on:
+  push:
+    branches: ["main", "arena/**"]
+  workflow_dispatch:
+
+# مجوزهای لازم برای استقرار در Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# فقط یک استقرار هم‌زمان؛ استقرارِ در حال اجرا لغو نمی‌شود
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: دریافت کد
+        uses: actions/checkout@v4
+
+      - name: آماده‌سازی پایتون
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: آماده‌سازی Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: بازتولید مستندات و اجرای تست‌ها
+        run: |
+          python3 tools/build_integration_matrix.py
+          python3 tools/build_catalogs.py
+          python3 tools/build_templates.py
+          python3 tools/test_build.py
+          node tools/test_site.js
+
+      - name: ساخت پوشهٔ انتشار
+        run: |
+          rm -rf _site && mkdir -p _site/data _site/docs/03-units _site/dashboard
+          cp site/index.html _site/index.html
+          cp data/*.csv _site/data/
+          cp dashboard/index.html _site/dashboard/
+          cp docs/*.md _site/docs/
+          cp docs/03-units/*.md _site/docs/03-units/
+          cp README.md _site/README.md
+          touch _site/.nojekyll
+
+      - name: بارگذاریِ artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: استقرار
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          # اگر Pages هنوز روی مخزن فعال نشده باشد، همین گام فعالش می‌کند
+          enablement: true
+
+      - name: نشانیِ صفحه
+        if: always()
+        run: |
+          if [ -n "${{ steps.deployment.outputs.page_url }}" ]; then
+            echo "✓ منتشر شد: ${{ steps.deployment.outputs.page_url }}"
+          else
+            echo "::warning::استقرار انجام نشد. اگر نخستین اجراست، یک‌بار در"
+            echo "::warning::Settings → Pages → Source را روی «GitHub Actions» بگذارید."
+          fi

@@ -1,0 +1,30 @@
+method,path,purpose,permission,idempotent,group
+`GET`,`/api/mes/v1/work-orders`,فهرست دستور کارها (فیلتر: خط، وضعیت، بازه),`mes.wo.read`,—,MES
+`POST`,`/api/mes/v1/work-orders`,صدور دستور کار,`mes.wo.create`,♻️,MES
+`GET`,`/api/mes/v1/work-orders/{wo_id}`,جزئیات + پیشرفت,`mes.wo.read`,—,MES
+`POST`,`/api/mes/v1/work-orders/{wo_id}/start`,شروع (با گیت‌های BR-PRD-01),`mes.wo.start`,♻️ ⭐,MES
+`POST`,`/api/mes/v1/work-orders/{wo_id}/consumptions`,ثبت مصرف (کسر خودکار موجودی),`mes.consumption.create`,♻️ ⭐,MES
+`POST`,`/api/mes/v1/work-orders/{wo_id}/complete`,اتمام + اعلام بچ,`mes.wo.complete`,♻️ ⭐,MES
+`POST`,`/api/mes/v1/downtimes`,ثبت توقف با علت,`mes.downtime.create`,♻️,MES
+`GET`,`/api/mes/v1/oee?line=&from=&to=`,محاسبهٔ A×P×Q,`mes.oee.read`,—,MES
+`POST`,`/api/qms/v1/samples`,ثبت نمونه,`qms.sample.create`,♻️,QMS
+`POST`,`/api/qms/v1/results`,ثبت نتیجهٔ آزمون,`qms.result.create`,♻️ ⭐,QMS
+`POST`,`/api/qms/v1/batches/{batch_id}/release`,ترخیص بچ (امضای الکترونیکی),`qms.release` 🔒,♻️ ⭐,QMS
+`POST`,`/api/qms/v1/batches/{batch_id}/quarantine`,قرنطینه,`qms.quarantine` 🔒,♻️ ⭐,QMS
+`GET`,`/api/qms/v1/specs/{item_id}`,مشخصات و حدود,`qms.spec.read`,—,QMS
+`GET`,`/api/wms/v1/stock?item=&bin=&status=`,موجودی با وضعیت کیفی,`wms.stock.read`,—,WMS
+`GET`,`/api/wms/v1/atp?item=&qty=&date=`,موجودی قابل تعهد,`wms.atp.read`,—,WMS
+`POST`,`/api/wms/v1/receipts`,ثبت رسید (قرنطینهٔ خودکار),`wms.receipt.create`,♻️ ⭐,WMS
+`POST`,`/api/wms/v1/movements`,حرکت/جابجایی با مکان مبدأ و مقصد,`wms.movement.create`,♻️,WMS
+`POST`,`/api/wms/v1/pallets`,ساخت پالت با SSCC,`wms.pallet.create`,♻️,WMS
+`POST`,`/api/wms/v1/shipments/{id}/dispatch`,اعلام ارسال (ماشهٔ فاکتور و مجوز خروج),`wms.ship.dispatch` 🔒,♻️ ⭐,WMS
+`POST`,`/api/cmms/v1/work-requests`,درخواست کار (از اسکن QR),`cmms.wr.create`,♻️,CMMS/HSE/HR
+`POST`,`/api/cmms/v1/work-orders/{id}/start`,شروع (با گیت PTW),`cmms.wo.start` 🔒,♻️ ⭐,CMMS/HSE/HR
+`POST`,`/api/cmms/v1/work-orders/{id}/complete`,بستن با علت خرابی و زمان واقعی,`cmms.wo.complete`,♻️ ⭐,CMMS/HSE/HR
+`POST`,`/api/hse/v1/permits`,درخواست PTW,`hse.ptw.create`,♻️ ⭐,CMMS/HSE/HR
+`POST`,`/api/hse/v1/permits/{id}/approve`,تأیید مرحله‌ای,`hse.ptw.approve` 🔒,♻️ ⭐,CMMS/HSE/HR
+`GET`,`/api/hr/v1/competencies/eligible?skill=&line=`,واجدان شرایط حاضر,`hr.comp.read`,—,CMMS/HSE/HR
+`GET`,`/api/mes/v1/trace/{batch_id}?direction=backward|forward`,گراف ردیابی,`mes.trace.read`,,ردیابی و حسابرسی
+`POST`,`/api/mes/v1/trace/recall-simulation`,شبیه‌سازی فراخوان,`mes.trace.recall` 🔒,,ردیابی و حسابرسی
+`GET`,`/api/audit/v1/events?entity=&actor=&from=&to=`,جست‌وجوی حسابرسی,`audit.read` 🔒,,ردیابی و حسابرسی
+`GET`,`/api/audit/v1/chain/verify?from=&to=`,اثبات یکپارچگی زنجیره,`audit.verify` 🔒,,ردیابی و حسابرسی

@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>داشبورد طراحی اتوماسیون یکپارچه کارخانه</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d212a; --line:#2a2f3a;
+    --txt:#e6e9ef; --muted:#9aa4b2; --accent:#4f8cff; --accent2:#7c5cff;
+    --crit:#ff5c5c; --major:#ffa23e; --minor:#ffd84d; --warn:#5ad2a0;
+    --ok:#5ad2a0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:"Vazirmatn","Tahoma","Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.8}
+  header{padding:22px 26px;border-bottom:1px solid var(--line);
+    background:linear-gradient(120deg,#141822,#191f2b 60%,#1a2333)}
+  header h1{margin:0;font-size:20px;letter-spacing:.2px}
+  header p{margin:6px 0 0;color:var(--muted);font-size:13px}
+  .kpis{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 16px;min-width:150px}
+  .kpi b{display:block;font-size:20px;color:#fff}
+  .kpi span{color:var(--muted);font-size:12px}
+  nav{display:flex;flex-wrap:wrap;gap:6px;padding:12px 26px;border-bottom:1px solid var(--line);
+      position:sticky;top:0;background:#12151c;z-index:10}
+  nav button{background:var(--panel);color:var(--muted);border:1px solid var(--line);
+    border-radius:8px;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:13px;transition:.15s}
+  nav button:hover{color:var(--txt);border-color:#3a4150}
+  nav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  main{padding:20px 26px 60px}
+  section{display:none}
+  section.active{display:block}
+  h2{font-size:17px;margin:0 0 4px}
+  .hint{color:var(--muted);font-size:12.5px;margin:0 0 16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+  input,select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    border-radius:8px;padding:7px 11px;font-family:inherit;font-size:13px;min-width:170px}
+  input:focus,select:focus{outline:none;border-color:var(--accent)}
+  table{border-collapse:collapse;width:100%;font-size:12.5px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:right;vertical-align:top}
+  th{background:#20252f;position:sticky;top:0;color:#cfd6e3;font-weight:600;z-index:2}
+  tbody tr:nth-child(even){background:#141821}
+  tbody tr:hover{background:#1b212c}
+  .scroll{max-height:70vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
+  .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;border:1px solid}
+  .p-crit{color:var(--crit);border-color:#5c2626;background:#2a1616}
+  .p-major{color:var(--major);border-color:#5c4420;background:#2a2214}
+  .p-minor{color:var(--minor);border-color:#5c5320;background:#2a2714}
+  .p-warn{color:var(--warn);border-color:#205c43;background:#142a22}
+  .p-low{color:var(--muted);border-color:var(--line);background:#1a1e26}
+  .p-high{color:#7fb0ff;border-color:#26435c;background:#141f2a}
+  /* matrix */
+  .mx th, .mx td{text-align:center;padding:5px 4px;font-size:11px;min-width:82px}
+  .mx th:first-child,.mx td:first-child{text-align:right;position:sticky;right:0;background:#20252f;z-index:3;min-width:120px}
+  .mx td:first-child{background:#181d26;font-weight:600}
+  .cell{border-radius:6px;padding:3px 2px;display:block;cursor:default}
+  .c0{background:#151922;color:#3d4553}
+  .c1{background:#16303f;color:#7fd8ff}
+  .c2{background:#1b3a2a;color:#7fe3ae}
+  .c3{background:#3d2f16;color:#ffc96b}
+  .c4{background:#40191c;color:#ff8b8b;font-weight:700}
+  .cell.crit{box-shadow:inset 0 0 0 1px #ff5c5c}
+  /* gantt */
+  .gantt{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;line-height:1.55;
+    white-space:pre;overflow:auto;background:#12151c;border:1px solid var(--line);border-radius:10px;padding:12px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:12px;margin-top:10px}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-left:6px;vertical-align:-2px}
+  footer{padding:18px 26px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+  code{background:#1b2029;padding:1px 5px;border-radius:4px;font-size:12px}
+  a{color:var(--accent)}
+  .err{background:#40191c;border:1px solid #7a2b2b;padding:12px;border-radius:10px;color:#ffb4b4}
+</style>
+</head>
+<body>
+<header>
+  <h1>داشبورد طراحی اتوماسیون یکپارچه کارخانه</h1>
+  <p>نمای تعاملیِ مستندات طراحی — داده‌ها مستقیماً از فایل‌های <code>data/*.csv</code> خوانده می‌شوند.</p>
+  <div class="kpis" id="kpis"></div>
+</header>
+
+<nav>
+  <button class="active" data-sec="sec-mx">ماتریس یکپارچگی</button>
+  <button data-sec="sec-kpi">کاتالوگ KPI</button>
+  <button data-sec="sec-alarm">نقشهٔ هشدارها</button>
+  <button data-sec="sec-ev">کاتالوگ رویدادها</button>
+  <button data-sec="sec-risk">ثبت ریسک</button>
+  <button data-sec="sec-road">نقشهٔ راه</button>
+  <button data-sec="sec-mdm">دادهٔ پایه</button>
+  <button data-sec="sec-q">پرسش‌های باز</button>
+  <button data-sec="sec-fin">مدل مالی</button>
+  <button data-sec="sec-ot">امنیت OT</button>
+  <button data-sec="sec-tr">پوشش نیازمندی‌ها</button>
+  <button data-sec="sec-role">نقش‌ها و دسترسی</button>
+  <button data-sec="sec-raci">مسئولیت‌ها (RACI)</button>
+  <button data-sec="sec-uat">برنامهٔ پذیرش</button>
+  <button data-sec="sec-nfr">الزامات و انطباق</button>
+  <button data-sec="sec-dm">مدل داده</button>
+  <button data-sec="sec-hw">سخت‌افزار</button>
+  <button data-sec="sec-exec">خلاصهٔ مدیریتی</button>
+  <button data-sec="sec-inp">ورودی‌ها و واژه‌نامه</button>
+  <button data-sec="sec-vnd">انتخاب تأمین‌کننده</button>
+  <button data-sec="sec-cut">انتقال و مهاجرت</button>
+  <button data-sec="sec-arch">معماری مرجع</button>
+  <button data-sec="sec-chg">مدیریت تغییر</button>
+  <button data-sec="sec-adr">تصمیمات معماری</button>
+  <button data-sec="sec-api">قرارداد API</button>
+  <button data-sec="sec-flow">جریان‌های توالی</button>
+</nav>
+
+<main>
+  <div id="loadErr"></div>
+
+  <!-- Integration matrix -->
+  <section id="sec-mx" class="active">
+    <div class="card">
+      <h2>ماتریس یکپارچگی بین‌واحدی</h2>
+      <p class="hint">هر خانه: <code>جهت + مکانیزم · فرکانس</code>. نشان <b>*</b> یعنی رابطهٔ بحرانی.
+         برای مشاهدهٔ دادهٔ مبادله‌شده روی خانه توقف کنید (tooltip).</p>
+      <div class="toolbar">
+        <input id="mxFilter" placeholder="جست‌وجو در داده/ملاحظه…" >
+        <select id="mxCrit">
+          <option value="">همهٔ حساسیت‌ها</option>
+          <option value="Critical">فقط بحرانی</option>
+          <option value="High">فقط بالا</option>
+          <option value="Medium">فقط متوسط</option>
+        </select>
+        <label class="hint" style="margin:0"><input type="checkbox" id="mxOnlyCrit"> فقط روابط بحرانی</label>
+      </div>
+      <div class="scroll" id="mxWrap"></div>
+      <div class="legend">
+        <span><i style="background:#16303f"></i>متوسط</span>
+        <span><i style="background:#1b3a2a"></i>بالا</span>
+        <span><i style="background:#3d2f16"></i>بالا + بلادرنگ</span>
+        <span><i style="background:#40191c"></i>بحرانی</span>
+        <span><i style="background:#151922"></i>بدون رابطهٔ مستقیم</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>جزئیات یال‌ها</h2>
+      <p class="hint">جدول زیر با فیلتر بالا هماهنگ است.</p>
+      <div class="scroll" id="mxTable"></div>
+    </div>
+  </section>
+
+  <!-- KPI -->
+  <section id="sec-kpi">
+    <div class="card">
+      <h2>کاتالوگ شاخص‌های کلیدی (KPI)</h2>
+      <p class="hint">هر شاخص دارای فرمول، هدف، منبع داده و مالک است.</p>
+      <div class="toolbar">
+        <input id="kpiSearch" placeholder="جست‌وجو در نام/فرمول/منبع…">
+        <select id="kpiUnit"></select>
+        <select id="kpiFreq">
+          <option value="">همهٔ فرکانس‌ها</option>
+        </select>
+      </div>
+      <div class="scroll" id="kpiTable"></div>
+    </div>
+  </section>
+
+  <!-- Alarms -->
+  <section id="sec-alarm">
+    <div class="card">
+      <h2>نقشهٔ هشدارها</h2>
+      <p class="hint">سطح‌بندی بر اساس ISA-18.2: بحرانی / مهم / جزئی / هشدار.</p>
+      <div class="toolbar">
+        <input id="alSearch" placeholder="جست‌وجو در عنوان/محرک/اقدام…">
+        <select id="alSev">
+          <option value="">همهٔ سطوح</option>
+          <option>Critical</option><option>Major</option><option>Minor</option><option>Warning</option>
+        </select>
+        <select id="alUnit"></select>
+      </div>
+      <div class="scroll" id="alTable"></div>
+    </div>
+  </section>
+
+  <!-- Events -->
+  <section id="sec-ev">
+    <div class="card">
+      <h2>کاتالوگ رویدادها</h2>
+      <p class="hint">هر رویداد: تولیدکننده، مصرف‌کنندگان، کلیدِ باید (Idempotency) و سیاستِ خطا.
+         ستون «PII» نشان می‌دهد آیا رویداد به شخص ارجاع دارد یا نه.</p>
+      <div class="toolbar">
+        <input id="evSearch" placeholder="جست‌وجو در موضوع/نوع/تولیدکننده…">
+        <select id="evCrit">
+          <option value="">همهٔ حساسیت‌ها</option>
+          <option>Critical</option><option>High</option><option>Medium</option>
+        </select>
+        <select id="evPii">
+          <option value="">همه</option>
+          <option value="yes">فقط حاوی ارجاع به شخص (PII)</option>
+          <option value="no">بدون ارجاع به شخص</option>
+        </select>
+      </div>
+      <div class="scroll" id="evTable"></div>
+    </div>
+  </section>
+
+  <!-- Risks -->
+  <section id="sec-risk">
+    <div class="card">
+      <h2>ثبت ریسک</h2>
+      <p class="hint">امتیاز = احتمال × اثر. سطح‌ها: ۱–۴ کم، ۵–۹ متوسط، ۱۰–۱۴ بالا، ۱۵–۲۵ بحرانی.</p>
+      <div class="toolbar">
+        <input id="rkSearch" placeholder="جست‌وجو در ریسک/کاهش/مالک…">
+        <select id="rkBand">
+          <option value="">همهٔ سطوح</option>
+          <option>بحرانی</option><option>بالا</option><option>متوسط</option><option>کم</option>
+        </select>
+      </div>
+      <div class="scroll" id="rkTable"></div>
+    </div>
+    <div class="card">
+      <h2>نقشهٔ حرارتی</h2>
+      <div class="gantt" id="rkHeat"></div>
+    </div>
+  </section>
+
+  <!-- Questions -->
+  <section id="sec-q">
+    <div class="card">
+      <h2>پرسش‌های شفاف‌سازی (برای مشتری)</h2>
+      <p class="hint">هر پرسشِ بی‌پاسخ یعنی یک «[فرض]» در طرح. پرسش‌های قرمز <b>بلوکه‌کننده</b>اند:
+         تا پیش از پاسخ، بازهٔ هزینه باید گسترده بماند. نسخهٔ قابل تکمیل:
+         <code>docs/24-customer-questionnaire.md</code></p>
+      <div class="toolbar">
+        <input id="qSearch" placeholder="جست‌وجو در پرسش/پاسخ‌گو/وابسته‌ها…">
+        <select id="qPrio">
+          <option value="">همهٔ اولویت‌ها</option>
+          <option>بلوکه‌کننده</option><option>مهم</option><option>قابل تأخیر</option>
+        </select>
+        <select id="qGroup"><option value="">همهٔ گروه‌ها</option></select>
+      </div>
+      <div class="scroll" id="qTable"></div>
+    </div>
+  </section>
+
+  <!-- NFR & Compliance -->
+  <section id="sec-nfr">
+    <div class="card">
+      <h2>الزامات غیرکارکردی (NFR)</h2>
+      <p class="hint">هر الزام مقدارِ هدف و روشِ اندازه‌گیری دارد؛ الزامِ بدون عدد، قابل پذیرش نیست.</p>
+      <div class="toolbar">
+        <input id="nfrSearch" placeholder="جست‌وجو در الزامات…">
+        <select id="nfrCat"><option value="">همهٔ دسته‌ها</option></select>
+        <select id="nfrPrio"><option value="">همهٔ اولویت‌ها</option></select>
+      </div>
+      <div class="scroll" id="nfrTable"></div>
+    </div>
+    <div class="card">
+      <h2>کنترل‌های امنیت OT</h2>
+      <p class="hint">۲۵ کنترل با وضعیتِ الزام؛ «الزامی» یعنی بدون آن، پذیرش انجام نمی‌شود.</p>
+      <div class="toolbar">
+        <input id="otcSearch" placeholder="جست‌وجو…">
+        <select id="otcStatus"><option value="">همهٔ وضعیت‌ها</option></select>
+      </div>
+      <div class="scroll" id="otcTable"></div>
+    </div>
+    <div class="card">
+      <h2>سطح امنیت هدف (SL) و استانداردها</h2>
+      <div class="scroll" id="slTable"></div>
+      <h3 style="margin-top:18px">استانداردها و مدرکِ شاهد</h3>
+      <div class="scroll" id="compTable"></div>
+      <h3 style="margin-top:18px">گزارش‌های ممیزیِ خودکار</h3>
+      <div class="scroll" id="audTable"></div>
+    </div>
+  </section>
+
+  <!-- Data model -->
+  <section id="sec-dm">
+    <div class="card">
+      <h2>موجودیت‌های هسته و سرویسِ مالک</h2>
+      <p class="hint">هر موجودیت دقیقاً یک سرویسِ مالک دارد؛ سرویس‌های دیگر فقط مصرف‌کننده‌اند.</p>
+      <div class="toolbar">
+        <input id="entSearch" placeholder="جست‌وجو…">
+        <select id="entSvc"><option value="">همهٔ سرویس‌ها</option></select>
+      </div>
+      <div class="scroll" id="entTable"></div>
+    </div>
+    <div class="card">
+      <h2>قراردادهای شناسه، نگه‌داری و یکپارچگی</h2>
+      <h3>قالبِ شناسه‌ها</h3>
+      <div class="scroll" id="idcTable"></div>
+      <h3 style="margin-top:18px">کلاس‌های نگه‌داری</h3>
+      <div class="scroll" id="retTable"></div>
+      <h3 style="margin-top:18px">یکپارچگیِ ارجاعی بدون کلید خارجی</h3>
+      <div class="scroll" id="intTable"></div>
+      <h3 style="margin-top:18px">سیاستِ تغییرِ ابعاد (SCD)</h3>
+      <div class="scroll" id="scdTable"></div>
+      <h3 style="margin-top:18px">ابعادِ یکسان (Conformed)</h3>
+      <div class="scroll" id="dimTable"></div>
+    </div>
+  </section>
+
+  <!-- Hardware -->
+  <section id="sec-hw">
+    <div class="card">
+      <h2>حجم تجهیزات بر حسب واحد</h2>
+      <p class="hint">شمارش‌ها و سهمِ بودجه [فرض] هستند و پس از بازدید میدانی باید به‌روز شوند.</p>
+      <div class="scroll" id="hwTable"></div>
+    </div>
+    <div class="card">
+      <h2>اصول انتخاب سخت‌افزار</h2>
+      <div class="scroll" id="hwpTable"></div>
+      <h3 style="margin-top:18px">مراجع استاندارد</h3>
+      <div class="scroll" id="hwsTable"></div>
+      <h3 style="margin-top:18px">ردیف‌های هزینه‌ای که معمولاً فراموش می‌شوند</h3>
+      <div class="scroll" id="hwcTable"></div>
+    </div>
+  </section>
+
+  <!-- Roles & Access -->
+  <section id="sec-role">
+    <div class="card">
+      <h2>نقش‌ها و پروفایل کاربری</h2>
+      <p class="hint">۲۴ نقش تعریف‌شده. هر نقش محیط کار، سطح دسترسیِ پیش‌فرض و ابزارِ خود را دارد.</p>
+      <div class="toolbar"><input id="roleSearch" placeholder="جست‌وجو در نقش‌ها…"></div>
+      <div class="scroll" id="roleTable"></div>
+    </div>
+    <div class="card">
+      <h2>ماتریس دسترسیِ نقش × صفحه</h2>
+      <p class="hint">نمادها: ● ایجاد/ویرایش · ○ فقط خواندن · ◐ ویرایش محدود یا تأیید · — بدون دسترسی</p>
+      <div class="toolbar">
+        <select id="accRole"><option value="">همهٔ نقش‌ها</option></select>
+        <select id="accPage"><option value="">همهٔ صفحات</option></select>
+        <label style="color:var(--muted);font-size:12.5px;display:flex;gap:6px;align-items:center">
+          <input type="checkbox" id="accAll" style="min-width:auto"> نمایشِ «بدون دسترسی» هم
+        </label>
+      </div>
+      <div class="scroll" id="accTable"></div>
+    </div>
+    <div class="card">
+      <h2>مدل کنترل دسترسی (RBAC)</h2>
+      <p class="hint">سطحِ دسترسی هر نقش به هر ماژول. فیلتر کنید تا پاسخِ «این نقش به چه چیزهایی دسترسی دارد؟» را ببینید.</p>
+      <div class="toolbar">
+        <select id="rbacRole"><option value="">همهٔ نقش‌ها</option></select>
+        <select id="rbacMod"><option value="">همهٔ ماژول‌ها</option></select>
+        <input id="rbacSearch" placeholder="جست‌وجو…">
+      </div>
+      <div class="scroll" id="rbacTable"></div>
+    </div>
+    <div class="card">
+      <h2>سفر کاریِ هر نقش در یک روز</h2>
+      <p class="hint">هر نقش در چهار فازِ «شروع · حین کار · تصمیم/استثناء · تحویل» یک اثرِ
+        قابل‌ردیابی در سامانه بر جا می‌گذارد. داده از <code>role_journey.csv</code>.</p>
+      <div class="toolbar">
+        <select id="jrRole"><option value="">یک نقش را انتخاب کنید…</option></select>
+      </div>
+      <div id="jrBox"><p class="hint">برای دیدنِ سفر کاری، یک نقش انتخاب کنید.</p></div>
+    </div>
+    <div class="card">
+      <h2>قواعد تفکیک وظایف (SoD)</h2>
+      <p class="hint">این قواعد باید در سیستم «اعمال» شوند، نه فقط در دستورالعمل نوشته شوند.</p>
+      <div class="scroll" id="sodTable"></div>
+    </div>
+  </section>
+
+  <!-- RACI -->
+  <section id="sec-raci">
+    <div class="card">
+      <h2>ماتریس RACI</h2>
+      <p class="hint">نمادها: <b>R</b> مسئول اجرا · <b>A</b> پاسخ‌گو (دقیقاً یکی) · <b>C</b> مشورت‌شونده · <b>I</b> مطلع</p>
+      <div class="toolbar">
+        <select id="raciActor"><option value="">همهٔ نقش‌ها</option></select>
+        <select id="raciFilter">
+          <option value="RA">فقط مواردی که مسئول یا پاسخ‌گوست (R/A)</option>
+          <option value="">همهٔ موارد</option>
+          <option value="R">فقط مسئول اجرا (R)</option>
+          <option value="A">فقط پاسخ‌گو (A)</option>
+          <option value="C">فقط مشورت (C)</option>
+          <option value="I">فقط مطلع (I)</option>
+        </select>
+        <input id="raciSearch" placeholder="جست‌وجو در فعالیت‌ها…">
+      </div>
+      <div class="scroll" id="raciTable"></div>
+    </div>
+  </section>
+
+  <!-- UAT -->
+  <section id="sec-uat">
+    <div class="card">
+      <h2>سناریوهای پذیرش سرتاسری (UAT)</h2>
+      <p class="hint">هر سناریو مسیر و معیارِ عبورِ دقیق دارد؛ عبور بر اساسِ عدد است، نه احساس.</p>
+      <div class="toolbar"><input id="uatSearch" placeholder="جست‌وجو در سناریوها…"></div>
+      <div class="scroll" id="uatTable"></div>
+    </div>
+    <div class="card">
+      <h2>معیارهای پذیرش کمی</h2>
+      <p class="hint">اگر معیاری قابل اندازه‌گیری نباشد، در پذیرش قابل اتکا نیست.</p>
+      <div class="toolbar"><input id="uatcSearch" placeholder="جست‌وجو…"></div>
+      <div class="scroll" id="uatcTable"></div>
+    </div>
+  </section>
+
+  <!-- Traceability -->
+  <section id="sec-tr">
+    <div class="card">
+      <h2>ماتریس ردیابی و پوشش نیازمندی‌ها</h2>
+      <p class="hint">هر نیازمندی در سه سطح ردیابی می‌شود: مستندِ پاسخ‌گو، دادهٔ پشتیبان،
+         و روشِ راستی‌آزمایی. فیلتر کنید تا گروه مورد نظر را ببینید.</p>
+      <div class="toolbar">
+        <input id="trSearch" placeholder="جست‌وجو در نیازمندی/مستند/روش راستی‌آزمایی…">
+        <select id="trGroup"><option value="">همهٔ گروه‌ها</option></select>
+      </div>
+      <div class="scroll" id="trTable"></div>
+    </div>
+  </section>
+
+  <!-- Finance -->
+  <section id="sec-fin">
+    <div class="card">
+      <h2>مدل مالی و توجیه اقتصادی</h2>
+      <p class="hint">سناریوی پایه = میانگینِ بازهٔ هر پارامتر. منفعت از سال ۳ سرعت می‌گیرد؛
+         سرمایهٔ اصلی در سال‌های ۱ و ۲ صرف می‌شود. محاسبهٔ کامل در
+         <code>docs/25-financial-model.md</code></p>
+      <div class="scroll" id="finSummary"></div>
+    </div>
+    <div class="card">
+      <h2>جریان نقدی پنج‌ساله (سناریوی پایه)</h2>
+      <div class="gantt" id="finChart"></div>
+      <div class="scroll" id="finTable"></div>
+    </div>
+    <div class="card">
+      <h2>محرک‌های ارزش</h2>
+      <p class="hint">ستون «وزن» سهم هر محرک از میانگینِ منفعتِ سالانه است.</p>
+      <div class="scroll" id="finLevers"></div>
+    </div>
+  </section>
+
+  <!-- OT Security -->
+  <section id="sec-ot">
+    <div class="card">
+      <h2>منطقه‌های امنیتی OT (IEC 62443)</h2>
+      <p class="hint">هر منطقه سطحِ امنیتِ هدفِ خود را دارد؛ تفاوتِ سطح دلیل دارد، نه سلیقه.</p>
+      <div class="scroll" id="otZones"></div>
+    </div>
+    <div class="card">
+      <h2>کانال‌های مجاز (Conduits)</h2>
+      <p class="hint">هرچه در این فهرست نیست، <b>مسدود</b> است. فیلتر کنید تا مسیرِ مورد نظر را بیابید.</p>
+      <div class="toolbar">
+        <input id="otSearch" placeholder="جست‌وجو در سرویس/پروتکل/مکانیزم…">
+        <select id="otDir"><option value="">همهٔ جهت‌ها</option></select>
+        <select id="otZone"><option value="">همهٔ مناطق</option></select>
+      </div>
+      <div class="scroll" id="otTable"></div>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section id="sec-road">
+    <div class="card">
+      <h2>نقشهٔ راه و گانت</h2>
+      <p class="hint">محور افقی: هفتهٔ پروژه. هر میله یک بستهٔ کاری است.</p>
+      <div class="gantt" id="gantt"></div>
+    </div>
+    <div class="card">
+      <h2>خلاصهٔ فازها</h2>
+      <div id="roadSummary"></div>
+    </div>
+    <div class="card">
+      <h2>بسته‌های کاری</h2>
+      <div class="toolbar">
+        <select id="roadPhase"></select>
+      </div>
+      <div class="scroll" id="roadTable"></div>
+    </div>
+  </section>
+
+  <!-- Master data -->
+  <section id="sec-mdm">
+    <div class="card">
+      <h2>داده‌های پایه و مالکیت</h2>
+      <p class="hint">برای هر موجودیت: یک مالک، یک سیستم مرجع، مصرف‌کنندگان مشخص.</p>
+      <div class="toolbar">
+        <input id="mdmSearch" placeholder="جست‌وجو…">
+        <select id="mdmCrit">
+          <option value="">همهٔ حساسیت‌ها</option>
+          <option>Critical</option><option>High</option><option>Medium</option>
+        </select>
+      </div>
+      <div class="scroll" id="mdmTable"></div>
+    </div>
+  </section>
+  <!-- خلاصهٔ مدیریتی -->
+  <section id="sec-exec">
+    <div class="card">
+      <h2>خلاصهٔ مدیریتی</h2>
+      <p class="hint">اعدادِ این بخش همان‌هایی است که هیئت‌مدیره می‌بیند — مستقیماً از
+        <code>gaps.csv</code>، <code>adr_summary.csv</code>، <code>exec_targets.csv</code>،
+        <code>phase_summary.csv</code> + <code>roadmap.csv</code>، <code>exec_finance.csv</code>
+        و <code>governance.csv</code>.</p>
+      <div class="toolbar"><input id="execSearch" placeholder="جست‌وجو در همهٔ جدول‌های این بخش…"></div>
+    </div>
+    <div class="card"><h2>چهار گسستِ داده‌ایِ امروز</h2><div class="scroll" id="pGaps"></div></div>
+    <div class="card"><h2>شش تصمیمِ سخت (ADR)</h2><div class="scroll" id="pAdr"></div></div>
+    <div class="card"><h2>اعداد هدف (Baseline → Target)</h2>
+      <p class="hint">همین جدول مبنای نمای «نمای کلیِ» سایت است؛ یک منبع، دو نمایش.</p>
+      <div class="scroll" id="pTargets"></div></div>
+    <div class="card"><h2>فازها، زمان و بودجه</h2>
+      <p class="hint">بازه و بودجه از <code>roadmap.csv</code> جمع‌بسته می‌شود، نه از دست.</p>
+      <div class="scroll" id="pPhases"></div></div>
+    <div class="card"><h2>بازگشت سرمایه</h2><div class="scroll" id="pFin"></div></div>
+    <div class="card"><h2>حاکمیت پروژه</h2><div class="scroll" id="pGov"></div></div>
+  </section>
+
+  <!-- ورودی‌ها و واژه‌نامه -->
+  <section id="sec-inp">
+    <div class="card">
+      <h2>ورودی‌ها، مفروضات و واژه‌نامه</h2>
+      <p class="hint">هر ورودیِ خالیِ کارفرما با برچسبِ «[فرض]» ثبت شده و باید تا پایان فاز ۰
+        با دادهٔ واقعی جایگزین شود. ستونِ «روش تأیید» دقیقاً همین را مشخص می‌کند.</p>
+      <div class="toolbar"><input id="inpSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>پارامترهای ورودی</h2><div class="scroll" id="pParams"></div></div>
+    <div class="card"><h2>مفروضاتِ کلیدیِ معماری</h2><div class="scroll" id="pAssum"></div></div>
+    <div class="card"><h2>واژه‌نامه و اختصارها</h2><div class="scroll" id="pGloss"></div></div>
+    <div class="card"><h2>کدهای واحدها (ماتریس یکپارچگی)</h2><div class="scroll" id="pUnits"></div></div>
+  </section>
+
+  <!-- انتخاب تأمین‌کننده -->
+  <section id="sec-vnd">
+    <div class="card">
+      <h2>انتخاب تأمین‌کننده و قرارداد</h2>
+      <p class="hint">وزن‌ها باید پیش از دریافت پیشنهادها نهایی شوند؛ امتیاز فقط با شواهد
+        داده می‌شود. این بخش همان برگهٔ ارزیابی را به‌صورتِ قابل‌فیلتر نشان می‌دهد.</p>
+      <div class="toolbar"><input id="vndSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>مدل ارزیابی (وزن‌ها)</h2><div class="scroll" id="pVcrit"></div></div>
+    <div class="card"><h2>معیارهای حذف (Knock-out)</h2><div class="scroll" id="pVko"></div></div>
+    <div class="card"><h2>رویکرد تدارک</h2><div class="scroll" id="pVmod"></div></div>
+    <div class="card"><h2>برگهٔ امتیازدهی</h2><div class="scroll" id="pVscore"></div></div>
+    <div class="card"><h2>روز‌شمار اثبات مفهوم (POC)</h2><div class="scroll" id="pPoc"></div></div>
+    <div class="card"><h2>بندهای قراردادیِ غیرقابل‌مذاکره</h2><div class="scroll" id="pClauses"></div></div>
+    <div class="card"><h2>اشتباهات رایج</h2><div class="scroll" id="pPitfalls"></div></div>
+  </section>
+
+  <!-- انتقال و مهاجرت -->
+  <section id="sec-cut">
+    <div class="card">
+      <h2>برنامهٔ انتقال (Cutover) و مهاجرت داده</h2>
+      <p class="hint">قانون طلایی مهاجرت: «اعدادِ غلط را منتقل نکن.» این بخش راهبرد،
+        برنامهٔ زمانیِ Runbook و معیارهای آشتی‌سازی را نشان می‌دهد.</p>
+      <div class="toolbar"><input id="cutSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>راهبرد کلی</h2><div class="scroll" id="pCprinc"></div></div>
+    <div class="card"><h2>مهاجرت داده به تفکیک حوزه</h2><div class="scroll" id="pMigr"></div></div>
+    <div class="card"><h2>T-۱۴ تا T-۳ (آماده‌سازی)</h2><div class="scroll" id="pPrep"></div></div>
+    <div class="card"><h2>T-۲ تا T=0 (آخر هفتهٔ انتقال)</h2><div class="scroll" id="pCday"></div></div>
+    <div class="card"><h2>T+۱ تا T+۳۰ (Hypercare)</h2><div class="scroll" id="pPost"></div></div>
+    <div class="card"><h2>آشتی‌سازی (Reconciliation)</h2><div class="scroll" id="pRecon"></div></div>
+  </section>
+  <!-- معماری مرجع -->
+  <section id="sec-arch">
+    <div class="card">
+      <h2>معماری مرجع</h2>
+      <p class="hint">مسیرهای مجاز بین لایه‌ها، بودجهٔ تأخیر، قرارداد نام‌گذاری تگ،
+        پروتکل‌ها، رفتار آفلاین، تاب‌آوری و اهدافِ دوقلوی دیجیتال.</p>
+      <div class="toolbar"><input id="archSearch" placeholder="جست‌وجو در همهٔ جدول‌های این بخش…"></div>
+    </div>
+    <div class="card"><h2>کاندویت‌های منطقیِ بین‌لایه‌ای</h2>
+      <p class="hint">این هفت مورد «مسیرِ منطقی» هستند؛ کاندویت‌های قابل‌پیکربندیِ فایروال
+        (<code>C-01</code> تا <code>C-18</code>) در بخشِ «امنیت OT» هستند.</p>
+      <div class="scroll" id="pCond"></div></div>
+    <div class="card"><h2>بودجهٔ تأخیر (Latency Budget)</h2><div class="scroll" id="pLat"></div></div>
+    <div class="card"><h2>قرارداد نام‌گذاری تگ (ISA-5.1)</h2><div class="scroll" id="pTag"></div></div>
+    <div class="card"><h2>پروتکل‌ها به تفکیک لایهٔ اتصال</h2><div class="scroll" id="pProto"></div></div>
+    <div class="card"><h2>رفتار در حالت آفلاین و تعارض</h2><div class="scroll" id="pOffline"></div></div>
+    <div class="card"><h2>تاب‌آوری، SLA و RPO/RTO</h2><div class="scroll" id="pHa"></div></div>
+    <div class="card"><h2>اهدافِ دوقلوی دیجیتال</h2><div class="scroll" id="pTwin"></div></div>
+  </section>
+
+  <!-- مدیریت تغییر -->
+  <section id="sec-chg">
+    <div class="card">
+      <h2>مدیریت تغییر و پذیرش</h2>
+      <p class="hint">مقاومت را باید «طراحی کرد»، نه سرزنش. این بخش نشانه‌ها، پاسخ‌ها،
+        نقش‌ها، برنامهٔ ارتباطی، آموزش و شاخص‌های پذیرش را نشان می‌دهد.</p>
+      <div class="toolbar"><input id="chgSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>دلیل واقعی مقاومت و پاسخ</h2><div class="scroll" id="pResist"></div></div>
+    <div class="card"><h2>نقش‌های تغییر</h2><div class="scroll" id="pChgRoles"></div></div>
+    <div class="card"><h2>برنامهٔ ارتباطی</h2><div class="scroll" id="pComms"></div></div>
+    <div class="card"><h2>برنامهٔ آموزش</h2><div class="scroll" id="pTrain"></div></div>
+    <div class="card"><h2>زمان‌بندی فعالیت‌های تغییر</h2><div class="scroll" id="pChgTime"></div></div>
+    <div class="card"><h2>شاخص‌های پذیرش</h2><div class="scroll" id="pAdopt"></div></div>
+  </section>
+
+  <!-- تصمیمات معماری -->
+  <section id="sec-adr">
+    <div class="card">
+      <h2>تصمیمات معماری (ADR) و گیت‌های سخت</h2>
+      <p class="hint">گیت سخت یعنی سیستم «اجازه نمی‌دهد»، نه این‌که «توصیه می‌کند».</p>
+      <div class="toolbar"><input id="adrSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>فهرست تصمیمات</h2><div class="scroll" id="pAdrIndex"></div></div>
+    <div class="card"><h2>گیت‌های سخت</h2><div class="scroll" id="pGates"></div></div>
+  </section>
+
+  <!-- قرارداد API -->
+  <section id="sec-api">
+    <div class="card">
+      <h2>قرارداد API و رویدادها</h2>
+      <p class="hint">نشانهٔ ♻️ یعنی عملیات با کلیدِ باید (Idempotency) امن است؛
+        🔒 یعنی نیازمند مجوزِ ویژه و ثبت در حسابرسی.</p>
+      <div class="toolbar">
+        <input id="apiSearch" placeholder="جست‌وجو در مسیر/هدف/مجوز…">
+        <select id="apiSvc"><option value="">همهٔ گروه‌ها</option></select>
+      </div>
+    </div>
+    <div class="card"><h2>قراردادهای عمومی</h2><div class="scroll" id="pApiConv"></div></div>
+    <div class="card"><h2>سرویس‌های مورد نیاز</h2><div class="scroll" id="pApiSvc"></div></div>
+    <div class="card"><h2>نقطه‌های پایانی (Endpoints)</h2><div class="scroll" id="pApiEp"></div></div>
+    <div class="card"><h2>معناشناسیِ رویدادها (AsyncAPI)</h2><div class="scroll" id="pEvRules"></div></div>
+    <div class="card"><h2>شاخص‌های سلامتِ یکپارچه‌سازی</h2><div class="scroll" id="pSlo"></div></div>
+  </section>
+
+  <!-- جریان‌های توالی -->
+  <section id="sec-flow">
+    <div class="card">
+      <h2>جریان‌های توالی و پایش آن‌ها</h2>
+      <p class="hint">هر جریان باید یک سناریوی UAT، یک شاخصِ پایش و یک هشدارِ مرتبط داشته باشد؛
+        در غیر این صورت در عمل «رها» می‌ماند.</p>
+      <div class="toolbar"><input id="flwSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>نقاط شکست و جبران</h2><div class="scroll" id="pFail"></div></div>
+    <div class="card"><h2>گیت‌های جریان</h2><div class="scroll" id="pFlowGates"></div></div>
+    <div class="card"><h2>پایشِ هر جریان</h2><div class="scroll" id="pFlowMon"></div></div>
+  </section>
+</main>
+
+<footer>
+  منبع داده: <code>data/integration_matrix.csv</code>، <code>data/kpi_catalog.csv</code>،
+  <code>data/alarm_catalog.csv</code>، <code>data/event_catalog.csv</code>،
+  <code>data/risk_register.csv</code>، <code>data/open_questions.csv</code>، <code>data/benefit_model.csv</code>، <code>data/financial_model.csv</code>، <code>data/ot_zones.csv</code>، <code>data/ot_conduits.csv</code>، <code>data/traceability.csv</code>، <code>data/roles.csv</code>، <code>data/ui_matrix.csv</code>، <code>data/rbac.csv</code>، <code>data/sod_rules.csv</code>، <code>data/raci.csv</code>، <code>data/uat_scenarios.csv</code>، <code>data/uat_criteria.csv</code>، <code>data/nfr.csv</code>، <code>data/ot_controls.csv</code>، <code>data/compliance.csv</code>، <code>data/entities.csv</code>، <code>data/sensors.csv</code> و دیگر فایل‌های <code>data/</code> · <code>data/roadmap.csv</code>، <code>data/master_data.csv</code>.
+  مستندات تحلیلی در پوشهٔ <code>docs/</code>.
+</footer>
+
+<script>
+const NODES = ["SEC","HSE","PRD","QCL","MRO","RMW","FGW","HRM","SAL","EXP","FIN","MNT","ELE","MEC","UTL","MDM","ERP","BI"];
+const NODE_FA = {SEC:"حراست",HSE:"HSE",PRD:"تولید",QCL:"QC/LIMS",MRO:"انبار فنی",RMW:"انبار مواد",
+  FGW:"انبار محصول",HRM:"منابع انسانی",SAL:"بازرگانی داخلی",EXP:"بازرگانی خارجی",FIN:"مالی",
+  MNT:"نگهداشت",ELE:"برق",MEC:"مکانیک",UTL:"تأسیسات",MDM:"داده پایه",ERP:"ERP",BI:"BI/DWH"};
+const MECH={ "API":"API","Event":"EV","Event+API":"EV","API+Event":"EV","OPC-UA":"OPC","OPC-UA+Event":"OPC",
+  "OPC-UA+API":"OPC","API+OPC-UA":"OPC","API+File":"File","DB+Event":"DB","DB":"DB","Event+DB":"DB" };
+const FREQ={ "Real-time":"RT","Minutes":"MIN","Hourly":"H","Daily":"D","Weekly":"W","Monthly":"M","Per-shift":"SH","On-event":"OE" };
+const FREQ_FA={ "Real-time":"بلادرنگ","Minutes":"دقیقه‌ای","Hourly":"ساعتی","Daily":"روزانه","Weekly":"هفتگی",
+  "Monthly":"ماهانه","Per-shift":"شیفتی","On-event":"رویدادی" };
+const SEV_FA={Critical:"بحرانی",Major:"مهم",Minor:"جزئی",Warning:"هشدار",High:"بالا",Medium:"متوسط",Low:"پایین"};
+const CRIT_RANK={Critical:4,High:3,Medium:2,Low:1};
+const RTL_FIX = s => (s||"").replace(/[A-Za-z0-9._\-]+/g, m => "\u2066"+m+"\u2069");
+
+/* ---------- CSV ---------- */
+function parseCSV(text){
+  const rows=[]; let row=[], cur="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; }
+      else cur+=c;
+    } else {
+      if(c==='"') q=true;
+      else if(c===','){ row.push(cur); cur=""; }
+      else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=""; }
+      else if(c==='\r'){}
+      else cur+=c;
+    }
+  }
+  if(cur.length||row.length){ row.push(cur); rows.push(row); }
+  const head=rows.shift().map(h=>h.trim());
+  return rows.filter(r=>r.length===head.length && r.some(x=>x.trim()!==""))
+             .map(r=>Object.fromEntries(head.map((h,i)=>[h,(r[i]||"").trim()])));
+}
+async function load(f){ const r=await fetch("../data/"+f); if(!r.ok) throw new Error(f+" "+r.status); return parseCSV(await r.text()); }
+
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- boot ---------- */
+let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[], FIN=[], OZ=[], OC=[], TR=[], ROLES=[], ACC=[], RBAC=[], SOD=[], RACI=[], UAT=[], UATC=[], NFR=[], SLT=[], OTC=[], COMP=[], AUD=[],
+      ENT=[], IDC=[], RET=[], INTG=[], SCD=[], DIM=[], HW=[], HWP=[], HWS=[], HWC=[], RMAP=[], JOUR=[],
+      GAPS=[], ADRS=[], TGT=[], PH=[], EXFIN=[], GOV=[],
+      PARAMS=[], ASSUM=[], GLOSS=[], UNITS=[],
+      VC=[], VKO=[], VMOD=[], VSC=[], POC=[], CLS=[], PIT=[],
+      CPR=[], MIG=[], PREP=[], CDAY=[], POST=[], RECON=[],
+      COND=[], LAT=[], TAG=[], PROTO=[], OFFL=[], HA=[], TWIN=[],
+      RES=[], CHGR=[], COMMS=[], TRAIN=[], CHGT=[], ADOPT=[],
+      GATES=[], ADRI=[],
+      APIC=[], APIS=[], APIE=[], EVR=[], SLO=[],
+      FAIL=[], FLG=[], FLM=[];
+const BOOT = (async ()=>{
+  try{
+    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR,ROLES,ACC,RBAC,SOD,RACI,UAT,UATC,NFR,SLT,OTC,COMP,AUD,ENT,IDC,RET,INTG,SCD,DIM,HW,HWP,HWS,HWC,RMAP,JOUR,
+      GAPS,ADRS,TGT,PH,EXFIN,GOV,PARAMS,ASSUM,GLOSS,UNITS,
+      VC,VKO,VMOD,VSC,POC,CLS,PIT,CPR,MIG,PREP,CDAY,POST,RECON,
+      COND,LAT,TAG,PROTO,OFFL,HA,TWIN,RES,CHGR,COMMS,TRAIN,CHGT,ADOPT,
+      GATES,ADRI,APIC,APIS,APIE,EVR,SLO,FAIL,FLG,FLM] = await Promise.all([
+      load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
+      load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),
+      load("risk_register.csv"),load("open_questions.csv"),
+      load("benefit_model.csv"),load("financial_model.csv"),
+      load("ot_zones.csv"),load("ot_conduits.csv"),load("traceability.csv"),
+      load("roles.csv"),load("ui_matrix.csv"),load("rbac.csv"),load("sod_rules.csv"),
+      load("raci.csv"),load("uat_scenarios.csv"),load("uat_criteria.csv"),
+      load("nfr.csv"),load("sl_targets.csv"),load("ot_controls.csv"),
+      load("compliance.csv"),load("audit_reports.csv"),
+      load("entities.csv"),load("id_conventions.csv"),load("retention_classes.csv"),
+      load("integrity_rules.csv"),load("scd_policies.csv"),load("conformed_dims.csv"),
+      load("sensors.csv"),load("hw_principles.csv"),load("hw_standards.csv"),
+      load("hw_cost_items.csv"),
+      load("role_map.csv"),load("role_journey.csv"),
+      load("gaps.csv"),load("adr_summary.csv"),load("exec_targets.csv"),
+      load("phase_summary.csv"),load("exec_finance.csv"),load("governance.csv"),
+      load("input_params.csv"),load("assumptions.csv"),load("glossary.csv"),
+      load("unit_codes.csv"),
+      load("vendor_criteria.csv"),load("vendor_knockout.csv"),load("vendor_models.csv"),
+      load("vendor_scores.csv"),load("poc_schedule.csv"),load("contract_clauses.csv"),
+      load("vendor_pitfalls.csv"),
+      load("cutover_principles.csv"),load("migration_domains.csv"),load("cutover_prep.csv"),
+      load("cutover_day.csv"),load("post_cutover.csv"),load("reconciliation.csv"),
+      load("arch_conduits.csv"),load("latency_budgets.csv"),load("tag_naming.csv"),
+      load("arch_protocols.csv"),load("offline_states.csv"),load("system_ha.csv"),
+      load("twin_targets.csv"),
+      load("resistance.csv"),load("change_roles.csv"),load("comms_plan.csv"),
+      load("training_plan.csv"),load("change_timeline.csv"),load("adoption_kpis.csv"),
+      load("hard_gates.csv"),load("adr_index.csv"),
+      load("api_conventions.csv"),load("api_services.csv"),load("api_endpoints.csv"),
+      load("event_rules.csv"),load("integration_slo.csv"),
+      load("flow_failures.csv"),load("flow_gates.csv"),load("flow_monitoring.csv")
+    ]);
+  }catch(e){
+    document.getElementById("loadErr").innerHTML =
+      '<div class="err">خطا در بارگذاری داده‌ها: '+esc(e.message)+
+      '<br>این داشبورد باید از طریق یک سرور HTTP از ریشهٔ مخزن اجرا شود، نه با باز کردن مستقیم فایل. '+
+      'مثال: <code>python3 -m http.server 8080 --bind 0.0.0.0</code> در ریشهٔ مخزن، سپس باز کردن <code>/dashboard/</code></div>';
+    return;
+  }
+  buildEdges(); renderKpis(); renderMatrix(); renderKpi(); renderAlarms(); renderRoad(); renderMdm();
+  renderJourney(); drawExec(); drawInp(); drawVnd(); drawCut();
+  fillApiSvc(); drawArch(); drawChg(); drawAdr(); drawApi(); drawFlw();
+  wire();
+})();
+
+function buildEdges(){
+  EDGES={};
+  MX.forEach(r=>{
+    const s=r.source,t=r.target; if(s===t) return;
+    const pairs = r.direction==="two-way" ? [[s,t],[t,s]] : [[s,t]];
+    pairs.forEach(([a,b])=>{
+      const k=a+">"+b;
+      if(!EDGES[k] || (CRIT_RANK[r.criticality]||0) > (CRIT_RANK[EDGES[k].criticality]||0)) EDGES[k]=r;
+    });
+  });
+}
+
+function renderKpis(){
+  const crit = Object.values(EDGES).filter(e=>e.criticality==="Critical").length;
+  const lo=ROAD.reduce((a,r)=>a+parseFloat(r.cost_low_musd||0),0);
+  const hi=ROAD.reduce((a,r)=>a+parseFloat(r.cost_high_musd||0),0);
+  const maxW=Math.max(...ROAD.map(r=>+r.start_week + +r.duration_weeks));
+  const data=[
+    ["واحد/گره",NODES.length,"در ماتریس یکپارچگی"],
+    ["رابطهٔ تعریف‌شده",MX.length,"ردیف در CSV"],
+    ["یال جهت‌دار",Object.keys(EDGES).length,"شامل روابط دوطرفه"],
+    ["یال بحرانی",crit,"قطع آن تولید/انطباق را متوقف می‌کند"],
+    ["شاخص کلیدی",KPI.length,"دارای فرمول و مالک"],
+    ["هشدار تعریف‌شده",AL.length,"سطح‌بندی‌شده"],
+    ["رویداد یکپارچه‌سازی",EV.length,"با کلیدِ باید و سیاستِ خطا"],
+    ["ریسک ثبت‌شده",RK.filter(r=>r.band==="بحرانی"||r.band==="بالا").length,"بحرانی یا بالا از "+RK.length],
+    ["پرسشِ بلوکه‌کننده",QQ.filter(x=>x.priority==="بلوکه\u200cکننده").length,"از "+QQ.length+" پرسشِ باز"],
+    ["منفعتِ سالانه (پایه)",(BEN.reduce((a,b)=>a+(parseFloat(b.saving_low_musd)+parseFloat(b.saving_high_musd))/2,0)).toFixed(1),"میلیون دلار در سطح کامل"],
+    ["کانالِ امنِ OT",OC.length,"مسیر مجاز؛ بقیه مسدود"],
+    ["نیازمندیِ ردیابی‌شده",TR.length,"با مستند، داده و روش راستی‌آزمایی"],
+    ["نقشِ کاربری",ROLES.length,"با ماتریس دسترسی و SoD"],
+    ["سناریوی پذیرش",UAT.length,"با معیارِ عبورِ عددی"],
+    ["الزامِ غیرکارکردی",NFR.length,"با مقدار هدف و روش اندازه‌گیری"],
+    ["موجودیتِ داده",ENT.length,"هر کدام با سرویسِ مالک"],
+    ["موجودیت داده پایه",MDM.length,"با مالک مشخص"],
+    ["بستهٔ کاری",ROAD.length,"در ۷ فاز"],
+    ["مدت پروژه",maxW+" هفته","≈ "+Math.round(maxW/4.33)+" ماه"],
+    ["برآورد هزینه",lo.toFixed(1)+"–"+hi.toFixed(1)+" M USD","≈ "+(lo*100).toFixed(0)+"–"+(hi*100).toFixed(0)+" میلیارد تومان [فرض]"],
+  ];
+  document.getElementById("kpis").innerHTML = data.map(([l,v,s])=>
+    `<div class="kpi"><b>${esc(v)}</b><span>${esc(l)} — ${esc(s)}</span></div>`).join("");
+}
+
+/* ---------- matrix ---------- */
+function filteredEdges(){
+  const q=(document.getElementById("mxFilter").value||"").trim().toLowerCase();
+  const c=document.getElementById("mxCrit").value;
+  const only=document.getElementById("mxOnlyCrit").checked;
+  return Object.entries(EDGES).filter(([k,e])=>{
+    if(c && e.criticality!==c) return false;
+    if(only && e.criticality!=="Critical") return false;
+    if(q && !((e.data+" "+e.notes+" "+e.mechanism+" "+e.owner).toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+function cellClass(e){
+  if(!e) return "c0";
+  if(e.criticality==="Critical") return "c4";
+  if(e.frequency==="Real-time" && (e.criticality==="High")) return "c3";
+  if(e.criticality==="High") return "c2";
+  return "c1";
+}
+function renderMatrix(){
+  const set=new Map(filteredEdges());
+  const G=4, cols=[];
+  for(let i=0;i<NODES.length;i+=G) cols.push(NODES.slice(i,i+G));
+  let html="";
+  cols.forEach(group=>{
+    html+='<table class="mx" style="margin-bottom:18px"><thead><tr><th>مبدأ \\ مقصد</th>'+
+      group.map(c=>`<th>${esc(NODE_FA[c])}</th>`).join("")+'</tr></thead><tbody>';
+    NODES.forEach(s=>{
+      html+=`<tr><td>${esc(NODE_FA[s])} <span style="color:#5b6474">${s}</span></td>`;
+      group.forEach(t=>{
+        const e = set.get(s+">"+t);
+        const raw = EDGES[s+">"+t];
+        const dim = raw && !e ? ' style="opacity:.25"' : '';
+        if(!raw){ html+=`<td><span class="cell c0">—</span></td>`; return; }
+        const d = raw.direction==="two-way" ? "↔" : "→";
+        const m = MECH[raw.mechanism]||raw.mechanism;
+        const f = FREQ[raw.frequency]||raw.frequency;
+        const star = raw.criticality==="Critical" ? "*" : "";
+        const tip = `${NODE_FA[s]} → ${NODE_FA[t]}\n${raw.data}\nمکانیزم: ${raw.mechanism} | فرکانس: ${FREQ_FA[raw.frequency]||raw.frequency} | مالک: ${raw.owner} | حساسیت: ${raw.criticality}`+(raw.notes && raw.notes!=="-" ? "\nملاحظه: "+raw.notes : "");
+        html+=`<td><span class="cell ${cellClass(raw)} ${raw.criticality==="Critical"?"crit":""}" title="${esc(tip)}"${dim}>${d}${esc(m)}·${esc(f)}${star}</span></td>`;
+      });
+      html+="</tr>";
+    });
+    html+="</tbody></table>";
+  });
+  document.getElementById("mxWrap").innerHTML=html;
+
+  // detail table
+  const rows=filteredEdges().map(([k,e])=>{
+    const [s,t]=k.split(">");
+    return `<tr><td>${esc(NODE_FA[s])} → ${esc(NODE_FA[t])}</td><td>${esc(e.data)}</td>
+      <td>${e.direction==="two-way"?"↔ دوطرفه":"→ یک‌طرفه"}</td><td>${esc(e.mechanism)}</td>
+      <td>${esc(FREQ_FA[e.frequency]||e.frequency)}</td><td>${esc(e.owner)}</td>
+      <td><span class="pill p-${(e.criticality||"").toLowerCase()}">${esc(SEV_FA[e.criticality]||e.criticality)}</span></td>
+      <td>${esc(e.notes==="-"?"":e.notes)}</td></tr>`;
+  }).join("");
+  document.getElementById("mxTable").innerHTML =
+    `<table><thead><tr><th>مسیر</th><th>دادهٔ مبادله‌شده</th><th>جهت</th><th>مکانیزم</th><th>فرکانس</th><th>مالک</th><th>حساسیت</th><th>ملاحظه</th></tr></thead><tbody>${rows}</tbody></table>
+     <p class="hint" style="margin-top:10px">تعداد نمایش‌داده‌شده: ${filteredEdges().length} یال</p>`;
+}
+
+/* ---------- KPI ---------- */
+function renderKpi(){
+  const sel=document.getElementById("kpiUnit");
+  const units=[...new Set(KPI.map(k=>k.unit))];
+  sel.innerHTML='<option value="">همهٔ حوزه‌ها</option>'+units.map(u=>`<option value="${esc(u)}">${esc(u)} — ${esc(NODE_FA[u]||u)}</option>`).join("");
+  const fsel=document.getElementById("kpiFreq");
+  fsel.innerHTML='<option value="">همهٔ فرکانس‌ها</option>'+[...new Set(KPI.map(k=>k.frequency))].map(f=>`<option>${esc(f)}</option>`).join("");
+  drawKpi();
+}
+function drawKpi(){
+  const q=(document.getElementById("kpiSearch").value||"").toLowerCase();
+  const u=document.getElementById("kpiUnit").value, f=document.getElementById("kpiFreq").value;
+  const rows=KPI.filter(k=>{
+    if(u && k.unit!==u) return false;
+    if(f && k.frequency!==f) return false;
+    if(q && !(k.kpi_fa+k.formula+k.source_system+k.data_owner+k.id).toLowerCase().includes(q)) return false;
+    return true;
+  }).map(k=>`<tr><td>${esc(k.id)}</td><td>${esc(k.unit)}</td><td><b>${esc(k.kpi_fa)}</b></td>
+    <td dir="ltr" style="text-align:left">${esc(k.formula)}</td><td>${esc(k.target)}</td>
+    <td>${esc(k.source_system)}</td><td>${esc(k.data_owner)}</td><td>${esc(k.frequency)}</td></tr>`).join("");
+  document.getElementById("kpiTable").innerHTML =
+    `<table><thead><tr><th>شناسه</th><th>حوزه</th><th>شاخص</th><th>فرمول</th><th>هدف</th><th>منبع داده</th><th>مالک</th><th>فرکانس</th></tr></thead><tbody>${rows}</tbody></table>
+     <p class="hint" style="margin-top:10px">تعداد نمایش‌داده‌شده: ${KPI.filter(k=>(!document.getElementById("kpiUnit").value||k.unit===document.getElementById("kpiUnit").value)&&(!document.getElementById("kpiFreq").value||k.frequency===document.getElementById("kpiFreq").value)&&(!q||(k.kpi_fa+k.formula+k.source_system+k.data_owner+k.id).toLowerCase().includes(q))).length} از ${KPI.length}</p>`;
+}
+
+/* ---------- alarms ---------- */
+function renderAlarms(){
+  const usel=document.getElementById("alUnit");
+  usel.innerHTML='<option value="">همهٔ واحدها</option>'+[...new Set(AL.map(a=>a.unit))].map(u=>`<option value="${esc(u)}">${esc(u)} — ${esc(NODE_FA[u]||u)}</option>`).join("");
+  drawAlarms();
+}
+function drawAlarms(){
+  const q=(document.getElementById("alSearch").value||"").toLowerCase();
+  const s=document.getElementById("alSev").value, u=document.getElementById("alUnit").value;
+  const rows=AL.filter(a=>{
+    if(s && a.severity!==s) return false;
+    if(u && a.unit!==u) return false;
+    if(q && !(a.alarm_fa+a.trigger+a.auto_action+a.owner_role+a.id).toLowerCase().includes(q)) return false;
+    return true;
+  }).map(a=>`<tr><td>${esc(a.id)}</td><td>${esc(a.unit)}</td><td><b>${esc(a.alarm_fa)}</b></td>
+    <td>${esc(a.trigger)}</td><td><span class="pill p-${a.severity.toLowerCase()}">${esc(SEV_FA[a.severity]||a.severity)}</span></td>
+    <td>${esc(a.owner_role)}</td><td>${esc(a.notification)}</td><td>${esc(a.response_sla)}</td>
+    <td>${esc(a.auto_action)}</td><td>${esc(a.escalation==="-"?"":a.escalation)}</td></tr>`).join("");
+  document.getElementById("alTable").innerHTML =
+    `<table><thead><tr><th>شناسه</th><th>واحد</th><th>هشدار</th><th>محرک</th><th>سطح</th><th>مسئول</th><th>اعلان</th><th>SLA</th><th>اقدام خودکار</th><th>ارتقا</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- events ---------- */
+function renderEvents(){ drawEvents(); }
+function drawEvents(){
+  const q=(document.getElementById("evSearch").value||"").toLowerCase();
+  const c=document.getElementById("evCrit").value, pii=document.getElementById("evPii").value;
+  const rows=EV.filter(e=>{
+    if(c && e.criticality!==c) return false;
+    if(pii && e.pii!==pii) return false;
+    if(q && !(e.topic+e.event_type+e.producer+e.consumers+e.notes).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const shown=rows.length;
+  const body=rows.map(e=>`<tr><td dir="ltr" style="text-align:left"><b>${esc(e.topic)}</b></td>
+    <td dir="ltr" style="text-align:left">${esc(e.event_type)}</td><td>${esc(e.producer)}</td>
+    <td>${esc(e.consumers.replace(/;/g,"، "))}</td>
+    <td dir="ltr" style="text-align:left;font-size:11px">${esc(e.payload_keys.replace(/;/g,"، "))}</td>
+    <td>${esc(e.frequency)}</td><td>${esc(e.volume_per_day)}</td><td>${esc(e.retention_days)}</td>
+    <td>${e.pii==="yes"?'<span class="pill p-major">بله</span>':'<span class="pill p-low">خیر</span>'}</td>
+    <td dir="ltr" style="text-align:left;font-size:11px">${esc(e.idempotency)}</td>
+    <td>${esc(e.dlq)}</td>
+    <td><span class="pill p-${(e.criticality||"").toLowerCase()}">${esc(SEV_FA[e.criticality]||e.criticality)}</span></td></tr>`).join("");
+  document.getElementById("evTable").innerHTML =
+    `<table><thead><tr><th>موضوع (Topic)</th><th>نوع رویداد</th><th>تولیدکننده</th><th>مصرف‌کنندگان</th>
+     <th>کلیدهای پیام</th><th>فرکانس</th><th>حجم/روز</th><th>نگه‌داری (روز)</th><th>PII</th>
+     <th>Idempotency</th><th>سیاست خطا</th><th>حساسیت</th></tr></thead><tbody>${body}</tbody></table>
+     <p class="hint" style="margin-top:10px">تعداد نمایش‌داده‌شده: ${shown} از ${EV.length}</p>`;
+}
+
+/* ---------- risks ---------- */
+function renderRisk(){
+  // heatmap
+  const grid={};
+  RK.forEach(r=>{ (grid[r.impact+"-"+r.probability] ||= []).push(r.id); });
+  let g="      احتمال →      ۱        ۲        ۳        ۴        ۵\n";
+  for(let imp=5; imp>=1; imp--){
+    let line=`  اثر ${imp} |`;
+    for(let p=1;p<=5;p++){
+      const ids=grid[imp+"-"+p]||[];
+      line += " " + (ids.length? ids.join(",") : "·").padEnd(8," ");
+    }
+    g += line + "\n";
+  }
+  document.getElementById("rkHeat").textContent=g;
+  drawRisk();
+}
+function drawRisk(){
+  const q=(document.getElementById("rkSearch").value||"").toLowerCase();
+  const b=document.getElementById("rkBand").value;
+  const rows=RK.filter(r=>{
+    if(b && r.band!==b) return false;
+    if(q && !(r.risk+r.mitigation+r.owner+r.id+r.category).toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,c)=>c.score-a.score).map(r=>`<tr>
+    <td><b>${esc(r.id)}</b></td><td>${esc(r.risk)}</td><td>${esc(r.category)}</td>
+    <td>${esc(r.probability)}</td><td>${esc(r.impact)}</td>
+    <td><span class="pill p-${r.band==="بحرانی"?"crit":r.band==="بالا"?"major":r.band==="متوسط"?"minor":"warn"}">${esc(r.score)} — ${esc(r.band)}</span></td>
+    <td>${esc(r.early_warning)}</td><td>${esc(r.mitigation)}</td><td>${esc(r.owner)}</td><td>${esc(r.review)}</td></tr>`).join("");
+  document.getElementById("rkTable").innerHTML =
+    `<table><thead><tr><th>شناسه</th><th>ریسک</th><th>دسته</th><th>احتمال</th><th>اثر</th><th>امتیاز/سطح</th>
+     <th>نشانهٔ هشدار</th><th>برنامهٔ کاهش</th><th>مالک</th><th>بازنگری</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- open questions ---------- */
+const QICON={"بلوکه\u200cکننده":"🔴","مهم":"🟠","قابل تأخیر":"🟡"};
+function renderQuestions(){
+  const gs=[...new Set(QQ.map(q=>q.group))];
+  document.getElementById("qGroup").innerHTML =
+    '<option value="">همهٔ گروه‌ها</option>' + gs.map(g=>`<option>${esc(g)}</option>`).join("");
+  drawQuestions();
+}
+function drawQuestions(){
+  const q=(document.getElementById("qSearch").value||"").toLowerCase();
+  const pr=document.getElementById("qPrio").value, gr=document.getElementById("qGroup").value;
+  const rows=QQ.filter(x=>{
+    if(pr && x.priority!==pr) return false;
+    if(gr && x.group!==gr) return false;
+    if(q && !(x.question+x.why_it_matters+x.decision_owner+x.blocks+x.default_assumption).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const body=rows.map(x=>`<tr>
+    <td><b>${esc(x.id)}</b></td><td>${esc(x.question)}</td>
+    <td><span class="pill p-${x.priority==="بلوکه\u200cکننده"?"crit":x.priority==="مهم"?"major":"minor"}">${QICON[x.priority]||""} ${esc(x.priority)}</span></td>
+    <td>${esc(x.why_it_matters)}</td><td>${esc(x.default_assumption)}</td>
+    <td>${esc(x.decision_owner)}</td><td dir="ltr" style="text-align:left;font-size:11px">${esc(x.blocks)}</td>
+    <td>${esc(x.due)}</td><td>${esc(x.answer_format)}</td></tr>`).join("");
+  document.getElementById("qTable").innerHTML =
+    `<table><thead><tr><th>#</th><th>پرسش</th><th>اولویت</th><th>چرا مهم است</th>
+     <th>پیش‌فرض فعلی</th><th>پاسخ‌گو</th><th>وابسته‌ها</th><th>مهلت</th><th>قالب پاسخ</th></tr></thead>
+     <tbody>${body}</tbody></table>
+     <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${QQ.length} پرسش
+     (بلوکه‌کننده: ${QQ.filter(x=>x.priority==="بلوکه\u200cکننده").length})</p>`;
+}
+
+/* ---------- NFR، مدل داده، سخت‌افزار ---------- */
+function renderNfr(){
+  fillSelect("nfrCat", NFR.map(r=>r.category), "همهٔ دسته‌ها");
+  fillSelect("nfrPrio", NFR.map(r=>r.priority), "همهٔ اولویت‌ها");
+  fillSelect("otcStatus", OTC.map(r=>r.status), "همهٔ وضعیت‌ها");
+  drawNfr(); drawOtc();
+  document.getElementById("slTable").innerHTML =
+    `<table><thead><tr><th>زون</th><th>SL هدف</th><th>توضیح</th></tr></thead><tbody>` +
+    SLT.map(r=>`<tr><td><b>${esc(r.zone)}</b></td>
+      <td><span class="pill ${r.sl_target.includes("SL-3")?"p-crit":"p-major"}">${esc(r.sl_target)}</span></td>
+      <td>${esc(r.description)}</td></tr>`).join("") + `</tbody></table>`;
+  document.getElementById("compTable").innerHTML =
+    `<table><thead><tr><th>استاندارد/الزام</th><th>دامنه</th><th>الزامات مرتبط</th><th>مدرک/شاهد</th></tr></thead><tbody>` +
+    COMP.map(r=>`<tr><td><b>${esc(r.standard)}</b></td><td>${esc(r.scope)}</td>
+      <td>${esc(r.requirements)}</td><td>${esc(r.evidence)}</td></tr>`).join("") + `</tbody></table>`;
+  document.getElementById("audTable").innerHTML =
+    `<table><thead><tr><th>گزارش</th><th>محتوا</th><th>منبع</th></tr></thead><tbody>` +
+    AUD.map(r=>`<tr><td><b>${esc(r.report)}</b></td><td>${esc(r.content)}</td><td>${esc(r.source)}</td></tr>`).join("") +
+    `</tbody></table>`;
+}
+function drawNfr(){
+  const q=(document.getElementById("nfrSearch").value||"").toLowerCase();
+  const c=document.getElementById("nfrCat").value, pr=document.getElementById("nfrPrio").value;
+  const rows=NFR.filter(r=>{
+    if(c && r.category!==c) return false;
+    if(pr && r.priority!==pr) return false;
+    if(q && !(r.requirement+r.target+r.measurement+r.category).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("nfrTable").innerHTML =
+    `<table><thead><tr><th>دسته</th><th>نیازمندی</th><th>مقدار هدف</th><th>روش اندازه‌گیری</th><th>اولویت</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>${esc(r.category)}</td><td>${esc(r.requirement)}</td>
+      <td><b>${esc(r.target)}</b></td><td>${esc(r.measurement)}</td><td>${esc(r.priority)}</td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${NFR.length} الزام</p>`;
+}
+function drawOtc(){
+  const q=(document.getElementById("otcSearch").value||"").toLowerCase();
+  const st=document.getElementById("otcStatus").value;
+  const rows=OTC.filter(r=>{
+    if(st && r.status!==st) return false;
+    if(q && !(r.area+r.control).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const cls=v => /الزامی/.test(v) ? "p-crit" : /توصیه/.test(v) ? "p-minor" : "p-low";
+  document.getElementById("otcTable").innerHTML =
+    `<table><thead><tr><th>حوزه</th><th>کنترل</th><th>وضعیت الزام</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>${esc(r.area)}</td><td>${esc(r.control)}</td>
+      <td><span class="pill ${cls(r.status)}">${esc(r.status)}</span></td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${OTC.length} کنترل</p>`;
+}
+
+function renderDataModel(){
+  fillSelect("entSvc", ENT.map(r=>r.service), "همهٔ سرویس‌ها");
+  drawEnt();
+  const tbl = (rows, head, cols) =>
+    `<table><thead><tr>${head.map(h=>"<th>"+h+"</th>").join("")}</tr></thead><tbody>` +
+    rows.map(r=>"<tr>" + cols.map(c=>"<td>"+esc(r[c])+"</td>").join("") + "</tr>").join("") +
+    "</tbody></table>";
+  document.getElementById("idcTable").innerHTML =
+    tbl(IDC, ["نوع","قالب","مثال","توضیح"], ["type","fmt","example","note"]);
+  document.getElementById("retTable").innerHTML =
+    tbl(RET, ["کلاس","دامنه","مدت","رسانه","قابل حذف؟"], ["cls","scope","duration","media","deletable"]);
+  document.getElementById("intTable").innerHTML =
+    tbl(INTG, ["رابطه","سیاست","مکانیزم کنترل"], ["relation","policy","mechanism"]);
+  document.getElementById("scdTable").innerHTML =
+    tbl(SCD, ["نوع تغییر","سیاست","مثال"], ["change_type","policy","example"]);
+  document.getElementById("dimTable").innerHTML =
+    tbl(DIM, ["بُعد","منبع","کلید","ویژگی‌های کلیدی"], ["dimension","source","key","features"]);
+}
+function drawEnt(){
+  const q=(document.getElementById("entSearch").value||"").toLowerCase();
+  const sv=document.getElementById("entSvc").value;
+  const rows=ENT.filter(r=>{
+    if(sv && r.service!==sv) return false;
+    if(q && !(r.entity+r.service+r.key+r.refs).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("entTable").innerHTML =
+    `<table><thead><tr><th>موجودیت</th><th>سرویس مالک</th><th>کلید</th><th>ارجاع‌های اصلی</th><th>کلاس نگه‌داری</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.entity)}</b></td><td>${esc(r.service)}</td>
+      <td dir="ltr" style="text-align:left">${esc(r.key)}</td><td>${esc(r.refs)}</td>
+      <td>${esc(r.retention_class)}</td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${ENT.length} موجودیت</p>`;
+}
+
+function renderHw(){
+  document.getElementById("hwTable").innerHTML =
+    `<table><thead><tr><th>واحد</th><th>گروه‌های اصلی تجهیزات</th><th>شمار تقریبی نقطه/دستگاه</th><th>سهم از بودجهٔ سخت‌افزار</th></tr></thead><tbody>` +
+    HW.map(r=>`<tr><td><b>${esc(r.unit)}</b></td><td>${esc(r.groups)}</td>
+      <td>${esc(r.count)}</td><td>${esc(r.budget_share)}</td></tr>`).join("") + `</tbody></table>`;
+  document.getElementById("hwpTable").innerHTML =
+    `<table><thead><tr><th>اصل</th><th>الزام</th><th>دلیل</th></tr></thead><tbody>` +
+    HWP.map(r=>`<tr><td><b>${esc(r.principle)}</b></td><td>${esc(r.requirement)}</td><td>${esc(r.reason)}</td></tr>`).join("") + `</tbody></table>`;
+  document.getElementById("hwsTable").innerHTML =
+    `<table><thead><tr><th>حوزه</th><th>مرجع</th></tr></thead><tbody>` +
+    HWS.map(r=>`<tr><td>${esc(r.area)}</td><td>${esc(r.reference)}</td></tr>`).join("") + `</tbody></table>`;
+  document.getElementById("hwcTable").innerHTML =
+    `<table><thead><tr><th>ردیف هزینه‌ای</th><th>چرا مهم است</th></tr></thead><tbody>` +
+    HWC.map(r=>`<tr><td><b>${esc(r.item)}</b></td><td>${esc(r.why)}</td></tr>`).join("") + `</tbody></table>`;
+}
+
+/* ---------- نقش‌ها، دسترسی، RACI، UAT ---------- */
+const NONE = "—";
+function fillSelect(id, values, allLabel){
+  const el = document.getElementById(id);
+  el.innerHTML = '<option value="">' + allLabel + '</option>' +
+    [...new Set(values)].map(v => `<option>${esc(v)}</option>`).join("");
+}
+function renderRoles(){
+  fillSelect("accRole", ACC.map(r=>r.role), "همهٔ نقش‌ها");
+  fillSelect("accPage", ACC.map(r=>r.page), "همهٔ صفحات");
+  fillSelect("rbacRole", RBAC.map(r=>r.role), "همهٔ نقش‌ها");
+  fillSelect("rbacMod", RBAC.map(r=>r.module), "همهٔ ماژول‌ها");
+  drawRoles(); drawAcc(); drawRbac();
+  document.getElementById("sodTable").innerHTML =
+    `<table><thead><tr><th>#</th><th>قاعدهٔ تفکیک وظایف</th><th>کنترل سیستمی</th></tr></thead><tbody>` +
+    SOD.map(r=>`<tr><td><b>${esc(r.id)}</b></td><td>${esc(r.rule)}</td><td>${esc(r.control)}</td></tr>`).join("") +
+    `</tbody></table>`;
+}
+function drawRoles(){
+  const q=(document.getElementById("roleSearch").value||"").toLowerCase();
+  const rows=ROLES.filter(r=>!q || (r.role_fa+r.workplace+r.access_level+r.devices+r.code).toLowerCase().includes(q));
+  document.getElementById("roleTable").innerHTML =
+    `<table><thead><tr><th>کد</th><th>نام نقش</th><th>محیط کار</th><th>سطح دسترسی پیش‌فرض</th><th>ابزار</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.code)}</b></td><td>${esc(r.role_fa)}</td><td>${esc(r.workplace)}</td>
+      <td>${esc(r.access_level)}</td><td>${esc(r.devices)}</td></tr>`).join("") + `</tbody></table>
+      <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${ROLES.length} نقش</p>`;
+}
+function renderJourney(){
+  const sel=document.getElementById("jrRole");
+  sel.innerHTML = '<option value="">یک نقش را انتخاب کنید…</option>' +
+    ROLES.map(r=>`<option value="${esc(r.code)}">${esc(r.code)} — ${esc(r.role_fa)}</option>`).join("");
+  drawJourney();
+}
+function drawJourney(){
+  const code=document.getElementById("jrRole").value;
+  const box=document.getElementById("jrBox");
+  if(!code){ box.innerHTML='<p class="hint">برای دیدنِ سفر کاری، یک نقش انتخاب کنید.</p>'; return; }
+  const role=ROLES.find(r=>r.code===code)||{};
+  const map=RMAP.find(r=>r.code===code)||{};
+  const steps=JOUR.filter(j=>j.code===code).sort((a,b)=>+a.step - +b.step);
+  const acc=ACC.filter(a=>a.role===code);
+  const full=acc.filter(a=>a.access==="●").length, part=acc.filter(a=>a.access==="◐").length;
+  const raci=RACI.filter(r=>r.actor===map.raci_actor && /A|R/.test(r.value));
+  const note=map.notify_note||"";
+  box.innerHTML =
+    `<div class="kpis" style="margin:0 0 12px">
+       <div class="kpi"><b>${full+part}</b><span>صفحهٔ در دسترس (● ${full} · ◐ ${part})</span></div>
+       <div class="kpi"><b>${raci.length}</b><span>فعالیت در RACI (A/R)</span></div>
+       <div class="kpi"><b>${esc(map.raci_actor||"—")}</b><span>بازیگر در ماتریس RACI</span></div>
+       <div class="kpi"><b>${esc(role.workplace||"—")}</b><span>محیط کار</span></div>
+     </div>
+     <table><thead><tr><th>#</th><th>فاز</th><th>آنچه در سامانه انجام می‌دهد</th>
+       <th>سامانه</th><th>خروجی/اثرِ قابل‌ردیابی</th></tr></thead><tbody>` +
+    steps.map(j=>`<tr><td>${esc(j.step)}</td><td><b>${esc(j.phase)}</b></td>
+      <td>${esc(j.action)}</td><td>${esc(j.system)}</td><td>${esc(j.evidence)}</td></tr>`).join("") +
+    `</tbody></table>` + (note ? `<p class="hint" style="margin-top:10px">نکتهٔ اعلان: ${esc(note)}</p>` : "");
+}
+/* ---------- پانل‌های مرجع (جدولِ ساده با فیلتر) ---------- */
+function tbl(cols, rows, keys){
+  if(!rows.length) return '<p class="hint">موردی یافت نشد</p>';
+  return `<table><thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>` +
+    rows.map(r=>`<tr>${keys.map(k=>`<td>${esc(r[k]||"")}</td>`).join("")}</tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:8px">${rows.length} ردیف</p>`;
+}
+function drawPanels(list, q){
+  list.forEach(function(p_){
+    const rows = p_[1]().filter(function(r){
+      return !q || p_[3].some(function(k){ return (r[k]||"").toLowerCase().indexOf(q) >= 0; });
+    });
+    document.getElementById(p_[0]).innerHTML = tbl(p_[2], rows, p_[3]);
+  });
+}
+const P_EXEC = [
+  ["pGaps",    () => GAPS,  ["گسست","نشانهٔ میدانی","هزینهٔ پنهان"], ["gap","symptom","hidden_cost"]],
+  ["pAdr",     () => ADRS,  ["ADR","تصمیم","جایگزینِ رد‌شده","دلیل رد"], ["adr","decision","rejected","why"]],
+  ["pTargets", () => TGT,   ["شاخص","واحد","Baseline [فرض]","هدف ۱۸ ماهه","هدف ۳۰ ماهه","منبع"],
+                      ["metric","unit","baseline","target_18m","target_30m","source"]],
+  ["pFin",     () => EXFIN, ["مورد","مقدار"], ["item","value"]],
+  ["pGov",     () => GOV,   ["نقش","مسئولیت","تصمیمات اختصاصی"], ["role","responsibility","decisions"]],
+];
+const P_INP = [
+  ["pParams", () => PARAMS, ["پارامتر","مقدار فرضی","برچسب","روش تأیید (فاز ۰)"], ["param","assumed_value","tag","verify"]],
+  ["pAssum",  () => ASSUM,  ["#","فرض","ریسک اگر غلط باشد","نشانهٔ هشدار"], ["id","assumption","risk_if_wrong","warning_sign"]],
+  ["pGloss",  () => GLOSS,  ["اختصار","معادل فارسی","توضیح کوتاه"], ["abbr","fa","desc"]],
+  ["pUnits",  () => UNITS,  ["کد","واحد","کد","واحد"], ["code_a","name_a","code_b","name_b"]],
+];
+const P_VND = [
+  ["pVcrit",   () => VC,   ["#","معیار","وزن","آنچه واقعاً می‌سنجیم"], ["id","criterion","weight","what_it_measures"]],
+  ["pVko",     () => VKO,  ["#","شرط حذف","دلیل"], ["id","condition","reason"]],
+  ["pVmod",    () => VMOD, ["مدل","مزایا","معایب","دامنهٔ پیشنهادی"], ["model","pros","cons","scope"]],
+  ["pVscore",  () => VSC,  ["معیار","وزن","تأمین‌کنندهٔ الف","تأمین‌کنندهٔ ب","تأمین‌کنندهٔ ج"], ["criterion","weight","v_a","v_b","v_c"]],
+  ["pPoc",     () => POC,  ["روز","فعالیت"], ["day","activity"]],
+  ["pClauses", () => CLS,  ["#","بند","چرا حیاتی است"], ["id","clause","why_critical"]],
+  ["pPitfalls", () => PIT,  ["اشتباه","پیامد","پیشگیری در این فرآیند"], ["mistake","consequence","prevention"]],
+];
+const P_CUT = [
+  ["pCprinc", () => CPR,  ["اصل","تصمیم"], ["principle","decision"]],
+  ["pMigr",   () => MIG,  ["حوزه داده","حجم [فرض]","روش","کیفیتِ هدف","مسئول"], ["domain","volume","method","target_quality","owner"]],
+  ["pPrep",   () => PREP, ["زمان","اقدام","مسئول","معیار عبور"], ["time","action","owner","exit_criteria"]],
+  ["pCday",   () => CDAY, ["زمان","اقدام","مسئول"], ["time","action","owner"]],
+  ["pPost",   () => POST, ["بازه","اقدام","معیار خروج"], ["window","action","exit_criteria"]],
+  ["pRecon",  () => RECON,["مورد","روش","آستانه","فرکانس در ماه نخست"], ["item","method","threshold","frequency"]],
+];
+const PANELS = () => P_EXEC.concat(P_INP, P_VND, P_CUT, P_ARCH, P_CHG, P_ADR, P_API, P_FLW)
+                      .map(p_ => p_[0]).concat(["pPhases", "pApiEp"]);
+const P_ARCH = [
+  ["pCond",    () => COND,  ["کاندویت","از → به","مجاز","مکانیزم","رمزنگاری","بازرسی"], ["conduit","path","allowed","mechanism","encryption","inspection"]],
+  ["pLat",     () => LAT,   ["مسیر","هدف","سقف قابل‌قبول"], ["route","target","ceiling"]],
+  ["pTag",     () => TAG,   ["بخش","مجاز","مثال"], ["section","allowed","example"]],
+  ["pProto",   () => PROTO, ["لایهٔ اتصال","پروتکل","دلیل انتخاب","جایگزین مجاز"], ["layer","protocol","rationale","allowed_alt"]],
+  ["pOffline", () => OFFL,  ["وضعیت","رفتار"], ["state","behaviour"]],
+  ["pHa",      () => HA,    ["سامانه","معماری","SLA","RPO","RTO"], ["system","architecture","sla","rpo","rto"]],
+  ["pTwin",    () => TWIN,  ["هدف Twin","مدل","دادهٔ ورودی","خروجی","فاز"], ["goal","model","inputs","outputs","phase"]],
+];
+const P_CHG = [
+  ["pResist",   () => RES,   ["دلیل واقعی مقاومت","نشانه","پاسخ برنامه‌ریزی‌شده"], ["cause","sign","response"]],
+  ["pChgRoles", () => CHGR,  ["نقش","مسئولیت","تعداد پیشنهادی"], ["role","responsibility","headcount"]],
+  ["pComms",    () => COMMS, ["مخاطب","پیام کلیدی","کانال","بسامد"], ["audience","message","channel","frequency"]],
+  ["pTrain",    () => TRAIN, ["نقش","محتوای آموزش","مدت","روش","ارزیابی"], ["role","content","duration","method","evaluation"]],
+  ["pChgTime",  () => CHGT,  ["زمان","اقدام"], ["time","action"]],
+  ["pAdopt",    () => ADOPT, ["شاخص","فرمول","هدف","فرکانس"], ["metric","formula","target","frequency"]],
+];
+const P_ADR = [
+  ["pAdrIndex", () => ADRI,  ["ADR","عنوان","وضعیت","وابسته به"], ["adr","title","status","depends_on"]],
+  ["pGates",    () => GATES, ["گیت سخت","شرط","اثر"], ["gate","condition","effect"]],
+];
+const P_API = [
+  ["pApiConv", () => APIC, ["موضوع","قرارداد"], ["topic","contract"]],
+  ["pApiSvc",  () => APIS, ["سرویس","دامنه","وابستگی‌های داده‌ای"], ["service","domain","data_dependencies"]],
+  ["pEvRules", () => EVR,  ["قاعده","مقدار"], ["rule","value"]],
+  ["pSlo",     () => SLO,  ["شاخص","تعریف","هدف","هشدار"], ["metric","definition","target","alarm"]],
+];
+const P_FLW = [
+  ["pFail",      () => FAIL, ["نقطهٔ شکست","رفتار سیستم","جبران"], ["failure_point","system_behaviour","compensation"]],
+  ["pFlowGates", () => FLG,  ["گیت","شرط","نوع"], ["gate","condition","type"]],
+  ["pFlowMon",   () => FLM,  ["جریان","سناریوی UAT","شاخصِ پایش","آلارم‌های مرتبط"], ["flow","uat_scenario","monitor_metric","related_alarms"]],
+];
+function drawArch(){ drawPanels(P_ARCH, (document.getElementById("archSearch").value||"").toLowerCase()); }
+function drawChg(){ drawPanels(P_CHG, (document.getElementById("chgSearch").value||"").toLowerCase()); }
+function drawAdr(){ drawPanels(P_ADR, (document.getElementById("adrSearch").value||"").toLowerCase()); }
+function drawApi(){
+  drawPanels(P_API, (document.getElementById("apiSearch").value||"").toLowerCase());
+  drawApiEp();
+}
+function fillApiSvc(){
+  const sel = document.getElementById("apiSvc");
+  const gs = [];
+  APIE.forEach(function(r){ if(r.group && gs.indexOf(r.group) < 0) gs.push(r.group); });
+  sel.innerHTML = '<option value="">همهٔ گروه‌ها</option>' +
+    gs.map(function(g){ return `<option>${esc(g)}</option>`; }).join("");
+}
+function drawApiEp(){
+  const q = (document.getElementById("apiSearch").value||"").toLowerCase();
+  const g = document.getElementById("apiSvc").value;
+  const rows = APIE.filter(function(r){
+    if(g && r.group !== g) return false;
+    return !q || ["method","path","purpose","permission","group"].some(function(k){
+      return (r[k]||"").toLowerCase().indexOf(q) >= 0; });
+  });
+  document.getElementById("pApiEp").innerHTML = tbl(
+    ["گروه","متد","مسیر","هدف","مجوز","♻️"], rows,
+    ["group","method","path","purpose","permission","idempotent"]);
+}
+function drawFlw(){ drawPanels(P_FLW, (document.getElementById("flwSearch").value||"").toLowerCase()); }
+function drawExec(){ drawPanels(P_EXEC, (document.getElementById("execSearch").value||"").toLowerCase()); drawPhaseSum(); }
+function drawInp(){ drawPanels(P_INP, (document.getElementById("inpSearch").value||"").toLowerCase()); }
+function drawVnd(){ drawPanels(P_VND, (document.getElementById("vndSearch").value||"").toLowerCase()); }
+function drawCut(){ drawPanels(P_CUT, (document.getElementById("cutSearch").value||"").toLowerCase()); }
+
+/* جمع‌بستنِ فازها از roadmap — همان کاری که مولدِ مستند انجام می‌دهد */
+function drawPhaseSum(){
+  const agg = {};
+  ROAD.forEach(function(r){ (agg[r.phase] = agg[r.phase] || []).push(r); });
+  let lo = 0, hi = 0, wmin = null, wmax = null;
+  const rows = PH.map(function(p_){
+    const it = agg[p_.phase] || [];
+    if(!it.length) return null;
+    const a = it.reduce(function(x,r){ return x + parseFloat(r.cost_low_musd||0); }, 0);
+    const b = it.reduce(function(x,r){ return x + parseFloat(r.cost_high_musd||0); }, 0);
+    const ws = Math.min.apply(null, it.map(function(r){ return +r.start_week; }));
+    const we = Math.max.apply(null, it.map(function(r){ return +r.start_week + +r.duration_weeks; }));
+    lo += a; hi += b;
+    wmin = (wmin === null) ? ws : Math.min(wmin, ws);
+    wmax = (wmax === null) ? we : Math.max(wmax, we);
+    return {label:p_.label, span:ws+"–"+we, cost:a.toFixed(2)+"–"+b.toFixed(2), out:p_.main_output};
+  }).filter(Boolean);
+  rows.push({label:"**جمع**", span:wmin+"–"+wmax, cost:lo.toFixed(2)+"–"+hi.toFixed(2), out:"—"});
+  document.getElementById("pPhases").innerHTML =
+    tbl(["فاز","بازه (هفته)","بودجه (M USD)","اصلی‌ترین خروجی"], rows, ["label","span","cost","out"]);
+}
+function drawAcc(){
+  const role=document.getElementById("accRole").value, page=document.getElementById("accPage").value;
+  const all=document.getElementById("accAll").checked;
+  const rows=ACC.filter(r=>{
+    if(role && r.role!==role) return false;
+    if(page && r.page!==page) return false;
+    if(!all && (r.access===NONE || !r.access)) return false;
+    return true;
+  });
+  const cls=a => a===NONE ? "p-low" : /●/.test(a) ? "p-crit" : /◐/.test(a) ? "p-major" : "p-ok";
+  document.getElementById("accTable").innerHTML =
+    `<table><thead><tr><th>صفحه / فرم</th><th>نقش</th><th>سطح دسترسی</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>${esc(r.page)}</td><td><b>${esc(r.role)}</b></td>
+      <td><span class="pill ${cls(r.access)}">${esc(r.access)}</span></td></tr>`).join("") + `</tbody></table>
+      <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${ACC.length} خانه</p>`;
+}
+function drawRbac(){
+  const role=document.getElementById("rbacRole").value, mod=document.getElementById("rbacMod").value;
+  const q=(document.getElementById("rbacSearch").value||"").toLowerCase();
+  const rows=RBAC.filter(r=>{
+    if(role && r.role!==role) return false;
+    if(mod && r.module!==mod) return false;
+    if(q && !(r.role+r.module+r.access).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("rbacTable").innerHTML =
+    `<table><thead><tr><th>نقش</th><th>ماژول</th><th>سطح دسترسی</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.role)}</b></td><td>${esc(r.module)}</td><td>${esc(r.access)}</td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${RBAC.length}</p>`;
+}
+
+function renderRaci(){
+  fillSelect("raciActor", RACI.map(r=>r.actor), "همهٔ نقش‌ها");
+  drawRaci();
+}
+function drawRaci(){
+  const actor=document.getElementById("raciActor").value;
+  const f=document.getElementById("raciFilter").value;
+  const q=(document.getElementById("raciSearch").value||"").toLowerCase();
+  const rows=RACI.filter(r=>{
+    if(actor && r.actor!==actor) return false;
+    if(f && !f.split("").some(c => r.value.toUpperCase().includes(c))) return false;
+    if(q && !r.activity.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const cls=v => /A/.test(v) ? "p-crit" : /R/.test(v) ? "p-major" : /C/.test(v) ? "p-minor" : "p-low";
+  document.getElementById("raciTable").innerHTML =
+    `<table><thead><tr><th>#</th><th>فعالیت / تصمیم</th><th>نقش</th><th>نقش در RACI</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>${esc(r.activity_id)}</td><td>${esc(r.activity)}</td>
+      <td><b>${esc(r.actor)}</b></td>
+      <td><span class="pill ${cls(r.value.toUpperCase())}">${esc(r.value)}</span></td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${RACI.length} مورد</p>`;
+}
+
+function renderUat(){ drawUat(); drawUatc(); }
+function drawUat(){
+  const q=(document.getElementById("uatSearch").value||"").toLowerCase();
+  const rows=UAT.filter(r=>!q || (r.scenario+r.flow+r.pass_criteria+r.id).toLowerCase().includes(q));
+  document.getElementById("uatTable").innerHTML =
+    `<table><thead><tr><th>#</th><th>سناریو</th><th>مسیر</th><th>معیار عبور دقیق</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.id)}</b></td><td>${esc(r.scenario)}</td><td>${esc(r.flow)}</td>
+      <td>${esc(r.pass_criteria)}</td></tr>`).join("") + `</tbody></table>
+      <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${UAT.length} سناریو</p>`;
+}
+function drawUatc(){
+  const q=(document.getElementById("uatcSearch").value||"").toLowerCase();
+  const rows=UATC.filter(r=>!q || (r.area+r.criterion+r.threshold+r.measurement).toLowerCase().includes(q));
+  document.getElementById("uatcTable").innerHTML =
+    `<table><thead><tr><th>حوزه</th><th>معیار</th><th>آستانه</th><th>روش اندازه‌گیری</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td>${esc(r.area)}</td><td>${esc(r.criterion)}</td>
+      <td><b>${esc(r.threshold)}</b></td><td>${esc(r.measurement)}</td></tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${UATC.length} معیار</p>`;
+}
+
+/* ---------- traceability ---------- */
+function renderTrace(){
+  const gs=[...new Set(TR.map(r=>r.group))];
+  document.getElementById("trGroup").innerHTML =
+    '<option value="">همهٔ گروه‌ها</option>' + gs.map(g=>`<option>${esc(g)}</option>`).join("");
+  drawTrace();
+}
+function drawTrace(){
+  const q=(document.getElementById("trSearch").value||"").toLowerCase();
+  const g=document.getElementById("trGroup").value;
+  const rows=TR.filter(r=>{
+    if(g && r.group!==g) return false;
+    if(q && !(r.requirement+r.criterion+r.evidence_docs+r.evidence_data+r.verification+r.id).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const cls = st => st==="تأمین" ? "low" : st==="در حال انجام" ? "minor" : "crit";
+  document.getElementById("trTable").innerHTML =
+    `<table><thead><tr><th>#</th><th>گروه</th><th>نیازمندی</th><th>معیار</th>
+     <th>مستندِ پاسخ‌گو</th><th>دادهٔ پشتیبان</th><th>روشِ راستی‌آزمایی</th><th>وضعیت</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.id)}</b></td><td>${esc(r.group)}</td>
+      <td>${esc(r.requirement)}</td><td>${esc(r.criterion)}</td>
+      <td>${esc(r.evidence_docs)}</td><td>${esc(r.evidence_data)}</td>
+      <td>${esc(r.verification)}</td>
+      <td><span class="pill p-${cls(r.status)}">${esc(r.status)}</span></td></tr>`).join("") +
+    `</tbody></table>
+     <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${TR.length} نیازمندی —
+     تأمین‌شده: ${TR.filter(r=>r.status==="تأمین").length}</p>`;
+}
+
+/* ---------- finance ---------- */
+const N = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+function renderFinance(){
+  const recLo=BEN.reduce((a,b)=>a+N(b.saving_low_musd),0), recHi=BEN.reduce((a,b)=>a+N(b.saving_high_musd),0);
+  const oneLo=BEN.reduce((a,b)=>a+N(b.oneoff_low_musd),0), oneHi=BEN.reduce((a,b)=>a+N(b.oneoff_high_musd),0);
+  const recMid=(recLo+recHi)/2, oneMid=(oneLo+oneHi)/2;
+
+  // جریان نقدی پایه
+  let cum=0; const rows=FIN.map(y=>{
+    const capex=(N(y.capex_low_musd)+N(y.capex_high_musd))/2;
+    const opex=(N(y.opex_low_musd)+N(y.opex_high_musd))/2;
+    const gross=recMid*(N(y.benefit_ramp_pct)/100);
+    const extra=(y.year==="2")?oneMid:0;
+    const net=gross+extra-opex-capex; cum+=net;
+    return {y:y.year,label:y.label,capex,opex,gross,extra,net,cum,milestone:y.milestone};
+  });
+  const maxAbs=Math.max(...rows.map(r=>Math.abs(r.net)));
+  const scale=v=>Math.round(Math.abs(v)/maxAbs*34);
+
+  // نمودار میله‌ای با محورِ مرکزی (چپ = خروج نقد، راست = ورود نقد)
+  const W=48, C=24, MAXB=20;
+  const bar = v => {
+    const w = Math.max(1, Math.round(Math.abs(v) / maxAbs * MAXB));
+    return v < 0
+      ? " ".repeat(C - w) + "█".repeat(w) + "│"
+      : " ".repeat(C) + "│" + "█".repeat(w);
+  };
+  let chart = " " .repeat(6) + "خروج نقد ◄" + " ".repeat(C - 12) + "│" +
+              " ".repeat(W - C - 8) + "► ورود نقد\n";
+  rows.forEach(r => {
+    chart += `سال ${r.y}  ${bar(r.net).padEnd(W)}  ${r.net >= 0 ? "+" : ""}${r.net.toFixed(2)}\n`;
+  });
+  chart += " " .repeat(6) + "─".repeat(W) + "\n";
+  chart += " " .repeat(6) + `تجمعی پایان سال ۵: ${rows[rows.length - 1].cum >= 0 ? "+" : ""}` +
+           `${rows[rows.length - 1].cum.toFixed(2)} میلیون دلار`;
+  document.getElementById("finChart").textContent = chart;
+
+  document.getElementById("finTable").innerHTML =
+    `<table><thead><tr><th>سال</th><th>سرمایه</th><th>منفعت ناخالص</th><th>آزادسازی نقد</th>
+     <th>هزینه جاری</th><th>خالص سالانه</th><th>تجمعی</th><th>نقطهٔ عطف</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr><td><b>${esc(r.y)}</b></td><td>${r.capex.toFixed(2)}</td><td>${r.gross.toFixed(2)}</td>
+      <td>${r.extra?r.extra.toFixed(2):"—"}</td><td>${r.opex.toFixed(2)}</td>
+      <td><span class="pill p-${r.net<0?"crit":"low"}">${r.net.toFixed(2)}</span></td>
+      <td><b>${r.cum.toFixed(2)}</b></td><td>${esc(r.milestone)}</td></tr>`).join("") + "</tbody></table>";
+
+  const midTotal=BEN.reduce((a,b)=>a+(N(b.saving_low_musd)+N(b.saving_high_musd))/2,0);
+  document.getElementById("finLevers").innerHTML =
+    `<table><thead><tr><th>#</th><th>محرک</th><th>شاخص</th><th>از</th><th>به</th>
+     <th>منفعت سالانه</th><th>وزن</th><th>اطمینان</th><th>از فاز</th></tr></thead><tbody>` +
+    BEN.slice().sort((a,b)=>((N(b.saving_low_musd)+N(b.saving_high_musd))/2)-((N(a.saving_low_musd)+N(a.saving_high_musd))/2))
+      .map(b=>{const mid=(N(b.saving_low_musd)+N(b.saving_high_musd))/2; const w=Math.round(mid/midTotal*20);
+        const cls=b.confidence==="بالا"?"low":b.confidence==="متوسط"?"minor":"major";
+        return `<tr><td><b>${esc(b.id)}</b></td><td>${esc(b.lever)}</td><td>${esc(b.driver_kpi)}</td>
+        <td>${esc(b.baseline)}</td><td>${esc(b.target)}</td>
+        <td>${esc(b.saving_low_musd)}–${esc(b.saving_high_musd)}</td>
+        <td dir="ltr" style="text-align:left">${"█".repeat(w)}${"·".repeat(20-w)} ${Math.round(mid/midTotal*100)}٪</td>
+        <td><span class="pill p-${cls}">${esc(b.confidence)}</span></td><td>${esc(b.starts_phase)}</td></tr>`;}).join("") +
+    `</tbody></table>`;
+
+  const capexTot=rows.reduce((a,r)=>a+r.capex,0);
+  document.getElementById("finSummary").innerHTML =
+    `<table><thead><tr><th>شاخص</th><th>بدبینانه</th><th>پایه</th><th>خوش‌بینانه</th></tr></thead><tbody>
+     <tr><td>منفعتِ تکرارشونده در سال (سطح کامل)</td><td>${recLo.toFixed(2)}</td><td><b>${recMid.toFixed(2)}</b></td><td>${recHi.toFixed(2)}</td></tr>
+     <tr><td>آزادسازیِ یک‌بارهٔ سرمایهٔ در گردش</td><td>${oneLo.toFixed(2)}</td><td><b>${oneMid.toFixed(2)}</b></td><td>${oneHi.toFixed(2)}</td></tr>
+     <tr><td>جمع سرمایه‌گذاری</td><td>—</td><td><b>${capexTot.toFixed(2)}</b></td><td>—</td></tr>
+     <tr><td>تجمعی در پایان سال ۵</td><td>—</td><td><b>${rows[rows.length-1].cum.toFixed(2)}</b></td><td>—</td></tr>
+     </tbody></table>
+     <p class="hint" style="margin-top:10px">همهٔ اعداد به میلیون دلار. قیمت‌ها [فرض] و در مستند ۲۵ مستند شده‌اند.</p>`;
+}
+
+/* ---------- OT security ---------- */
+function renderOt(){
+  document.getElementById("otZones").innerHTML =
+    `<table><thead><tr><th>منطقه</th><th>سطح پردو</th><th>نام</th><th>دارایی‌های اصلی</th>
+     <th>سطح هدف</th><th>چرا این سطح</th><th>کنترل‌های کلیدی</th></tr></thead><tbody>` +
+    OZ.map(z=>`<tr><td><b>${esc(z.zone)}</b></td><td>${esc(z.purdue)}</td><td>${esc(z.name)}</td>
+      <td>${esc(z.main_assets)}</td><td><span class="pill p-${z.sl_target==="SL-3"?"crit":z.sl_target==="SL-2"?"major":"minor"}">${esc(z.sl_target)}</span></td>
+      <td>${esc(z.rationale)}</td><td>${esc(z.key_controls)}</td></tr>`).join("") + "</tbody></table>";
+
+  const dirs=[...new Set(OC.map(c=>c.direction))];
+  const zs=[...new Set(OC.flatMap(c=>[c.from_zone,c.to_zone]))];
+  document.getElementById("otDir").innerHTML = '<option value="">همهٔ جهت‌ها</option>'+dirs.map(d=>`<option>${esc(d)}</option>`).join("");
+  document.getElementById("otZone").innerHTML = '<option value="">همهٔ مناطق</option>'+zs.map(z=>`<option>${esc(z)}</option>`).join("");
+  drawOt();
+}
+function drawOt(){
+  const q=(document.getElementById("otSearch").value||"").toLowerCase();
+  const d=document.getElementById("otDir").value, z=document.getElementById("otZone").value;
+  const rows=OC.filter(c=>{
+    if(d && c.direction!==d) return false;
+    if(z && c.from_zone!==z && c.to_zone!==z) return false;
+    if(q && !(c.service+c.protocol+c.control+c.notes+c.conduit).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById("otTable").innerHTML =
+    `<table><thead><tr><th>کانال</th><th>مسیر</th><th>سرویس</th><th>پروتکل (پورت)</th><th>جهت</th>
+     <th>مکانیزم کنترل</th><th>احراز</th><th>مسدودسازی پیش‌فرض</th></tr></thead><tbody>` +
+    rows.map(c=>`<tr><td><b>${esc(c.conduit)}</b></td>
+      <td dir="ltr" style="text-align:left">${esc(c.from_zone)} → ${esc(c.to_zone)}</td>
+      <td>${esc(c.service)}</td><td dir="ltr" style="text-align:left;font-size:11px">${esc(c.protocol)} (${esc(c.port)})</td>
+      <td>${esc(c.direction)}</td><td>${esc(c.control)}</td><td>${esc(c.authentication)}</td>
+      <td>${c.denied_by_default==="بله"?'<span class="pill p-low">✅ بله</span>':'<span class="pill p-crit">❌ خیر</span>'}</td></tr>`).join("") +
+    `</tbody></table>
+     <p class="hint" style="margin-top:10px">نمایش: ${rows.length} از ${OC.length} کانال</p>`;
+}
+
+/* ---------- roadmap ---------- */
+function renderRoad(){
+  const phases=[...new Map(ROAD.map(r=>[r.phase,{p:r.phase,fa:r.phase_fa}])).values()];
+  const psel=document.getElementById("roadPhase");
+  psel.innerHTML='<option value="">همهٔ فازها</option>'+phases.map(p=>`<option value="${esc(p.p)}">${esc(p.fa)}</option>`).join("");
+
+  // gantt
+  const maxW=Math.max(...ROAD.map(r=>+r.start_week + +r.duration_weeks));
+  const W=64, T=16, slot=W/T;
+  let g="هفته:"+" ".repeat(1);
+  for(let i=0;i<=T;i++) g+= String(Math.round(i*maxW/T)).padEnd(slot," ");
+  g+="\n"+" ".repeat(5);
+  for(let i=0;i<T;i++) g+= ("|").padEnd(slot," ");
+  g+="\n";
+  phases.forEach(ph=>{
+    ROAD.filter(r=>r.phase===ph.p).forEach(r=>{
+      const s=+r.start_week, d=+r.duration_weeks;
+      const a=Math.round(s/maxW*W), b=Math.max(Math.round((s+d)/maxW*W), a+1);
+      g += r.wbs.padEnd(6) + " ".repeat(a) + "█".repeat(b-a) + "  " + r.work_package + "\n";
+    });
+    g += "\n";
+  });
+  document.getElementById("gantt").textContent=g;
+
+  // summary
+  const tlo=ROAD.reduce((a,r)=>a+parseFloat(r.cost_low_musd||0),0);
+  const thi=ROAD.reduce((a,r)=>a+parseFloat(r.cost_high_musd||0),0);
+  let s=`<table><thead><tr><th>فاز</th><th>بسته‌ها</th><th>بازه (هفته)</th><th>هزینه (M USD)</th><th>سهم از بودجه</th></tr></thead><tbody>`;
+  phases.forEach(ph=>{
+    const it=ROAD.filter(r=>r.phase===ph.p);
+    const lo=it.reduce((a,r)=>a+parseFloat(r.cost_low_musd||0),0);
+    const hi=it.reduce((a,r)=>a+parseFloat(r.cost_high_musd||0),0);
+    const ws=it.map(r=>+r.start_week), we=it.map(r=>+r.start_week+ +r.duration_weeks);
+    s+=`<tr><td>${esc(ph.fa)}</td><td>${it.length}</td><td>${Math.min(...ws)}–${Math.max(...we)}</td>
+        <td>${lo.toFixed(2)}–${hi.toFixed(2)}</td><td>${(lo/tlo*100).toFixed(0)}٪</td></tr>`;
+  });
+  s+=`<tr style="font-weight:700"><td>جمع</td><td>${ROAD.length}</td><td>۱–${maxW}</td><td>${tlo.toFixed(2)}–${thi.toFixed(2)}</td><td>۱۰۰٪</td></tr></tbody></table>`;
+  document.getElementById("roadSummary").innerHTML=s;
+  drawRoad();
+}
+function drawRoad(){
+  const p=document.getElementById("roadPhase").value;
+  const rows=ROAD.filter(r=>!p||r.phase===p).map(r=>`<tr><td>${esc(r.wbs)}</td><td>${esc(r.work_package)}</td>
+    <td>${esc(r.start_week)}</td><td>${esc(r.duration_weeks)}</td><td>${esc(r.depends_on||"—")}</td>
+    <td>${esc(r.deliverable)}</td><td>${esc(r.owner_role)}</td><td>${esc(r.cost_low_musd)}–${esc(r.cost_high_musd)}</td>
+    <td>${esc(r.risk_ref)}</td></tr>`).join("");
+  document.getElementById("roadTable").innerHTML =
+    `<table><thead><tr><th>WBS</th><th>بستهٔ کاری</th><th>شروع</th><th>مدت</th><th>پیش‌نیاز</th><th>خروجی</th><th>مسئول</th><th>هزینه (M USD)</th><th>ریسک</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- master data ---------- */
+function renderMdm(){ drawMdm(); }
+function drawMdm(){
+  const q=(document.getElementById("mdmSearch").value||"").toLowerCase();
+  const c=document.getElementById("mdmCrit").value;
+  const rows=MDM.filter(m=>{
+    if(c && m.criticality!==c) return false;
+    if(q && !(m.entity_fa+m.entity+m.owner_role+m.system_of_record+m.key_fields).toLowerCase().includes(q)) return false;
+    return true;
+  }).map(m=>`<tr><td><b>${esc(m.entity_fa)}</b><br><span style="color:#5b6474">${esc(m.entity)}</span></td>
+    <td>${esc(m.owner_role)}</td><td>${esc(m.system_of_record)}</td><td>${esc(m.key_fields)}</td>
+    <td>${esc(m.consumers.replace(/;/g,"، "))}</td><td>${esc(m.update_freq)}</td>
+    <td><span class="pill p-${(m.criticality||"").toLowerCase()}">${esc(SEV_FA[m.criticality]||m.criticality)}</span></td></tr>`).join("");
+  document.getElementById("mdmTable").innerHTML =
+    `<table><thead><tr><th>موجودیت</th><th>مالک داده</th><th>سیستم مرجع</th><th>فیلدهای کلیدی</th><th>مصرف‌کنندگان</th><th>تناوب</th><th>حساسیت</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ---------- wiring ---------- */
+function wire(){
+  document.querySelectorAll("nav button").forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+      document.querySelectorAll("section").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      document.getElementById(b.dataset.sec).classList.add("active");
+    };
+  });
+  ["mxFilter","mxCrit"].forEach(id=>document.getElementById(id).addEventListener("input",renderMatrix));
+  document.getElementById("mxOnlyCrit").addEventListener("change",renderMatrix);
+  document.getElementById("kpiSearch").addEventListener("input",drawKpi);
+  document.getElementById("kpiUnit").addEventListener("change",drawKpi);
+  document.getElementById("kpiFreq").addEventListener("change",drawKpi);
+  document.getElementById("alSearch").addEventListener("input",drawAlarms);
+  document.getElementById("alSev").addEventListener("change",drawAlarms);
+  document.getElementById("alUnit").addEventListener("change",drawAlarms);
+  document.getElementById("evSearch").addEventListener("input",drawEvents);
+  document.getElementById("evCrit").addEventListener("change",drawEvents);
+  document.getElementById("evPii").addEventListener("change",drawEvents);
+  document.getElementById("rkSearch").addEventListener("input",drawRisk);
+  document.getElementById("rkBand").addEventListener("change",drawRisk);
+  document.getElementById("nfrSearch").addEventListener("input",drawNfr);
+  ["nfrCat","nfrPrio"].forEach(id=>document.getElementById(id).addEventListener("change",drawNfr));
+  document.getElementById("otcSearch").addEventListener("input",drawOtc);
+  document.getElementById("otcStatus").addEventListener("change",drawOtc);
+  document.getElementById("entSearch").addEventListener("input",drawEnt);
+  document.getElementById("entSvc").addEventListener("change",drawEnt);
+  ["roleSearch"].forEach(id=>document.getElementById(id).addEventListener("input",drawRoles));
+  document.getElementById("jrRole").addEventListener("change",drawJourney);
+  document.getElementById("execSearch").addEventListener("input",drawExec);
+  document.getElementById("inpSearch").addEventListener("input",drawInp);
+  document.getElementById("vndSearch").addEventListener("input",drawVnd);
+  document.getElementById("cutSearch").addEventListener("input",drawCut);
+  document.getElementById("archSearch").addEventListener("input",drawArch);
+  document.getElementById("chgSearch").addEventListener("input",drawChg);
+  document.getElementById("adrSearch").addEventListener("input",drawAdr);
+  document.getElementById("apiSearch").addEventListener("input",drawApi);
+  document.getElementById("apiSvc").addEventListener("change",drawApiEp);
+  document.getElementById("flwSearch").addEventListener("input",drawFlw);
+  ["accRole","accPage"].forEach(id=>document.getElementById(id).addEventListener("change",drawAcc));
+  document.getElementById("accAll").addEventListener("change",drawAcc);
+  ["rbacRole","rbacMod"].forEach(id=>document.getElementById(id).addEventListener("change",drawRbac));
+  document.getElementById("rbacSearch").addEventListener("input",drawRbac);
+  ["raciActor","raciFilter"].forEach(id=>document.getElementById(id).addEventListener("change",drawRaci));
+  document.getElementById("raciSearch").addEventListener("input",drawRaci);
+  document.getElementById("uatSearch").addEventListener("input",drawUat);
+  document.getElementById("uatcSearch").addEventListener("input",drawUatc);
+  document.getElementById("trSearch").addEventListener("input",drawTrace);
+  document.getElementById("trGroup").addEventListener("change",drawTrace);
+  document.getElementById("otSearch").addEventListener("input",drawOt);
+  document.getElementById("otDir").addEventListener("change",drawOt);
+  document.getElementById("otZone").addEventListener("change",drawOt);
+  document.getElementById("qSearch").addEventListener("input",drawQuestions);
+  document.getElementById("qPrio").addEventListener("change",drawQuestions);
+  document.getElementById("qGroup").addEventListener("change",drawQuestions);
+  document.getElementById("roadPhase").addEventListener("change",drawRoad);
+  document.getElementById("mdmSearch").addEventListener("input",drawMdm);
+  document.getElementById("mdmCrit").addEventListener("change",drawMdm);
+}
+</script>
+</body>
+</html>

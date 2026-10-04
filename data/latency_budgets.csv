@@ -1,0 +1,7 @@
+route,target,ceiling
+سنسور → SCADA,< ۵۰۰ ms,۱ s
+SCADA → Historian,< ۲ s,۵ s
+رویداد تولید → MES,< ۵ s,۱۵ s
+MES → ERP (سند مالی),< ۶۰ s (رویدادی),۵ min
+L3 → BI (تحلیلی),۵ min (micro-batch),۱۵ min
+گزارش مالی روزانه,۰۶:۰۰ روز بعد,۰۸:۰۰

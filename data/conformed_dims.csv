@@ -1,0 +1,9 @@
+dimension,source,key,features
+زمان,تقویمِ سایت,`date_key` / `shift_key`,شمسی/میلادی، شیفت، تعطیلی
+محصول,MDM,`item_key`,GTIN، گروه، بسته‌بندی
+تجهیز/خط,MDM/CMMS,`asset_key`,درخت، کلاس، بحرانی‌بودن
+مکان/انبار,MDM/WMS,`bin_key`,ناحیه، کلاس دمایی
+سازمان/مرکز هزینه,MDM/ERP,`cost_center_key`,واحد، مدیر
+پرسنل,HRM,`person_key`,نقش، مهارت، شیفت (بدون PII در DWH)
+طرف تجاری,MDM/ERP,`partner_key`,مشتری/تأمین‌کننده، بخش
+بچ,MES,`batch_key`,محصول، خط، وضعیت کیفی

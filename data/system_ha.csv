@@ -1,0 +1,9 @@
+system,architecture,sla,rpo,rto
+Historian,خوشهٔ ۳ گره + replica,۹۹.۹٪,۱ min,۱۵ min
+Kafka,۳ Broker، RF=3، min.insync=2,۹۹.۹٪,۰ (همگام),۱۰ min
+پایگاه دادهٔ MES/WMS/CMMS,Primary/Standby سنکرون + تأخیر‌دار (برای حذف انسانی),۹۹.۹٪,۵ min,۳۰ min
+SCADA,سرور جفت با failover خودکار,۹۹.۹٪,۰,< ۳۰ s
+PLC بحرانی,CPU/Hot-standby + ماژول‌های ارتباطی افزونه,۹۹.۹۹٪,—,< ۱ s
+شبکهٔ OT,حلقه/ستون فقرات افزونه (RSTP/PRP),۹۹.۹۹٪,—,< ۵۰ ms
+Audit Store,WORM + تکرار در دو سایت جغرافیایی,۱۰۰٪ یکپارچگی,۰,۴ h
+BI/DWH,Snapshot روزانه + بازسازی از Kafka,۹۹.۵٪,۲۴ h,۸ h

@@ -1,0 +1,205 @@
+source,target,data,direction,mechanism,frequency,owner,criticality,notes
+SEC,HRM,"رویداد خام تردد، حضور و غیاب، وضعیت پرسنل و شیفت",two-way,Event+API,Real-time,HRM,High,"مبدأ اصلی حضور؛ مغایرت‌ها در صف بررسی HRM"
+SEC,HSE,"اعلام وضعیت اضطراری و تخلیه؛ گواهی ایمنی پیمانکار",two-way,Event+API,Real-time,HSE,Critical,"پیمانکار بدون گواهی HSE کارت نمی‌گیرد"
+SEC,PRD,"تردد اپراتور به خط، حضور در شیفت، ورود/خروج منطقه تولید",one-way,Event,Real-time,SEC,Medium,"برای تطبیق کارکرد با دستور کار"
+SEC,QCL,"تأیید QC برای مجوز خروج محموله",one-way,API,On-event,QCL,Critical,"یکی از ۴ شرط مجوز خروج کالا"
+SEC,FGW,"مجوز خروج کالا، تأیید بارگیری، پلاک و راننده",two-way,API+Event,On-event,FGW,Critical,"بدون تأیید دوگانه، دروازه باز نمی‌شود"
+SEC,SAL,"بارنامه، فاکتور، مشخصات محموله برای تطبیق خروج",one-way,API,On-event,SAL,High,تطبیق اسنادی در گیت
+SEC,EXP,"اسناد صادراتی، مجوز خروج مرجوعی/واردات",one-way,API,On-event,EXP,High,-
+SEC,MNT,"خرابی دوربین، گیت، باسکول، سنسور درب → درخواست کار",one-way,Event,On-event,SEC,Medium,ایجاد خودکار WO
+SEC,MDM,"داده پایه پرسنل، مناطق (Zone)، درها، پیمانکاران",one-way,API,Daily,MDM,High,منبع واحد حقیقت
+SEC,ERP,"دارایی‌های امنیتی، قراردادها، استهلاک",two-way,API,Monthly,FIN,Low,-
+SEC,FIN,"هزینه قرارداد حراست، جریمه‌ها، دارایی‌های امنیتی",one-way,API,Monthly,FIN,Low,-
+SEC,BI,"رویدادهای تردد، رخدادهای امنیتی، زمان انتظار در گیت",one-way,Event,Minutes,BI,Medium,-
+HSE,SEC,"اعلام اضطرار/تخلیه، گواهی ایمنی پیمانکار، قفل گیت‌ها",two-way,Event+API,Real-time,HSE,Critical,"آزادسازی خودکار گیت‌ها در تخلیه (Fail-safe)"
+HSE,PRD,"توقف ایمن خط، محدودیت تولید در منطقه ناامن",one-way,Event,Real-time,HSE,Critical,اولویت با ایمنی است
+HSE,QCL,"نمونه‌برداری ایمن، نتایج پایش محیطی و مواجهه شغلی",two-way,API,Daily,QCL,Medium,-
+HSE,MNT,"الزام PTW/LOTO روی دستور کار، قفل تجهیز",two-way,Event+API,Real-time,MNT,Critical,"بدون مجوز، شروع WO مسدود است"
+HSE,ELE,"خطر برق‌گرفتگی، PTW برق، ایمنی تابلوها",two-way,API,On-event,HSE,High,-
+HSE,MEC,"خطرات مکانیکی، نشتی مواد، حفاظ‌های ماشین",two-way,API,On-event,HSE,High,-
+HSE,UTL,"وضعیت تهویه، اطفای حریق، دوش اضطراری، ژنراتور",two-way,OPC-UA,Real-time,UTL,Critical,پایش پیوسته گاز و حریق
+HSE,RMW,"MSDS، کلاس خطر، ماتریس ناسازگاری، شرایط نگهداری",two-way,API,On-event,HSE,Critical,"ماده بدون MSDS قابل دریافت نیست"
+HSE,MRO,"MSDS قطعات و روانکارها، شرایط انبارش ایمن",one-way,API,On-event,HSE,Medium,-
+HSE,FGW,"الزامات ایمنی بارگیری و حمل، شرایط نگهداری محصول",one-way,API,On-event,HSE,Medium,-
+HSE,HRM,"آموزش، گواهی، صلاحیت، حادثه فردی",two-way,API,Daily,HRM,High,"گواهی منقضی ⇒ محرومیت از تخصیص کار"
+HSE,MDM,"مواد شیمیایی، نقاط خطر، مناطق، تجهیزات ایمنی",two-way,API,Daily,MDM,High,-
+HSE,FIN,"هزینه حادثه، جریمه، هزینه دفع پسماند",one-way,API,Monthly,FIN,Medium,-
+HSE,ERP,"دارایی‌های ایمنی، هزینه‌های انطباق",one-way,API,Monthly,FIN,Low,-
+HSE,BI,"شاخص‌های ایمنی (LTIFR/TRIR/Near-Miss) و رخدادها",one-way,Event,Minutes,BI,High,-
+PRD,RMW,"درخواست مواد (کشش)، مصرف واقعی، برگشت مازاد",two-way,Event+API,Real-time,RMW,Critical,"کسر خودکار موجودی به‌ازای دستور کار"
+PRD,QCL,"درخواست آزمون، نتیجه، تصمیم کیفیت، SPC",two-way,Event+API,Real-time,QCL,Critical,"گیت کیفیت ورودی/در‌حین/خروجی"
+PRD,FGW,"اعلام بچ آماده، انتقال به انبار، SSCC و مشخصات بچ",one-way,Event,On-event,FGW,Critical,-
+PRD,MNT,"درخواست کار خرابی، توقف برنامه‌ریزی‌شده، کارکرد تجهیز",two-way,Event+API,Real-time,MNT,Critical,اسکن QR روی ماشین
+PRD,ELE,"وضعیت برق خط، توقف‌های منتسب به برق",two-way,OPC-UA+Event,Real-time,ELE,High,-
+PRD,MEC,"توقف‌های مکانیکی، وضعیت تجهیزات دوار خط",two-way,Event+API,Real-time,MEC,High,-
+PRD,UTL,"دریافت خدمات (بخار/هوا/آب/سرما)، محدودیت تأمین",two-way,OPC-UA+Event,Real-time,UTL,Critical,"کیفیت خارج از حد ⇒ قفل مصرف"
+PRD,HRM,"تخصیص نیرو، مهارت و گواهی، کارکرد روی دستور کار",two-way,API,Per-shift,HRM,High,گیت صلاحیت اپراتور
+PRD,HSE,"دریافت دستور توقف ایمن، محدودیت تولید",two-way,Event,Real-time,HSE,Critical,-
+PRD,SEC,"تردد پرسنل تولید برای تطبیق کارکرد",two-way,Event,Real-time,SEC,Medium,-
+PRD,MDM,"داده پایه کالا، BOM، Routing، Recipe، مدل تجهیز",one-way,API,Daily,MDM,Critical,"Single Source of Truth"
+PRD,ERP,"سفارش تولید، مصرف، تولید نهایی، بهای تمام‌شده",two-way,API+Event,On-event,ERP,Critical,-
+PRD,FIN,"مصرف واقعی، تولید، ضایعات، کارکرد، انحراف بها",one-way,Event,Daily,FIN,Critical,مبنای بهای تمام‌شده واقعی
+PRD,BI,"رویدادهای تولید، OEE، توقف، کیفیت، شجره‌نامه",one-way,Event,Minutes,BI,Critical,-
+QCL,PRD,"تصمیم کیفیت (آزادسازی/رد/قرنطینه)، حدود کنترل",two-way,Event+API,Real-time,QCL,Critical,"گیت کیفیت روی شروع و ترخیص"
+QCL,RMW,"وضعیت کیفی مواد اولیه، قرنطینه/آزادسازی ورودی",two-way,Event+API,Real-time,QCL,Critical,"قرنطینه ⇒ قفل برداشت"
+QCL,FGW,"وضعیت کیفی بچ محصول، COA، دستور قرنطینه",two-way,Event+API,Real-time,QCL,Critical,"ارسال محصول قرنطینه ممنوع"
+QCL,MRO,"تأیید کیفی قطعات حساس و مواد تاریخ‌دار",one-way,API,On-event,QCL,Medium,-
+QCL,EXP,"COA، گواهی‌های بهداشتی، الزامات مقصد",two-way,API,On-event,QCL,Critical,"بدون COA ارسال صادراتی ممنوع"
+QCL,SAL,"پاسخ به ادعای کیفی مشتری، مرجوعی",two-way,API,On-event,QCL,High,-
+QCL,UTL,"کیفیت آب/بخار/هوای تماس با محصول",two-way,API,Daily,QCL,Critical,خروج از حد ⇒ قفل مصرف
+QCL,HSE,"نتایج پایش محیطی و مواجهه، MSDS",two-way,API,Daily,HSE,Medium,-
+QCL,HRM,"صلاحیت پرسنل آزمایشگاه، آموزش",one-way,API,Monthly,HRM,Medium,-
+QCL,MDM,"مشخصات کیفی، روش‌های آزمون، طرح نمونه‌برداری",one-way,API,Daily,MDM,High,-
+QCL,FIN,"هزینه آزمون‌ها، ضایعات کیفی",one-way,API,Monthly,FIN,Low,-
+QCL,BI,"نتایج آزمون، SPC، روند انطباق",one-way,Event,Minutes,BI,High,-
+MRO,MNT,"درخت دارایی، BOM تجهیز، دستور کار، مصرف قطعه، PM آتی",two-way,API+Event,Real-time,MNT,Critical,"صدور قطعه فقط با WO باز"
+MRO,ELE,"مصرف قطعه روی WOهای برق",two-way,API,On-event,MNT,Medium,-
+MRO,MEC,"مصرف قطعه روی WOهای مکانیک، روانکارها",two-way,API,On-event,MNT,Medium,-
+MRO,UTL,"مصرف قطعه روی WOهای تأسیسات",two-way,API,On-event,MNT,Medium,-
+MRO,SAL,"درخواست خرید داخلی، PO، وضعیت تأمین",two-way,API,Daily,SAL,High,-
+MRO,EXP,"سفارش خارجی قطعات، وضعیت حمل، بهای تمام‌شده وارداتی",two-way,API,Weekly,EXP,High,-
+MRO,HSE,"MSDS قطعات و روانکارها، شرایط نگهداری",one-way,API,On-event,HSE,Medium,-
+MRO,MDM,"کاتالوگ قطعات، واحدها، دسته‌ها، جایگزین‌ها",one-way,API,Daily,MDM,High,-
+MRO,ERP,"ارزش موجودی، سفارش خرید، دارایی",two-way,API,Monthly,FIN,Medium,-
+MRO,FIN,"ارزش موجودی، مصرف به مرکز هزینه، اسقاط",one-way,Event,Daily,FIN,High,-
+MRO,BI,"گردش، موجودی راکد، Service Level",one-way,Event,Daily,BI,Medium,-
+RMW,PRD,"موجودی قابل‌برداشت، تأمین مواد، FEFO",two-way,Event+API,Real-time,RMW,Critical,-
+RMW,QCL,"درخواست آزمون ورودی، نتیجه، تصمیم کیفیت",two-way,Event+API,Real-time,QCL,Critical,-
+RMW,EXP,"ASN وارداتی، اسناد ترخیص، محموله",one-way,API+File,Daily,EXP,High,-
+RMW,SAL,"سفارش خرید داخلی، قیمت، تأیید تأمین‌کننده",one-way,API,Daily,SAL,Medium,-
+RMW,SEC,"پلاک، تردد کامیون، مجوز خروج مرجوعی",two-way,API,On-event,SEC,Medium,-
+RMW,HSE,"دریافت MSDS، کلاس خطر، شرایط نگهداری",one-way,API,On-event,HSE,Critical,-
+RMW,UTL,"شرایط نگه‌داری (سردخانه/تهویه)، پایش دما",one-way,OPC-UA,Real-time,UTL,High,-
+RMW,MDM,"کالا، مشخصات، تأمین‌کننده، محل‌ها",one-way,API,Daily,MDM,High,-
+RMW,ERP,"رسید کالا، ارزش موجودی، سفارش خرید",two-way,API,Daily,ERP,High,-
+RMW,FIN,"ارزش موجودی، رسید/مصرف/ضایعات → سند مالی",one-way,Event,Daily,FIN,Critical,-
+RMW,BI,"رویدادهای انبار، موجودی، انقضا",one-way,Event,Minutes,BI,High,-
+FGW,PRD,"دریافت بچ تولید‌شده، وضعیت تولید برنامه‌ریزی‌شده",one-way,Event,Real-time,PRD,Critical,-
+FGW,QCL,"وضعیت کیفی بچ، COA، دستور قرنطینه",one-way,Event+API,Real-time,QCL,Critical,-
+FGW,SAL,"سفارش فروش، اولویت، تأیید ارسال، بارنامه",two-way,API+Event,Real-time,SAL,Critical,-
+FGW,EXP,"سفارش صادراتی، اسناد گمرکی، Incoterms، SSCC",two-way,API+File,Daily,EXP,Critical,-
+FGW,SEC,"مجوز خروج کالا، پلاک، تطبیق اسنادی",two-way,API+Event,On-event,SEC,Critical,"تأیید دومرحله‌ای خروج"
+FGW,UTL,"شرایط نگه‌داری، پایش دمای سردخانه",one-way,OPC-UA,Real-time,UTL,High,زنجیره سرد
+FGW,HSE,"الزامات ایمنی بارگیری و حمل",one-way,API,On-event,HSE,Medium,-
+FGW,MDM,"کالا، مشتری، محل‌ها، نوع بسته‌بندی",one-way,API,Daily,MDM,High,-
+FGW,ERP,"سفارش فروش، ارسال، موجودی محصول",two-way,API,Daily,ERP,Critical,-
+FGW,FIN,"فاکتور، ارزش موجودی، ضایعات محصول",one-way,Event,Daily,FIN,Critical,-
+FGW,BI,"رویدادهای انبار و ارسال، OTIF",one-way,Event,Minutes,BI,Critical,-
+HRM,SEC,"وضعیت پرسنل، شیفت، درخواست کارت، لیست سیاه",two-way,Event+API,Real-time,HRM,High,-
+HRM,HSE,"آموزش، گواهی، صلاحیت، حادثه فردی",two-way,API,Daily,HSE,High,-
+HRM,PRD,"تخصیص نیرو، مهارت، گواهی، کارکرد روی دستور کار",two-way,API,Per-shift,PRD,Critical,گیت صلاحیت
+HRM,MNT,"مهارت و گواهی تکنسین، تخصیص کار، نرخ",two-way,API,Daily,MNT,High,-
+HRM,ELE,"مهارت‌های تخصصی برق",two-way,API,Daily,ELE,Medium,-
+HRM,MEC,"مهارت‌های تخصصی مکانیک",two-way,API,Daily,MEC,Medium,-
+HRM,UTL,"مهارت‌های تخصصی تأسیسات",two-way,API,Daily,UTL,Medium,-
+HRM,MDM,"سازمان، سمت، مهارت، پرسنل",two-way,API,Daily,MDM,Critical,-
+HRM,ERP,"مرکز هزینه، سازمان، کارکرد",two-way,API,Monthly,ERP,High,-
+HRM,FIN,"حقوق، مزایا، کارکرد، هزینه نیروی کار",one-way,API,Monthly,FIN,Critical,-
+HRM,BI,"شاخص‌های نیروی انسانی",one-way,Event,Daily,BI,Medium,-
+SAL,FGW,"سفارش فروش، اولویت، تأیید ارسال، رزرو موجودی",two-way,API+Event,Real-time,FGW,Critical,ATP لحظه‌ای
+SAL,PRD,"درخواست تولید ساخت‌به‌سفارش، وضعیت پیشرفت بچ",two-way,API+Event,Daily,PRD,High,-
+SAL,QCL,"COA، ادعاهای کیفی، مرجوعی",two-way,API,On-event,QCL,High,-
+SAL,EXP,"مشتریان مشترک، سیاست قیمت داخلی/صادراتی",two-way,API,Weekly,EXP,Medium,-
+SAL,FIN,"اعتبار، فاکتور، دریافت‌ها، بهای تمام‌شده",two-way,API,Real-time,FIN,Critical,گیت اعتبار
+SAL,MDM,"مشتری، کالا، قیمت",one-way,API,Daily,MDM,High,-
+SAL,ERP,"سفارش فروش، فاکتور، مشتری",two-way,API,Real-time,ERP,Critical,-
+SAL,BI,"فروش، حاشیه، پیش‌بینی",one-way,Event,Daily,BI,High,-
+EXP,FGW,"سفارش صادراتی، آماده‌سازی، تأیید ارسال، SSCC/بچ‌ها",two-way,API+Event,On-event,FGW,Critical,-
+EXP,RMW,"ASN وارداتی، اسناد ترخیص، رسید کالا",two-way,API+File,Daily,RMW,High,-
+EXP,MRO,"سفارش خارجی قطعات، وضعیت تأمین، Landed Cost",two-way,API,Weekly,MRO,High,-
+EXP,QCL,"COA، گواهی‌های بهداشتی، الزامات مقصد",two-way,API,On-event,QCL,Critical,-
+EXP,FIN,"LC، تسویه ارزی، نرخ، بهای تمام‌شده وارداتی",two-way,API,Daily,FIN,Critical,-
+EXP,PRD,"نیاز تولید برای سفارش‌های صادراتی، برنامه بسته‌بندی مقصد",one-way,API,Weekly,PRD,Medium,-
+EXP,SAL,"مشتریان مشترک، سیاست قیمت",two-way,API,Weekly,SAL,Medium,-
+EXP,MDM,"طرف خارجی، HS Code، Incoterms، ارز",two-way,API,Daily,MDM,High,-
+EXP,ERP,"سفارش خرید/فروش خارجی، دارایی",two-way,API,Daily,ERP,High,-
+EXP,BI,"شاخص‌های تجارت خارجی",one-way,Event,Daily,BI,Medium,-
+FIN,PRD,"دریافت رویداد مصرف/تولید/ضایعات/کارکرد",one-way,Event,Daily,PRD,Critical,بهای تمام‌شده واقعی
+FIN,RMW,"ارزش موجودی و حرکات انبار",one-way,Event,Daily,RMW,Critical,-
+FIN,FGW,"ارزش موجودی محصول و حرکات",one-way,Event,Daily,FGW,Critical,-
+FIN,MRO,"ارزش موجودی قطعات و مصرف",one-way,Event,Daily,MRO,High,-
+FIN,MNT,"هزینه نگهداشت، قطعات، پیمانکار",one-way,Event,Daily,MNT,High,-
+FIN,ELE,"هزینه انرژی و نگهداشت برق",one-way,Event,Monthly,ELE,High,-
+FIN,MEC,"هزینه قطعات و تعمیرات مکانیکی",one-way,Event,Monthly,MEC,High,-
+FIN,UTL,"هزینه انرژی و خدمات تأسیساتی",one-way,Event,Daily,UTL,Critical,تخصیص به مرکز هزینه
+FIN,HSE,"هزینه حادثه، جریمه، دفع پسماند",one-way,API,Monthly,HSE,Medium,-
+FIN,SEC,"هزینه قرارداد حراست",one-way,API,Monthly,SEC,Low,-
+FIN,HRM,"حقوق، مزایا، کارکرد",one-way,API,Monthly,HRM,Critical,-
+FIN,SAL,"فاکتور، دریافت‌ها، اعتبار",two-way,API,Real-time,SAL,Critical,-
+FIN,EXP,"LC، تسویه ارزی، نرخ",two-way,API,Daily,EXP,Critical,-
+FIN,MDM,"مرکز هزینه، کدینگ، طرف حساب",two-way,API,Daily,MDM,High,-
+FIN,ERP,"سند حسابداری، دفترکل، دارایی ثابت",two-way,API,Daily,ERP,Critical,-
+FIN,BI,"داده‌های مالی و تحلیلی",one-way,Event+DB,Daily,BI,Critical,-
+MNT,PRD,"درخواست کار، توقف برنامه‌ریزی‌شده، وضعیت تجهیز",two-way,Event+API,Real-time,PRD,Critical,-
+MNT,MRO,"رزرو و مصرف قطعه، موجودی، جایگزین",two-way,API+Event,Real-time,MRO,Critical,-
+MNT,HSE,"PTW/LOTO، قفل تجهیز، رخداد ایمنی مرتبط با کار",two-way,Event+API,Real-time,HSE,Critical,-
+MNT,HRM,"مهارت/گواهی تکنسین، کارکرد، نرخ",two-way,API,Daily,HRM,High,-
+MNT,ELE,"دستور کارهای تخصصی برق، اشتراک مدل دارایی",two-way,API,Real-time,ELE,Critical,همان سامانه CMMS
+MNT,MEC,"دستور کارهای تخصصی مکانیک، اشتراک مدل دارایی",two-way,API,Real-time,MEC,Critical,همان سامانه CMMS
+MNT,UTL,"دستور کارهای تخصصی تأسیسات، اشتراک مدل دارایی",two-way,API,Real-time,UTL,Critical,همان سامانه CMMS
+MNT,SEC,"خرابی تجهیزات حفاظتی (دوربین/گیت)",two-way,Event,On-event,SEC,Medium,-
+MNT,MDM,"درخت دارایی، کلاس‌ها، کدهای اولویت",two-way,API,Daily,MDM,Critical,-
+MNT,ERP,"دارایی، هزینه، سفارش خرید خدمات",two-way,API,Monthly,ERP,High,-
+MNT,FIN,"هزینه کار، قطعات، پیمانکار، دارایی",one-way,Event,Daily,FIN,High,-
+MNT,BI,"شاخص‌های قابلیت اطمینان و هزینه",one-way,Event,Daily,BI,High,-
+ELE,PRD,"تأمین و وضعیت برق خط، توقف‌های منتسب به برق",two-way,Event+API,Real-time,PRD,Critical,-
+ELE,MNT,"دستور کارهای تخصصی برق",two-way,API,Real-time,MNT,Critical,-
+ELE,MEC,"الکتروموتورها، درایوها، اندازه‌گیری توان برای تشخیص",two-way,API+OPC-UA,On-event,MEC,High,-
+ELE,UTL,"ژنراتور، بارهای تأسیسات، مصرف انرژی مشترک",two-way,OPC-UA,Real-time,UTL,High,-
+ELE,MRO,"قطعات برقی و رزرو روی WO",two-way,API,On-event,MRO,Medium,-
+ELE,HSE,"خطر برق‌گرفتگی، PTW برق، ایمنی تابلوها",two-way,API,On-event,HSE,High,-
+ELE,MDM,"دارایی‌های برقی، نقاط اندازه‌گیری",one-way,API,Daily,MDM,Medium,-
+ELE,FIN,"هزینه انرژی و نگهداشت برق، تخصیص به مراکز هزینه",one-way,Event,Monthly,FIN,High,-
+ELE,BI,"شاخص‌های انرژی و قابلیت اطمینان برق",one-way,Event,Daily,BI,High,-
+MEC,PRD,"توقف‌های مکانیکی، وضعیت تجهیز خط، درخواست کار",two-way,Event+API,Real-time,PRD,Critical,-
+MEC,MNT,"دستور کارهای تخصصی مکانیک",two-way,API,Real-time,MNT,Critical,-
+MEC,ELE,"الکتروموتورها و درایوهای مشترک",two-way,API,On-event,ELE,High,-
+MEC,UTL,"مصرف هوا/بخار/آب تجهیزات مکانیکی، نشتی‌ها",two-way,OPC-UA+API,Real-time,UTL,High,-
+MEC,MRO,"قطعات، روانکارها، یدکی‌های دوار",two-way,API,On-event,MRO,High,-
+MEC,HSE,"نشتی مواد، خطرات مکانیکی، PTW/LOTO",two-way,API,On-event,HSE,High,-
+MEC,MDM,"دارایی‌های مکانیکی، نقاط پایش",one-way,API,Daily,MDM,Medium,-
+MEC,FIN,"هزینه قطعات و تعمیرات مکانیکی",one-way,Event,Monthly,FIN,High,-
+MEC,BI,"شاخص‌های قابلیت اطمینان مکانیکی",one-way,Event,Daily,BI,High,-
+UTL,PRD,"تأمین خدمات و محدودیت‌ها، توقف‌های ناشی از تأسیسات",two-way,OPC-UA+Event,Real-time,PRD,Critical,-
+UTL,MNT,"دستور کارهای تخصصی تأسیسات",two-way,API,Real-time,MNT,Critical,-
+UTL,ELE,"برق تأسیسات، ژنراتور، کنتورهای انرژی",two-way,OPC-UA,Real-time,ELE,High,-
+UTL,MEC,"تأمین هوا/بخار/آب تجهیزات مکانیکی",two-way,OPC-UA,Real-time,MEC,High,-
+UTL,QCL,"کیفیت آب/بخار، نتایج آزمون‌ها",two-way,API,Daily,QCL,Critical,-
+UTL,HSE,"پایش زیست‌محیطی، آتش‌نشانی، تهویه اضطراری",two-way,API+OPC-UA,Real-time,HSE,Critical,-
+UTL,RMW,"شرایط نگه‌داری و پایش دمای انبار مواد",one-way,OPC-UA,Real-time,RMW,High,-
+UTL,FGW,"شرایط نگه‌داری و پایش دمای انبار محصول",one-way,OPC-UA,Real-time,FGW,High,زنجیره سرد
+UTL,MRO,"قطعات و مصرف روی WOهای تأسیسات",two-way,API,On-event,MRO,Medium,-
+UTL,MDM,"دارایی‌های تأسیساتی، مراکز مصرف",one-way,API,Daily,MDM,Medium,-
+UTL,FIN,"هزینه انرژی و خدمات، تخصیص به محصول",one-way,Event,Daily,FIN,Critical,-
+UTL,BI,"شاخص‌های انرژی و آمادگی تأسیسات",one-way,Event,Daily,BI,High,-
+MDM,PRD,"انتشار داده پایه: کالا، BOM، Routing، Recipe، تجهیز",one-way,API,Daily,MDM,Critical,-
+MDM,RMW,"انتشار داده پایه: کالا، مشخصات، تأمین‌کننده، محل‌ها",one-way,API,Daily,MDM,Critical,-
+MDM,FGW,"انتشار داده پایه: کالا، مشتری، محل‌ها، بسته‌بندی",one-way,API,Daily,MDM,Critical,-
+MDM,MRO,"انتشار داده پایه: کاتالوگ قطعات، واحدها، جایگزین‌ها",one-way,API,Daily,MDM,Critical,-
+MDM,MNT,"انتشار داده پایه: درخت دارایی، کلاس‌ها، اولویت‌ها",one-way,API,Daily,MDM,Critical,-
+MDM,HRM,"انتشار داده پایه: سازمان، سمت، مهارت، پرسنل",one-way,API,Daily,MDM,Critical,-
+MDM,HSE,"انتشار داده پایه: مواد شیمیایی، نقاط خطر، مناطق",one-way,API,Daily,MDM,Critical,-
+MDM,SEC,"انتشار داده پایه: پرسنل، مناطق، درها",one-way,API,Daily,MDM,High,-
+MDM,QCL,"انتشار داده پایه: مشخصات کیفی، روش آزمون",one-way,API,Daily,MDM,Critical,-
+MDM,SAL,"انتشار داده پایه: مشتری، کالا، قیمت",one-way,API,Daily,MDM,High,-
+MDM,EXP,"انتشار داده پایه: طرف خارجی، HS Code، Incoterms، ارز",one-way,API,Daily,MDM,High,-
+MDM,FIN,"انتشار داده پایه: مرکز هزینه، کدینگ، طرف حساب",one-way,API,Daily,MDM,High,-
+MDM,ELE,"انتشار داده پایه: دارایی‌های برقی",one-way,API,Daily,MDM,Medium,-
+MDM,MEC,"انتشار داده پایه: دارایی‌های مکانیکی",one-way,API,Daily,MDM,Medium,-
+MDM,UTL,"انتشار داده پایه: دارایی‌های تأسیساتی، مراکز مصرف",one-way,API,Daily,MDM,Medium,-
+MDM,ERP,"همگام‌سازی داده پایه بین ERP و سامانه‌های عملیاتی",two-way,API,Daily,MDM,Critical,"مالک نهایی در MDM تعریف می‌شود"
+MDM,BI,"تغییرات داده پایه برای ابعاد تحلیلی",one-way,Event,Daily,BI,Medium,-
+ERP,PRD,"سفارش/برنامه تولید، تأیید تولید، بهای تمام‌شده",two-way,API,On-event,ERP,Critical,-
+ERP,RMW,"سفارش خرید، رسید کالا، ارزش موجودی",two-way,API,Daily,ERP,High,-
+ERP,FGW,"سفارش فروش، ارسال، موجودی",two-way,API,Daily,ERP,Critical,-
+ERP,SAL,"سفارش فروش، فاکتور، مشتری",two-way,API,Real-time,ERP,Critical,-
+ERP,EXP,"سفارش خارجی، دارایی",two-way,API,Daily,ERP,High,-
+ERP,MRO,"سفارش خرید، ارزش موجودی",two-way,API,Monthly,ERP,Medium,-
+ERP,MNT,"دارایی ثابت، سفارش خرید خدمات",two-way,API,Monthly,ERP,Medium,-
+ERP,HRM,"سازمان، مرکز هزینه، کارکرد",two-way,API,Monthly,ERP,High,-
+ERP,FIN,"سند حسابداری، دفترکل، دارایی ثابت",two-way,API,Daily,ERP,Critical,-
+ERP,MDM,"همگام‌سازی داده پایه",two-way,API,Daily,MDM,Critical,-
+ERP,BI,"داده تراکنشی برای انبار داده",one-way,DB+Event,Daily,BI,Critical,-
+BI,FIN,"شاخص‌های مالی برای داشبورد",one-way,DB,Daily,FIN,High,-
+BI,PRD,"شاخص‌های تولید و OEE",one-way,DB,Daily,PRD,Critical,-
+BI,ERP,"انبار داده از تراکنش‌های ERP",one-way,DB,Daily,BI,Critical,-

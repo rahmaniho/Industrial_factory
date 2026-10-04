@@ -1,0 +1,59 @@
+entity,entity_fa,owner_role,system_of_record,key_fields,consumers,update_freq,criticality,notes
+ITEM,کالا و محصول,(R&D)/بازرگانی,MDM,کد/GTIN/نام/واحد/عمر قفسه/شرایط نگهداری,ERP;MES;WMS;CRM;LIMS,Daily,Critical,"تغییر بدون MOC ممنوع"
+BOM,صورت مواد (BOM),مهندسی فرآیند,MDM,کالا/اقلام/نسبت/ضایعات استاندارد/نسخه,ERP;MES;WMS,On-change,Critical,نسخه‌بندی الزامی
+ROUTING,مسیر تولید,مهندسی صنایع,MES (منتشر از MDM),مراحل/مرکز کار/زمان استاندارد,MES;APS;ERP,On-change,Critical,-
+RECIPE,دستور ساخت (Recipe ISA-88),مهندسی فرآیند,MES,نسخه/پارامترها/تلورانس/تجهیز مجاز,MES;SCADA,On-change,Critical,فقط نسخه امضاشده اجرا می‌شود
+ASSET,درخت دارایی و تجهیز,نت (مهندسی نگهداشت),CMMS (منتشر از MDM),کد/والد/کلاس/بحرانی‌بودن/مرکز هزینه,CMMS;MES;MRO;FIN,Daily,Critical,"پایهٔ هزینه‌یابی و PM"
+ASSET_BOM,BOM تجهیز و قطعات,نت,CMMS,قطعه/تعداد/محل نصب/بحرانی,CMMS;MRO,On-change,High,-
+PART,کاتالوگ قطعات یدکی,نت,MDM,کد/سازنده/مشخصات/جایگزین/کلاس ABC,WMS;CMMS;ERP,Daily,High,قطعه جدید بدون کد قابل خرید نیست
+VENDOR,تأمین‌کننده و فهرست تأییدشده,بازرگانی + کیفیت,ERP (منتشر از MDM),کد/نام/وضعیت تأیید/ارزیابی,ERP;WMS;RMW,Daily,High,"تأمین‌کنندهٔ تأییدنشده قابل دریافت نیست"
+CUSTOMER,مشتری,بازرگانی,CRM/ERP (منتشر از MDM),کد/GLN/آدرس تحویل/بخش/سطح خدمت,ERP;WMS;CRM,Daily,Critical,-
+SPEC,مشخصات کیفی و حدود کنترل,QC,LIMS,پارامتر/واحد/LSL/USL/روش آزمون,LIMS;MES;WMS,On-change,Critical,-
+SAMPLING_PLAN,طرح نمونه‌برداری,QC,LIMS,نقاط کنترل/حجم/AQL/معیار,LIMS;MES,On-change,High,-
+SPC_RULE,قواعد کنترل آماری,QC,MES/SPC,قانون/حدود/Cpk هدف,MES;LIMS,On-change,High,قواعد نلسون
+PERSON,پرسنل,HRM,HRIS (منتشر از MDM),کد/نام/وضعیت استخدام/واحد سازمانی,ACS;MES;CMMS;HSE;FIN,Daily,Critical,-
+ORG_UNIT,ساختار سازمانی و مرکز هزینه,مالی + HRM,MDM,واحد/مدیر/مرکز هزینه,ERP;HRM;FIN;CMMS,On-change,Critical,-
+SKILL,مهارت و سطح,HRM + نت/تولید,HRIS,مهارت/سطح ۱-۴/معیار,MES;CMMS;HSE,Daily,High,گیت تخصیص نیرو
+CERT,گواهی و صلاحیت,HRM + HSE,HRIS,نوع/مرجع/صدور/انقضا,MES;CMMS;HSE;SEC,Daily,Critical,انقضا ⇒ محرومیت خودکار
+SHIFT,الگوی شیفت و تقویم کاری,HRM + تولید,T&A,چرخش/ساعات/تعطیلات,ACS;MES;HRM;FIN,On-change,High,-
+COURSE,دوره آموزشی,HRM + HSE,LMS,محتوا/مدت/آزمون/تناوب,LMS;HRIS,On-change,Medium,-
+GL_ACCOUNT,کدینگ حساب‌ها,مالی,ERP,ساختار/گروه/ماهیت,ERP;FIN,On-change,Critical,-
+COST_CENTER,مرکز هزینه,مالی,ERP/MDM,کد/واحد/مدیر/بودجه,ERP;CMMS;HRM;FIN,On-change,Critical,-
+OVERHEAD_RULE,قواعد تخصیص سربار,مالی + تولید,ERP,مبنا/نرخ/دوره,ERP,Annual,Critical,مبنای بهای تمام‌شده
+UTILITY_RATE,نرخ خدمات و انرژی,مالی + تأسیسات,ERP,خدمت/تعرفه/دوره,ERP;UTL;FIN,Monthly,High,-
+BUDGET,بودجه,مالی + مدیریت,ERP,دوره/مرکز هزینه/سقف,ERP;SCM,Annual,Critical,کنترل پیش از تأیید خرید
+CURRENCY_FX,ارز و نرخ تبدیل,مالی,ERP,ارز/نرخ/تاریخ/منبع,ERP;EXP;FIN,Daily,Critical,-
+PRICE_LIST,لیست قیمت,بازرگانی + مالی,ERP,کالا/قیمت/ارز/تاریخ مؤثر,ERP;CRM;SAL,On-change,Critical,-
+CREDIT_LIMIT,سقف اعتبار مشتری,مالی,ERP,مشتری/سقف/ارز/بازنگری,ERP;SAL,Monthly,Critical,گیت ثبت سفارش
+ZONE,منطقه و سطح دسترسی (Zone),حراست + HSE,ACS/MDM,کد/سطح حساسیت/ACL,ACS;HSE;MES,Daily,Critical,زون‌بندی امنیتی و ایمنی
+DOOR,در و گیت,حراست,ACS,کد/منطقه/برنامه زمانی/حالت خرابی,ACS;SEC,On-change,High,Fail-safe در اضطرار
+VEHICLE,خودرو و پلاک,حراست,ACS,پلاک/نوع/بیمه/معاینه فنی,ACS;WMS;Docking,On-change,Medium,-
+CONTRACTOR,پیمانکار,بازرگانی + حراست + HSE,ERP/ACS,شرکت/قرارداد/بیمه/گواهی ایمنی,ACS;HSE;HRM,On-change,Critical,"بدون گواهی HSE کارت صادر نمی‌شود"
+HAZARD,ماتریس خطر و ریسک,HSE,HSE Suite,منبع/احتمال/شدت/کنترل,HSE;SEC;MNT,Quarterly,Critical,-
+PTW_TYPE,نوع مجوز کار و زنجیره تأیید,HSE + بهره‌بردار,HSE Suite,نوع/الزامات/مراحل/مدت اعتبار,HSE;CMMS;SEC,On-change,Critical,-
+CHEMICAL,ماده شیمیایی و MSDS,HSE,HSE Suite (منتشر از MDM),CAS/GHS/ناسازگاری/حدود,HSE;WMS;MRO,On-change,Critical,"بدون MSDS، دریافت ممنوع"
+INCOMPAT,ماتریس ناسازگاری مواد,HSE,HSE Suite,جفت ناسازگار/فاصله الزامی,WMS;HSE,On-change,Critical,-
+PPE,تجهیزات حفاظت فردی,HSE,HSE Suite,نوع/استاندارد/دوره تعویض/الزام,HSE;HRM;CMMS,On-change,High,-
+STORAGE_COND,شرایط نگهداری,QC + انبار,MDM,دما/رطوبت/نور/تهویه,WMS;UTL;QC,On-change,Critical,-
+BIN_LOCATION,محل انبار (Zone/Aisle/Rack/Bin),انبار,WMS,کد/سلسله‌مراتب/ظرفیت/کلاس,WMS;MES;MRO,On-change,Critical,مکان‌محوری اجباری
+STOCK_POLICY,سیاست موجودی (Min/Max/ROP),نت + مالی,WMS/CMMS,قطعه/حداقل/حداکثر/نقطه سفارش,WMS;MRO;SCM,Monthly,High,بازنگری الگوریتمی
+DOWNTIME_REASON,درخت علل توقف,تولید + نت,MES,سلسله‌مراتب علل/نوع,MES;CMMS;BI,Quarterly,Critical,پایهٔ Pareto و OEE
+FAILURE_MODE,درخت علل خرابی (ISO 14224),نت,CMMS,حالت خرابی/علت/راهکار,CMMS;BI,Quarterly,High,-
+PM_PLAN,برنامه نگهداری پیشگیرانه,نت,CMMS,دارایی/تناوب/چک‌لیست/زمان استاندارد,CMMS;MES,On-change,Critical,-
+CHECKLIST,چک‌لیست بازرسی و PM,نت/HSE/QC,CMMS;HSE;LIMS,اقلام/نوع ثبت/محدوده پذیرش,CMMS;HSE;QCL,On-change,High,-
+CONDITION_POINT,نقطه پایش وضعیت (PdM),نت (قابلیت اطمینان),Historian/CMMS,تجهیز/نوع/آستانه‌ها/خط مبنا,CMMS;PdM,On-change,High,-
+CALIB_PLAN,برنامه کالیبراسیون,QC/ابزار دقیق,CMMS,دستگاه/تناوب/مرجع/تلورانس,CMMS;QCL;MES,On-change,Critical,-
+UOM_CONV,واحدها و تبدیل‌ها,مالی,MDM,واحد/نسبت تبدیل/نوع,ERP;MES;WMS,On-change,High,-
+TAG_MODEL,مدل تگ و قرارداد نام‌گذاری,ابزار دقیق,MDM/Historian,سایت/ناحیه/تجهیز/نوع/دنباله,SCADA;Historian;MES,On-change,Critical,ارجاع به مستند معماری
+HS_CODE,کد تعرفه (HS),بازرگانی خارجی,ماژول تجارت,کد/شرح/حقوق ورودی/محدودیت,EXP;ERP,On-change,High,-
+INCOTERM,شرایط بازرگانی بین‌المللی,بازرگانی خارجی,MDM,کد/نسخه/تخصیص هزینه-ریسک,EXP;ERP;SAL,On-change,High,-
+LICENCE,مجوزها و گواهی‌های قانونی,بازرگانی خارجی + HSE,DMS,نوع/مرجع/اعتبار/محدوده,EXP;HSE;QCL,On-change,Critical,-
+PACK_TYPE,نوع بسته‌بندی و پالت,بازرگانی + تولید,MDM,ابعاد/ظرفیت/تعداد در پالت/برچسب,WMS;MES;EXP,On-change,High,GS1/SSCC
+CUSTOMER_REQ,الزامات مقصد و مشتری,بازرگانی + QC,DMS,استاندارد/زبان/برچسب/آزمون,EXP;QCL;FGW,On-change,Critical,-
+POSTING_RULE,قواعد ثبت مالی رویدادها,مالی,ERP/Middleware,رویداد/حساب‌ها/شرط/تفصیلی,ERP;FIN,On-change,Critical,نسخه‌بندی و تست
+PROTECTION_SETTING,تنظیمات رله‌های حفاظتی,برق,CMMS,دارایی/مقادیر/منحنی/تاریخ بازنگری,CMMS;ELE,On-change,Critical,تغییر فقط با محاسبه هماهنگی
+SETPOINT,ست‌پوینت‌های بهینه تأسیسات,تأسیسات,SCADA/BMS,تجهیز/مقدار/فصل/بار,UTL;SCADA,Seasonal,High,تغییر با تأیید مهندس
+WATER_SPEC,استاندارد کیفیت آب و بخار,QC + تأسیسات,LIMS,پارامتر/حد/کاربرد,QCL;UTL;MES,On-change,Critical,تماس با محصول
+ENV_LIMIT,حدود مجاز زیست‌محیطی,HSE,HSE Suite,پارامتر/حد قانونی/تناوب گزارش,HSE;UTL,On-change,Critical,الزام قانونی
+LOAD_PRIORITY,اولویت بارهای الکتریکی,برق + تولید,EMS,بار/اولویت/قابل‌قطع,EMS;ELE;PRD,On-change,High,سناریوی Load Shedding
+APPROVAL_MATRIX,ماتریس تأییدها و سطوح اختیار,مدیریت + مالی,ERP/Workflow,فرآیند/مبلغ/نقش/جایگزین,ERP;همه واحدها,Annual,Critical,تفکیک وظایف (SoD)

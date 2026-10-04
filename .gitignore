@@ -1,0 +1,10 @@
+*.bak
+*.py[cod]
+*.pyo
+*.swp
+.DS_Store
+.idea/
+.vscode/
+Thumbs.db
+__pycache__/
+_site/
