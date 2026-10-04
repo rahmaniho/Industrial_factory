@@ -627,6 +627,67 @@ class TestSiteData(unittest.TestCase):
                       "درخواست‌ها ۴۰۴ می‌شوند و صفحه بی‌صدا به مقدارِ جایگزین می‌افتد")
 
 
+class TestPagesWorkflow(unittest.TestCase):
+    """دستورِ ساخت در workflow نباید از مولّدها و تست‌های واقعی جا بماند.
+
+    پیش‌زمینه: وقتی build_templates.py به مجموعه اضافه شد، باید در هر دو
+    workflow دستی درج می‌شد؛ اگر فراموش می‌شد، سایتِ منتشرشده با آنچه محلی
+    تأیید شده بود فرق می‌کرد. این کلاس آن انحراف را غیرممکن می‌کند.
+    """
+
+    WF = os.path.join(BASE, ".github", "workflows", "pages.yml")
+    DOCS_WF = os.path.join(BASE, ".github", "workflows", "docs.yml")
+
+    def _read(self, path):
+        self.assertTrue(os.path.exists(path), "فایل یافت نشد: %s" % path)
+        return read_text(path)
+
+    def test_pages_workflow_runs_every_generator(self):
+        wf = self._read(self.WF)
+        present = sorted(f for f in os.listdir(os.path.join(BASE, "tools"))
+                         if f.startswith("build_") and f.endswith(".py"))
+        self.assertTrue(present, "هیچ مولّدی در tools/ یافت نشد")
+        for gen in present:
+            with self.subTest(generator=gen):
+                self.assertIn("tools/" + gen, wf,
+                              "%s در workflow اجرا نمی‌شود — سایتِ منتشرشده کهنه می‌ماند" % gen)
+
+    def test_pages_workflow_runs_both_test_suites(self):
+        wf = self._read(self.WF)
+        for cmd in ("tools/test_build.py", "tools/test_site.js"):
+            with self.subTest(suite=cmd):
+                self.assertIn(cmd, wf, "%s در workflow اجرا نمی‌شود" % cmd)
+
+    def test_pages_workflow_publishes_every_needed_path(self):
+        wf = self._read(self.WF)
+        for token in ("site/index.html", "data/*.csv", "dashboard/index.html",
+                      "docs/*.md", "docs/03-units/*.md", "README.md", ".nojekyll"):
+            with self.subTest(path=token):
+                self.assertIn(token, wf, "%s در بستهٔ انتشار نیست" % token)
+
+    def test_pages_workflow_has_required_permissions(self):
+        wf = self._read(self.WF)
+        for perm in ("pages: write", "id-token: write"):
+            with self.subTest(permission=perm):
+                self.assertIn(perm, wf, "بدونِ %s استقرار ممکن نیست" % perm)
+
+    def test_docs_workflow_mirrors_pages_generators(self):
+        """هر مولّدی که Pages اجرا می‌کند باید در بررسیِ مستندات هم باشد."""
+        pages, docs = self._read(self.WF), self._read(self.DOCS_WF)
+        for gen in sorted(set(re.findall(r"tools/(build_\w+\.py)", pages))):
+            with self.subTest(generator=gen):
+                self.assertIn(gen, docs,
+                              "%s در workflow مستندات نیست — مستندات کهنه بررسی می‌شوند" % gen)
+
+    def test_local_build_recipe_matches_workflow(self):
+        """دستورِ README برای اجرای محلی باید همان چیزی باشد که CI می‌سازد."""
+        wf = self._read(self.WF)
+        readme = read_text(os.path.join(BASE, "README.md"))
+        for gen in sorted(set(re.findall(r"tools/(build_\w+\.py)", wf))):
+            with self.subTest(generator=gen):
+                self.assertIn(gen, readme, "%s در دستورِ محلیِ README نیست" % gen)
+
+
 class TestSite(unittest.TestCase):
     """صفحهٔ منتشرشده در GitHub Pages باید با محتوای مخزن هم‌خوان باشد."""
 
