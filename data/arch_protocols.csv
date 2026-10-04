@@ -1,0 +1,9 @@
+layer,protocol,rationale,allowed_alt
+L0 → L1,4-20mA + HART / IO-Link,سازگاری، تشخیص‌پذیری، هزینه,Profibus PA در مناطق انفجاری
+L1 → L1,Profinet / EtherNet/IP,دترمینیسم، تشخیصی غنی,Modbus TCP (فقط غیربحرانی)
+L1 → L2,**OPC UA** (Client/Server),مدل اطلاعاتی معنایی، امنیت داخلی، vendor-neutral,Modbus TCP (فقط تجهیزات قدیمی، با gateway)
+L2 → L3,**OPC UA + MQTT/Sparkplug B**,Pub/Sub سبک، تحمل قطع، Report-by-Exception,Modbus TCP برای legacy
+L3 داخلی,gRPC (همزمان) + Kafka (ناهمزمان),کارایی + جداسازی,REST برای سرویس‌های عمومی
+L3 ↔ L4,REST/JSON + Kafka Mirror,سادگی قرارداد، قابلیت حسابرسی,فایل (SFTP) برای بارهای دسته‌ای روزانه
+تجهیزات قدیمی,**Protocol Gateway** در لبه,بدون تغییر PLC قدیمی,تعویض PLC (فاز ۲)
+ابزار دقیق ایمنی,مسیر مستقل (Safety PLC) + خواندن فقط,جداسازی عملکردی (IEC 61511),—

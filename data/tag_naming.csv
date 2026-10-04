@@ -1,0 +1,8 @@
+section,allowed,example
+SITE,کد ۴–۵ حرفی,`THR1`
+AREA,PRD / UTL / ELE / WHM / QCL / SEC,`PRD`
+LINE/UNIT,LN1..LNn / BLR / CHW / MCC,`LN1`
+EQUIPMENT,MXR / FIL / PCK / PMP / CVP / SWG,`MXR`
+DEVICE,M01..Mn,`M01`
+TYPE,TT(دما) PT(فشار) FT(دبی) LT(سطح) AT(آنالایزر) VT(لرزش) JA(جریان) ZS(وضعیت) XS(سوئیچ),`TT`
+SEQ,۰۰۱..,`001`

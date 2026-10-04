@@ -102,6 +102,11 @@
   <button data-sec="sec-inp">ورودی‌ها و واژه‌نامه</button>
   <button data-sec="sec-vnd">انتخاب تأمین‌کننده</button>
   <button data-sec="sec-cut">انتقال و مهاجرت</button>
+  <button data-sec="sec-arch">معماری مرجع</button>
+  <button data-sec="sec-chg">مدیریت تغییر</button>
+  <button data-sec="sec-adr">تصمیمات معماری</button>
+  <button data-sec="sec-api">قرارداد API</button>
+  <button data-sec="sec-flow">جریان‌های توالی</button>
 </nav>
 
 <main>
@@ -547,6 +552,83 @@
     <div class="card"><h2>T+۱ تا T+۳۰ (Hypercare)</h2><div class="scroll" id="pPost"></div></div>
     <div class="card"><h2>آشتی‌سازی (Reconciliation)</h2><div class="scroll" id="pRecon"></div></div>
   </section>
+  <!-- معماری مرجع -->
+  <section id="sec-arch">
+    <div class="card">
+      <h2>معماری مرجع</h2>
+      <p class="hint">مسیرهای مجاز بین لایه‌ها، بودجهٔ تأخیر، قرارداد نام‌گذاری تگ،
+        پروتکل‌ها، رفتار آفلاین، تاب‌آوری و اهدافِ دوقلوی دیجیتال.</p>
+      <div class="toolbar"><input id="archSearch" placeholder="جست‌وجو در همهٔ جدول‌های این بخش…"></div>
+    </div>
+    <div class="card"><h2>کاندویت‌های منطقیِ بین‌لایه‌ای</h2>
+      <p class="hint">این هفت مورد «مسیرِ منطقی» هستند؛ کاندویت‌های قابل‌پیکربندیِ فایروال
+        (<code>C-01</code> تا <code>C-18</code>) در بخشِ «امنیت OT» هستند.</p>
+      <div class="scroll" id="pCond"></div></div>
+    <div class="card"><h2>بودجهٔ تأخیر (Latency Budget)</h2><div class="scroll" id="pLat"></div></div>
+    <div class="card"><h2>قرارداد نام‌گذاری تگ (ISA-5.1)</h2><div class="scroll" id="pTag"></div></div>
+    <div class="card"><h2>پروتکل‌ها به تفکیک لایهٔ اتصال</h2><div class="scroll" id="pProto"></div></div>
+    <div class="card"><h2>رفتار در حالت آفلاین و تعارض</h2><div class="scroll" id="pOffline"></div></div>
+    <div class="card"><h2>تاب‌آوری، SLA و RPO/RTO</h2><div class="scroll" id="pHa"></div></div>
+    <div class="card"><h2>اهدافِ دوقلوی دیجیتال</h2><div class="scroll" id="pTwin"></div></div>
+  </section>
+
+  <!-- مدیریت تغییر -->
+  <section id="sec-chg">
+    <div class="card">
+      <h2>مدیریت تغییر و پذیرش</h2>
+      <p class="hint">مقاومت را باید «طراحی کرد»، نه سرزنش. این بخش نشانه‌ها، پاسخ‌ها،
+        نقش‌ها، برنامهٔ ارتباطی، آموزش و شاخص‌های پذیرش را نشان می‌دهد.</p>
+      <div class="toolbar"><input id="chgSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>دلیل واقعی مقاومت و پاسخ</h2><div class="scroll" id="pResist"></div></div>
+    <div class="card"><h2>نقش‌های تغییر</h2><div class="scroll" id="pChgRoles"></div></div>
+    <div class="card"><h2>برنامهٔ ارتباطی</h2><div class="scroll" id="pComms"></div></div>
+    <div class="card"><h2>برنامهٔ آموزش</h2><div class="scroll" id="pTrain"></div></div>
+    <div class="card"><h2>زمان‌بندی فعالیت‌های تغییر</h2><div class="scroll" id="pChgTime"></div></div>
+    <div class="card"><h2>شاخص‌های پذیرش</h2><div class="scroll" id="pAdopt"></div></div>
+  </section>
+
+  <!-- تصمیمات معماری -->
+  <section id="sec-adr">
+    <div class="card">
+      <h2>تصمیمات معماری (ADR) و گیت‌های سخت</h2>
+      <p class="hint">گیت سخت یعنی سیستم «اجازه نمی‌دهد»، نه این‌که «توصیه می‌کند».</p>
+      <div class="toolbar"><input id="adrSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>فهرست تصمیمات</h2><div class="scroll" id="pAdrIndex"></div></div>
+    <div class="card"><h2>گیت‌های سخت</h2><div class="scroll" id="pGates"></div></div>
+  </section>
+
+  <!-- قرارداد API -->
+  <section id="sec-api">
+    <div class="card">
+      <h2>قرارداد API و رویدادها</h2>
+      <p class="hint">نشانهٔ ♻️ یعنی عملیات با کلیدِ باید (Idempotency) امن است؛
+        🔒 یعنی نیازمند مجوزِ ویژه و ثبت در حسابرسی.</p>
+      <div class="toolbar">
+        <input id="apiSearch" placeholder="جست‌وجو در مسیر/هدف/مجوز…">
+        <select id="apiSvc"><option value="">همهٔ گروه‌ها</option></select>
+      </div>
+    </div>
+    <div class="card"><h2>قراردادهای عمومی</h2><div class="scroll" id="pApiConv"></div></div>
+    <div class="card"><h2>سرویس‌های مورد نیاز</h2><div class="scroll" id="pApiSvc"></div></div>
+    <div class="card"><h2>نقطه‌های پایانی (Endpoints)</h2><div class="scroll" id="pApiEp"></div></div>
+    <div class="card"><h2>معناشناسیِ رویدادها (AsyncAPI)</h2><div class="scroll" id="pEvRules"></div></div>
+    <div class="card"><h2>شاخص‌های سلامتِ یکپارچه‌سازی</h2><div class="scroll" id="pSlo"></div></div>
+  </section>
+
+  <!-- جریان‌های توالی -->
+  <section id="sec-flow">
+    <div class="card">
+      <h2>جریان‌های توالی و پایش آن‌ها</h2>
+      <p class="hint">هر جریان باید یک سناریوی UAT، یک شاخصِ پایش و یک هشدارِ مرتبط داشته باشد؛
+        در غیر این صورت در عمل «رها» می‌ماند.</p>
+      <div class="toolbar"><input id="flwSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>نقاط شکست و جبران</h2><div class="scroll" id="pFail"></div></div>
+    <div class="card"><h2>گیت‌های جریان</h2><div class="scroll" id="pFlowGates"></div></div>
+    <div class="card"><h2>پایشِ هر جریان</h2><div class="scroll" id="pFlowMon"></div></div>
+  </section>
 </main>
 
 <footer>
@@ -601,12 +683,19 @@ let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[]
       GAPS=[], ADRS=[], TGT=[], PH=[], EXFIN=[], GOV=[],
       PARAMS=[], ASSUM=[], GLOSS=[], UNITS=[],
       VC=[], VKO=[], VMOD=[], VSC=[], POC=[], CLS=[], PIT=[],
-      CPR=[], MIG=[], PREP=[], CDAY=[], POST=[], RECON=[];
+      CPR=[], MIG=[], PREP=[], CDAY=[], POST=[], RECON=[],
+      COND=[], LAT=[], TAG=[], PROTO=[], OFFL=[], HA=[], TWIN=[],
+      RES=[], CHGR=[], COMMS=[], TRAIN=[], CHGT=[], ADOPT=[],
+      GATES=[], ADRI=[],
+      APIC=[], APIS=[], APIE=[], EVR=[], SLO=[],
+      FAIL=[], FLG=[], FLM=[];
 const BOOT = (async ()=>{
   try{
     [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR,ROLES,ACC,RBAC,SOD,RACI,UAT,UATC,NFR,SLT,OTC,COMP,AUD,ENT,IDC,RET,INTG,SCD,DIM,HW,HWP,HWS,HWC,RMAP,JOUR,
       GAPS,ADRS,TGT,PH,EXFIN,GOV,PARAMS,ASSUM,GLOSS,UNITS,
-      VC,VKO,VMOD,VSC,POC,CLS,PIT,CPR,MIG,PREP,CDAY,POST,RECON] = await Promise.all([
+      VC,VKO,VMOD,VSC,POC,CLS,PIT,CPR,MIG,PREP,CDAY,POST,RECON,
+      COND,LAT,TAG,PROTO,OFFL,HA,TWIN,RES,CHGR,COMMS,TRAIN,CHGT,ADOPT,
+      GATES,ADRI,APIC,APIS,APIE,EVR,SLO,FAIL,FLG,FLM] = await Promise.all([
       load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
       load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),
       load("risk_register.csv"),load("open_questions.csv"),
@@ -629,7 +718,16 @@ const BOOT = (async ()=>{
       load("vendor_scores.csv"),load("poc_schedule.csv"),load("contract_clauses.csv"),
       load("vendor_pitfalls.csv"),
       load("cutover_principles.csv"),load("migration_domains.csv"),load("cutover_prep.csv"),
-      load("cutover_day.csv"),load("post_cutover.csv"),load("reconciliation.csv")
+      load("cutover_day.csv"),load("post_cutover.csv"),load("reconciliation.csv"),
+      load("arch_conduits.csv"),load("latency_budgets.csv"),load("tag_naming.csv"),
+      load("arch_protocols.csv"),load("offline_states.csv"),load("system_ha.csv"),
+      load("twin_targets.csv"),
+      load("resistance.csv"),load("change_roles.csv"),load("comms_plan.csv"),
+      load("training_plan.csv"),load("change_timeline.csv"),load("adoption_kpis.csv"),
+      load("hard_gates.csv"),load("adr_index.csv"),
+      load("api_conventions.csv"),load("api_services.csv"),load("api_endpoints.csv"),
+      load("event_rules.csv"),load("integration_slo.csv"),
+      load("flow_failures.csv"),load("flow_gates.csv"),load("flow_monitoring.csv")
     ]);
   }catch(e){
     document.getElementById("loadErr").innerHTML =
@@ -640,6 +738,7 @@ const BOOT = (async ()=>{
   }
   buildEdges(); renderKpis(); renderMatrix(); renderKpi(); renderAlarms(); renderRoad(); renderMdm();
   renderJourney(); drawExec(); drawInp(); drawVnd(); drawCut();
+  fillApiSvc(); drawArch(); drawChg(); drawAdr(); drawApi(); drawFlw();
   wire();
 })();
 
@@ -1091,7 +1190,67 @@ const P_CUT = [
   ["pPost",   () => POST, ["بازه","اقدام","معیار خروج"], ["window","action","exit_criteria"]],
   ["pRecon",  () => RECON,["مورد","روش","آستانه","فرکانس در ماه نخست"], ["item","method","threshold","frequency"]],
 ];
-const PANELS = () => P_EXEC.concat(P_INP, P_VND, P_CUT).map(p_ => p_[0]);
+const PANELS = () => P_EXEC.concat(P_INP, P_VND, P_CUT, P_ARCH, P_CHG, P_ADR, P_API, P_FLW)
+                      .map(p_ => p_[0]).concat(["pPhases", "pApiEp"]);
+const P_ARCH = [
+  ["pCond",    () => COND,  ["کاندویت","از → به","مجاز","مکانیزم","رمزنگاری","بازرسی"], ["conduit","path","allowed","mechanism","encryption","inspection"]],
+  ["pLat",     () => LAT,   ["مسیر","هدف","سقف قابل‌قبول"], ["route","target","ceiling"]],
+  ["pTag",     () => TAG,   ["بخش","مجاز","مثال"], ["section","allowed","example"]],
+  ["pProto",   () => PROTO, ["لایهٔ اتصال","پروتکل","دلیل انتخاب","جایگزین مجاز"], ["layer","protocol","rationale","allowed_alt"]],
+  ["pOffline", () => OFFL,  ["وضعیت","رفتار"], ["state","behaviour"]],
+  ["pHa",      () => HA,    ["سامانه","معماری","SLA","RPO","RTO"], ["system","architecture","sla","rpo","rto"]],
+  ["pTwin",    () => TWIN,  ["هدف Twin","مدل","دادهٔ ورودی","خروجی","فاز"], ["goal","model","inputs","outputs","phase"]],
+];
+const P_CHG = [
+  ["pResist",   () => RES,   ["دلیل واقعی مقاومت","نشانه","پاسخ برنامه‌ریزی‌شده"], ["cause","sign","response"]],
+  ["pChgRoles", () => CHGR,  ["نقش","مسئولیت","تعداد پیشنهادی"], ["role","responsibility","headcount"]],
+  ["pComms",    () => COMMS, ["مخاطب","پیام کلیدی","کانال","بسامد"], ["audience","message","channel","frequency"]],
+  ["pTrain",    () => TRAIN, ["نقش","محتوای آموزش","مدت","روش","ارزیابی"], ["role","content","duration","method","evaluation"]],
+  ["pChgTime",  () => CHGT,  ["زمان","اقدام"], ["time","action"]],
+  ["pAdopt",    () => ADOPT, ["شاخص","فرمول","هدف","فرکانس"], ["metric","formula","target","frequency"]],
+];
+const P_ADR = [
+  ["pAdrIndex", () => ADRI,  ["ADR","عنوان","وضعیت","وابسته به"], ["adr","title","status","depends_on"]],
+  ["pGates",    () => GATES, ["گیت سخت","شرط","اثر"], ["gate","condition","effect"]],
+];
+const P_API = [
+  ["pApiConv", () => APIC, ["موضوع","قرارداد"], ["topic","contract"]],
+  ["pApiSvc",  () => APIS, ["سرویس","دامنه","وابستگی‌های داده‌ای"], ["service","domain","data_dependencies"]],
+  ["pEvRules", () => EVR,  ["قاعده","مقدار"], ["rule","value"]],
+  ["pSlo",     () => SLO,  ["شاخص","تعریف","هدف","هشدار"], ["metric","definition","target","alarm"]],
+];
+const P_FLW = [
+  ["pFail",      () => FAIL, ["نقطهٔ شکست","رفتار سیستم","جبران"], ["failure_point","system_behaviour","compensation"]],
+  ["pFlowGates", () => FLG,  ["گیت","شرط","نوع"], ["gate","condition","type"]],
+  ["pFlowMon",   () => FLM,  ["جریان","سناریوی UAT","شاخصِ پایش","آلارم‌های مرتبط"], ["flow","uat_scenario","monitor_metric","related_alarms"]],
+];
+function drawArch(){ drawPanels(P_ARCH, (document.getElementById("archSearch").value||"").toLowerCase()); }
+function drawChg(){ drawPanels(P_CHG, (document.getElementById("chgSearch").value||"").toLowerCase()); }
+function drawAdr(){ drawPanels(P_ADR, (document.getElementById("adrSearch").value||"").toLowerCase()); }
+function drawApi(){
+  drawPanels(P_API, (document.getElementById("apiSearch").value||"").toLowerCase());
+  drawApiEp();
+}
+function fillApiSvc(){
+  const sel = document.getElementById("apiSvc");
+  const gs = [];
+  APIE.forEach(function(r){ if(r.group && gs.indexOf(r.group) < 0) gs.push(r.group); });
+  sel.innerHTML = '<option value="">همهٔ گروه‌ها</option>' +
+    gs.map(function(g){ return `<option>${esc(g)}</option>`; }).join("");
+}
+function drawApiEp(){
+  const q = (document.getElementById("apiSearch").value||"").toLowerCase();
+  const g = document.getElementById("apiSvc").value;
+  const rows = APIE.filter(function(r){
+    if(g && r.group !== g) return false;
+    return !q || ["method","path","purpose","permission","group"].some(function(k){
+      return (r[k]||"").toLowerCase().indexOf(q) >= 0; });
+  });
+  document.getElementById("pApiEp").innerHTML = tbl(
+    ["گروه","متد","مسیر","هدف","مجوز","♻️"], rows,
+    ["group","method","path","purpose","permission","idempotent"]);
+}
+function drawFlw(){ drawPanels(P_FLW, (document.getElementById("flwSearch").value||"").toLowerCase()); }
 function drawExec(){ drawPanels(P_EXEC, (document.getElementById("execSearch").value||"").toLowerCase()); drawPhaseSum(); }
 function drawInp(){ drawPanels(P_INP, (document.getElementById("inpSearch").value||"").toLowerCase()); }
 function drawVnd(){ drawPanels(P_VND, (document.getElementById("vndSearch").value||"").toLowerCase()); }
@@ -1429,6 +1588,12 @@ function wire(){
   document.getElementById("inpSearch").addEventListener("input",drawInp);
   document.getElementById("vndSearch").addEventListener("input",drawVnd);
   document.getElementById("cutSearch").addEventListener("input",drawCut);
+  document.getElementById("archSearch").addEventListener("input",drawArch);
+  document.getElementById("chgSearch").addEventListener("input",drawChg);
+  document.getElementById("adrSearch").addEventListener("input",drawAdr);
+  document.getElementById("apiSearch").addEventListener("input",drawApi);
+  document.getElementById("apiSvc").addEventListener("change",drawApiEp);
+  document.getElementById("flwSearch").addEventListener("input",drawFlw);
   ["accRole","accPage"].forEach(id=>document.getElementById(id).addEventListener("change",drawAcc));
   document.getElementById("accAll").addEventListener("change",drawAcc);
   ["rbacRole","rbacMod"].forEach(id=>document.getElementById(id).addEventListener("change",drawRbac));

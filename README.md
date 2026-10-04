@@ -80,6 +80,11 @@
 و در داشبورد از `roadmap.csv` **جمع‌بسته** می‌شود — ادعایِ «این اعداد از CSV محاسبه شده‌اند»
 اکنون با تست قفل شده است، نه با قول.
 
+**احتیاط در ویرایشِ جدول‌ها:** یک «|» نارهانیده در مقدار، ستونِ اضافه می‌سازد و کلِ جدول را
+در هر رندری می‌شکند. نمونهٔ واقعی که در این مخزن رخ داد و رفع شد: فرمولِ قدرمطلقِ `|مغایرت|`
+(اکنون `abs(مغایرت)`) و مسیرِ `?direction=backward|forward`. تستِ
+`test_markdown_tables_have_consistent_columns` همهٔ مستندات را پیوسته می‌سنجد.
+
 | زیربخش | پرسشی که پاسخ می‌دهد | منبع داده |
 |---|---|---|
 | صفحه‌های من | کدام صفحه‌ها را با چه سطحی باز می‌کند؟ | `ui_matrix.csv` (۲۸ × ۲۴) |
@@ -181,6 +186,11 @@
 | `docs/01-inputs-and-assumptions.md` | `input_params.csv` + `assumptions.csv` + `glossary.csv` + `unit_codes.csv` | پارامترهای ورودی، ثبتِ فرض‌ها، واژه‌نامه، کدهای واحدها |
 | `docs/22-vendor-selection.md` | `vendor_criteria.csv` + `vendor_knockout.csv` + `vendor_scores.csv` + … | وزن‌های ارزیابی، معیارهای حذف، بندهای قرارداد |
 | `docs/23-cutover-migration.md` | `cutover_principles.csv` + `migration_domains.csv` + `cutover_day.csv` + … | راهبرد انتقال، مهاجرت داده، Runbook و آشتی‌سازی |
+| `docs/02-reference-architecture.md` | `arch_conduits.csv` + `latency_budgets.csv` + `tag_naming.csv` + … | کاندویت‌های منطقی، بودجهٔ تأخیر، نام‌گذاری تگ، پروتکل‌ها، تاب‌آوری |
+| `docs/14-change-management.md` | `resistance.csv` + `change_roles.csv` + `training_plan.csv` + … | مقاومت و پاسخ، نقش‌ها، ارتباطات، آموزش، شاخص‌های پذیرش |
+| `docs/17-architecture-decisions.md` | `hard_gates.csv` + `adr_index.csv` | گیت‌های سخت و فهرستِ تصمیمات |
+| `docs/20-api-contract.md` | `api_endpoints.csv` + `api_conventions.csv` + `integration_slo.csv` + … | ۲۹ نقطهٔ پایانی، قراردادها و شاخص‌های سلامت |
+| `docs/21-sequence-flows.md` | `flow_failures.csv` + `flow_gates.csv` + `flow_monitoring.csv` | نقاط شکست، گیت‌ها و پایشِ هر جریان |
 
 بازتولید همهٔ موارد بالا:
 
@@ -198,7 +208,9 @@ node tools/test_site.js         # ۱۸ تستِ سایت و داشبورد (جا
 همین بررسی‌ها در GitHub Actions (`.github/workflows/docs.yml`) اجرا می‌شوند و اگر
 مستندِ تولید‌شده با CSV هم‌خوان نباشد، ساخت شکست می‌خورد.
 
-ده مستند (۰، ۱، ۶، ۷، ۱۰، ۱۳، ۱۵، ۱۸، ۲۲، ۲۳) ترکیبی‌اند: متن در قالب (`tools/templates/`) و جدول‌ها از CSV.
+همهٔ ۱۵ مستندِ اصلی (۰۰، ۰۱، ۰۲، ۰۶، ۰۷، ۱۰، ۱۳، ۱۴، ۱۵، ۱۷، ۱۸، ۲۰، ۲۱، ۲۲، ۲۳) ترکیبی‌اند:
+متن در قالب (`tools/templates/`) و جدول‌ها از CSV. مستندات ۰۳ تا ۰۵، ۰۸، ۰۹، ۱۱، ۱۲، ۱۶، ۱۹ و ۲۴ تا ۲۷
+کاملاً تولیدی‌اند. هیچ جدولی در هیچ مستندی دستی نوشته نمی‌شود.
 بازتولید آن‌ها:
 
 ```bash

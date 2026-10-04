@@ -138,7 +138,7 @@ Content-Type: application/json
 
 | متد | مسیر | هدف | مجوز |
 |---|---|---|---|
-| `GET` | `/api/mes/v1/trace/{batch_id}?direction=backward|forward` | گراف ردیابی | `mes.trace.read` |
+| `GET` | `/api/mes/v1/trace/{batch_id}?direction=backward\|forward` | گراف ردیابی | `mes.trace.read` |
 | `POST` | `/api/mes/v1/trace/recall-simulation` | شبیه‌سازی فراخوان | `mes.trace.recall` 🔒 |
 | `GET` | `/api/audit/v1/events?entity=&actor=&from=&to=` | جست‌وجوی حسابرسی | `audit.read` 🔒 |
 | `GET` | `/api/audit/v1/chain/verify?from=&to=` | اثبات یکپارچگی زنجیره | `audit.verify` 🔒 |

@@ -32,7 +32,7 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | ابزار | ورودی | خروجی |
 |---|---|---|
 | `build_integration_matrix.py` | `data/integration_matrix.csv` | `docs/04-integration-matrix.md` (ماتریس ۱۸×۱۸، آمار، جزئیات یال‌ها، الگوها، ضدالگوها) |
-| `build_templates.py` | `tools/templates/*.md` + چند CSV | `docs/00`، `01`، `06`، `07`، `10`، `13`، `15`، `18`، `22`، `23` (متنِ ثابت + جدولِ داده‌محور) |
+| `build_templates.py` | `tools/templates/*.md` + چند CSV | `docs/00`، `01`، `02`، `06`، `07`، `10`، `13`، `14`، `15`، `17`، `18`، `20`، `21`، `22`، `23` (متنِ ثابت + جدولِ داده‌محور) |
 | `build_catalogs.py` | `data/master_data.csv` | `docs/05-master-data-ownership.md` |
 | `build_catalogs.py` | `data/kpi_catalog.csv` | `docs/08-kpi-catalog.md` |
 | `build_catalogs.py` | `data/alarm_catalog.csv` | `docs/09-alarm-map.md` |
@@ -84,4 +84,6 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | `vendor_criteria.csv` | جمعِ وزن‌ها باید دقیقاً ۱۰۰٪ باشد |
 | `input_params.csv` | هر ورودیِ فرضی باید برچسبِ `[فرض]` داشته باشد |
 | `phase_summary.csv` | هر فازِ `roadmap.csv` باید اینجا ردیف داشته باشد (بازه و بودجه محاسبه می‌شود، دستی نوشته نمی‌شود) |
+| `api_endpoints.csv` | ستونِ `group` باید دقیقاً یکی از پنج گروهِ مستندِ ۲۰ باشد |
+| `arch_conduits.csv` | این‌ها «مسیرِ منطقیِ بین‌لایه‌ای» هستند (`C1`–`C7`)؛ با کاندویت‌های قابل‌پیکربندیِ `ot_conduits.csv` (`C-01`–`C-18`) اشتباه نشوند |
 | `traceability.csv` | `group` یکی از «معیار پذیرش / تحویل‌دادنی / الزام نگارش / کیفیت مخزن»؛ هر ردیف باید روشِ راستی‌آزمایی داشته باشد |

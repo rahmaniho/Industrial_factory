@@ -429,6 +429,37 @@ class TestDocs(unittest.TestCase):
                     self.assertIsNone(COUNT_RE.search(line),
                                       f"{name}:{i}: رقمِ لاتین کنارِ واژهٔ شمارش")
 
+    def test_markdown_tables_have_consistent_columns(self):
+        """هر «|» درونِ یک خانه، ستونِ اضافه می‌سازد و کلِ جدول را می‌شکند.
+
+        نمونهٔ واقعی: فرمولِ قدرمطلقِ `|مغایرت|` یا مسیرِ `?direction=backward|forward`.
+        این تست همهٔ مستندات را می‌سنجد، دست‌نویس و تولیدی.
+        """
+        split = re.compile(r"(?<!\\)\|")     # «\|» رهانیده‌شده را نشمار
+        for root, _, files in os.walk(DOCS):
+            for f in files:
+                if not f.endswith(".md"):
+                    continue
+                path = os.path.join(root, f)
+                in_fence, header = False, None
+                for i, line in enumerate(read_text(path).splitlines(), 1):
+                    if line.strip().startswith("```"):
+                        in_fence = not in_fence
+                        header = None
+                        continue
+                    if in_fence or not line.strip().startswith("|"):
+                        header = None
+                        continue
+                    n = len(split.split(line)) - 2
+                    if header is None:
+                        header = n
+                    else:
+                        with self.subTest(doc=os.path.relpath(path, BASE), line=i):
+                            self.assertEqual(
+                                n, header,
+                                f"{os.path.relpath(path, BASE)}:{i}: {n} خانه در برابر "
+                                f"سرآیندِ {header} — احتمالاً «|» رهانیده‌نشده در مقدار")
+
     def test_no_broken_internal_links(self):
         for root, _, files in os.walk(DOCS):
             for f in files:

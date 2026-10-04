@@ -330,7 +330,7 @@ test("داشبورد همهٔ داده‌ها را بدون خطا بارگذا�
 
 test("هر پانلِ داشبورد پس از بارگذاری جدولِ پُر دارد", () => {
   const ids = dash.panels();
-  assert.ok(ids.length >= 20, "انتظار حداقل ۲۰ پانل؛ یافت‌شده: " + ids.length);
+  assert.ok(ids.length >= 40, "انتظار حداقل ۴۰ پانل؛ یافت‌شده: " + ids.length);
   for(const id of ids){
     const html = dashDoc.getElementById(id).innerHTML;
     assert.ok(html.indexOf("موردی یافت نشد") === -1, `${id}: پانل خالی رندر شده است`);

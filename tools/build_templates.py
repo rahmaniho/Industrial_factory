@@ -39,8 +39,14 @@ def write(name, text):
 
 # ───────────────────────────────────────────── رندرکننده‌ها
 def _row(cells):
-    """یک سطرِ جدول؛ خانهٔ خالی دقیقاً مانند متنِ اصلی رندر می‌شود."""
-    return "|" + "".join(" " + c + (" |" if c else "|") for c in cells)
+    """یک سطرِ جدول؛ خانهٔ خالی دقیقاً مانند متنِ اصلی رندر می‌شود.
+
+    هر «|» درونِ مقدار باید رهانیده شود وگرنه ستونِ اضافه می‌سازد و کلِ جدول
+    را در هر رندری می‌شکند (نمونهٔ واقعی:‎ ?direction=backward|forward).
+    """
+    def cell(c):
+        return c.replace("|", "\\|")
+    return "|" + "".join(" " + cell(c) + (" |" if c else "|") for c in cells)
 
 
 def simple_table(rows, headers, keys, default="—"):
@@ -293,6 +299,96 @@ def build_placeholders():
         read("reconciliation.csv"), ["مورد", "روش", "آستانه", "فرکانس در ماه نخست"],
         ["item", "method", "threshold", "frequency"])
 
+
+    # ── ۰۲. معماری مرجع ──
+    p["arch_conduits"] = simple_table(
+        read("arch_conduits.csv"),
+        ["کاندویت", "از → به", "مجاز", "مکانیزم", "رمزنگاری", "بازرسی"],
+        ["conduit", "path", "allowed", "mechanism", "encryption", "inspection"])
+    p["latency_budgets"] = simple_table(
+        read("latency_budgets.csv"), ["مسیر", "هدف", "سقف قابل‌قبول"],
+        ["route", "target", "ceiling"])
+    p["tag_naming"] = simple_table(
+        read("tag_naming.csv"), ["بخش", "مجاز", "مثال"],
+        ["section", "allowed", "example"])
+    p["arch_protocols"] = simple_table(
+        read("arch_protocols.csv"),
+        ["لایهٔ اتصال", "پروتکل", "دلیل انتخاب", "جایگزین مجاز"],
+        ["layer", "protocol", "rationale", "allowed_alt"])
+    p["offline_states"] = simple_table(
+        read("offline_states.csv"), ["وضعیت", "رفتار"], ["state", "behaviour"])
+    p["system_ha"] = simple_table(
+        read("system_ha.csv"), ["سامانه", "معماری", "SLA", "RPO", "RTO"],
+        ["system", "architecture", "sla", "rpo", "rto"])
+    p["twin_targets"] = simple_table(
+        read("twin_targets.csv"),
+        ["هدف Twin", "مدل", "دادهٔ ورودی", "خروجی", "فاز"],
+        ["goal", "model", "inputs", "outputs", "phase"])
+
+    # ── ۱۴. مدیریت تغییر ──
+    p["resistance"] = simple_table(
+        read("resistance.csv"), ["دلیل واقعی مقاومت", "نشانه", "پاسخ برنامه‌ریزی‌شده"],
+        ["cause", "sign", "response"])
+    p["change_roles"] = simple_table(
+        read("change_roles.csv"), ["نقش", "مسئولیت", "تعداد پیشنهادی"],
+        ["role", "responsibility", "headcount"])
+    p["comms_plan"] = simple_table(
+        read("comms_plan.csv"), ["مخاطب", "پیام کلیدی", "کانال", "بسامد"],
+        ["audience", "message", "channel", "frequency"])
+    p["training_plan"] = simple_table(
+        read("training_plan.csv"),
+        ["نقش", "محتوای آموزش", "مدت", "روش", "ارزیابی"],
+        ["role", "content", "duration", "method", "evaluation"])
+    p["change_timeline"] = simple_table(
+        read("change_timeline.csv"), ["زمان", "اقدام"], ["time", "action"])
+    p["adoption_kpis"] = simple_table(
+        read("adoption_kpis.csv"), ["شاخص", "فرمول", "هدف", "فرکانس"],
+        ["metric", "formula", "target", "frequency"])
+
+    # ── ۱۷. تصمیمات معماری ──
+    p["hard_gates"] = simple_table(
+        read("hard_gates.csv"), ["گیت سخت", "شرط", "اثر"],
+        ["gate", "condition", "effect"])
+    p["adr_index"] = simple_table(
+        read("adr_index.csv"), ["ADR", "عنوان", "وضعیت", "وابسته به"],
+        ["adr", "title", "status", "depends_on"])
+
+    # ── ۲۰. قرارداد API ──
+    p["api_conventions"] = simple_table(
+        read("api_conventions.csv"), ["موضوع", "قرارداد"], ["topic", "contract"])
+    p["api_services"] = simple_table(
+        read("api_services.csv"), ["سرویس", "دامنه", "وابستگی‌های داده‌ای"],
+        ["service", "domain", "data_dependencies"])
+    api = read("api_endpoints.csv")
+    GROUPS_API = [("api_endpoints_mes", "MES"), ("api_endpoints_qms", "QMS"),
+                  ("api_endpoints_wms", "WMS"), ("api_endpoints_ops", "CMMS/HSE/HR"),
+                  ("api_endpoints_trace", "ردیابی و حسابرسی")]
+    for token, grp in GROUPS_API:
+        # جدولِ «ردیابی و حسابرسی» در متنِ اصلی ستونِ ♻️ ندارد (همه فقط‌خواندنی‌اند)
+        cols = (["متد", "مسیر", "هدف", "مجوز"]
+                if token == "api_endpoints_trace"
+                else ["متد", "مسیر", "هدف", "مجوز", "♻️"])
+        keys_ = (["method", "path", "purpose", "permission"]
+                 if token == "api_endpoints_trace"
+                 else ["method", "path", "purpose", "permission", "idempotent"])
+        p[token] = group_table(api, grp, cols, keys_, default="")
+    p["event_rules"] = simple_table(
+        read("event_rules.csv"), ["قاعده", "مقدار"], ["rule", "value"])
+    p["integration_slo"] = simple_table(
+        read("integration_slo.csv"), ["شاخص", "تعریف", "هدف", "هشدار"],
+        ["metric", "definition", "target", "alarm"])
+
+    # ── ۲۱. جریان‌های توالی ──
+    p["flow_failures"] = simple_table(
+        read("flow_failures.csv"), ["نقطهٔ شکست", "رفتار سیستم", "جبران"],
+        ["failure_point", "system_behaviour", "compensation"])
+    p["flow_gates"] = simple_table(
+        read("flow_gates.csv"), ["گیت", "شرط", "نوع"], ["gate", "condition", "type"])
+    p["flow_monitoring"] = simple_table(
+        read("flow_monitoring.csv"),
+        ["جریان", "سناریوی UAT", "شاخصِ پایش", "آلارم‌های مرتبط"],
+        ["flow", "uat_scenario", "monitor_metric", "related_alarms"])
+
     return p
 
 
@@ -328,6 +424,12 @@ def phase_table(rows, road):
     span = "**%s–%s (≈ ۲۴ ماه؛ تا ۳۰ ماه با احتیاط)**" % (fa(wmin), fa(wmax))
     out.append(_row(["**جمع**", span, "**%s–%s**" % (fa("%.2f" % tlo), fa("%.2f" % thi)), "—"]))
     return "\n".join(out)
+
+
+def group_table(rows, group, headers, keys, default="—"):
+    """جدولِ یک گروه از یک CSVِ مشترک (مانند endpointهای یک سرویس)."""
+    return simple_table([r for r in rows if r.get("group") == group],
+                        headers, keys, default=default)
 
 
 def strip_template_notice(text):

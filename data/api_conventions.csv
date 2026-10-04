@@ -1,0 +1,14 @@
+topic,contract
+پایهٔ مسیر,`https://{host}/api/{service}/v{major}` — مثال: `/api/mes/v1/work-orders`
+نسخه‌بندی,نسخهٔ بزرگ در مسیر؛ تغییرِ شکننده ⇒ نسخهٔ جدید + ۶ ماه هم‌زیستی + تاریخ بازنشستگی اعلام‌شده
+احراز,OAuth 2.0 / OIDC با JWT کوتاه‌عمر؛ سرویس‌به‌سرویس با mTLS؛ MFA برای عملیات حساس
+مجوز,بر اساس RBAC + ABAC (رجوع به [`10-raci-rbac.md`](10-raci-rbac.md))
+همبستگی,سرآیندهای `X-Correlation-Id` و `X-Causation-Id` الزامی
+باید (Idempotency),سرآیند `Idempotency-Key` برای همهٔ درخواست‌های تغییردهنده (`POST`/`PATCH`)
+صفحه‌بندی,`?limit=&cursor=` (مبتنی بر نشانک، نه offset)؛ حداکثر ۵۰۰ رکورد
+مرتب‌سازی و فیلتر,`?sort=&filter[field]=` با فیلدهای مجازِ اعلام‌شده
+خطا,RFC 7807 (`application/problem+json`) با `type`، `title`، `status`، `detail`، `correlation_id`
+نرخ,محدودیت نرخ اعلام‌شده + سرآیندهای `RateLimit-*`؛ پاسخ ۴۲۹ با `Retry-After`
+زمان,همهٔ زمان‌ها ISO-8601 با **UTC**؛ سرآیند `X-Site-Timezone` فقط برای راهنمایی نمایش
+زبان,`Accept-Language: fa-IR` (پیش‌فرض)، `en-US`؛ پیام‌های خطا ترجمه‌شده با کد ثابت
+ممیزی,هر درخواستِ تغییردهنده یک رکورد در Audit با actor، علت (در صورت نیاز) و قبل/بعد

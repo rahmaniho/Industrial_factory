@@ -1,0 +1,12 @@
+service,domain,data_dependencies
+`mdm`,دادهٔ پایه و انتشار,مالکِ موجودیت‌ها
+`mes`,دستور کار، مصرف، بچ، ردیابی، OEE,mdm، wms، qms، cmms
+`qms` (LIMS),نمونه، نتیجه، گیت کیفیت، NCR/CAPA,mdm، mes
+`wms`,موجودی، مکان، حرکات، پالت/SSCC، ارسال,mdm، qms، mes
+`cmms`,دارایی، درخواست/دستور کار، PM، PdM,mdm， mro، hse
+`hse`,خطر، PTW/LOTO، رخداد، پایش,mdm، cmms، hr
+`acs`,تردد، مجوز خروج، رخداد امنیتی,mdm، hr، wms
+`hr`,پرسنل، مهارت، گواهی، شیفت، کارکرد,mdm
+`erp`,سفارش، خرید، مالی، دارایی,mdm
+`bi`,لایهٔ معنایی و پرس‌وجوی تحلیلی,همه (فقط خواندن)
+`audit`,جست‌وجو و اثبات یکپارچگی,Audit Store
