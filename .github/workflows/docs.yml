@@ -40,6 +40,11 @@ jobs:
         with:
           node-version: "20"
 
+      # دقیقاً همان بسته‌ای که Pages و Vercel منتشر می‌کنند اینجا سنجیده می‌شود:
+      # نبودنِ index.html در ریشهٔ بسته یعنی ۴۰۴ روی میزبان، پس زودتر می‌گیریمش.
+      - name: اعتبارسنجیِ بستهٔ انتشار
+        run: python3 tools/build_site.py --check
+
       - name: اجرای تست‌ها
         run: |
           python3 tools/test_build.py

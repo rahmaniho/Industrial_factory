@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>اتوماسیون یکپارچه کارخانه — صفحهٔ راهنما</title>
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url=site/index.html">
+<style>
+  /* صفحهٔ راهنما (shim) — کارش فقط رساندنِ کاربر به سایتِ واقعی است.
+
+     چرا لازم است؟ میزبان‌هایی که ریشهٔ مخزن را بی‌واسطه منتشر می‌کنند
+     (Vercel با تنظیماتِ پیش‌فرضِ «بدون build»، یا Pages در حالت
+     «Deploy from a branch») اگر `index.html` در ریشهٔ مخزن نباشد، برای
+     نشانیِ `/` خطایِ 404 NOT_FOUND می‌دهند — حتی وقتی `site/index.html`
+     روی همان میزبان سالم است.
+
+     در بستهٔ درست (`python3 tools/build_site.py`) این فایل لازم نیست:
+     ریشهٔ بسته خودش سایت است. این shim فقط تورِ نجات است. */
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0f1115;
+       color:#e6e9ef;font-family:"Vazirmatn","Tahoma","Segoe UI",system-ui,sans-serif;
+       line-height:1.9;text-align:center;padding:24px}
+  .box{background:#171a21;border:1px solid #2a2f3a;border-radius:14px;padding:28px 32px;max-width:540px}
+  h1{margin:0 0 10px;font-size:18px}
+  p{margin:0 0 14px;color:#9aa4b2;font-size:13px}
+  a{color:#4f8cff;text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{background:#1d212a;border:1px solid #2a2f3a;border-radius:6px;padding:1px 6px;font-size:12px}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>در حال باز کردنِ سایت…</h1>
+    <p>سایت در <code>site/index.html</code> است و همین‌جا بازش می‌کنم. اگر باز نشد، پیوندِ زیر را بزنید.</p>
+    <p>
+      <a href="site/index.html">سایتِ مستندات</a> ·
+      <a href="dashboard/index.html">داشبورد</a> ·
+      <a href="https://github.com/rahmaniho/Industrial_factory">مخزن در گیت‌هاب</a>
+    </p>
+  </div>
+<script>
+/* پرش بی‌درنگ — با نگه‌داشتنِ مسیرِ کهنه (#/doc/… ، #/role/R01) و پرسش‌وجو.
+   نشانی نسبی است تا زیرِ مسیرِ دامنه هم درست کار کند
+   (مثلاً https://user.github.io/Industrial_factory/). */
+location.replace("site/index.html" + (location.search || "") + (location.hash || ""));
+</script>
+</body>
+</html>

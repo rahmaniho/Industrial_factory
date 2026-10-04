@@ -43,8 +43,10 @@ python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 | `build_catalogs.py` | `data/benefit_model.csv` + `data/financial_model.csv` | `docs/25-financial-model.md` (محرک‌ها، جریان نقدی، NPV/IRR، حساسیت) |
 | `build_catalogs.py` | `data/ot_zones.csv` + `data/ot_conduits.csv` | `docs/26-ot-security-plan.md` (منطقه‌ها، کانال‌ها، قوانین امنیتی) |
 | `build_catalogs.py` | `data/traceability.csv` | `docs/27-traceability-coverage.md` (پوششِ نیازمندی‌ها و ردیابی) |
-| `test_build.py` | همهٔ فایل‌های `data/` و `docs/` | ۲۸ تست یکپارچگی و کیفیت (بدون خروجی) |
-| `test_site.js` | `site/index.html` و `data/*.csv` | ۱۸ تستِ نمایشگر مارک‌داون، CSV و جست‌وجوی تمام‌متن |
+| `build_site.py` | `site/` + `data/` + `docs/` + `dashboard/` | بستهٔ انتشار `_site` (یکسان برای Pages و Vercel) + بررسیِ اینکه هر منبعِ لازم در بسته هست |
+| `test_build.py` | همهٔ فایل‌های `data/` و `docs/` | ۶۱ تست یکپارچگی، کیفیت و چیدمانِ بستهٔ انتشار (بدون خروجی) |
+| `test_site.js` | `site/index.html` و `data/*.csv` | ۳۵ تستِ نمایشگر مارک‌داون، CSV و جست‌وجوی تمام‌متن |
+| `check_pages.py` | مخزن + نشانیِ زندهٔ Pages و Vercel | انتشار را سرتاسری می‌سنجد: تنظیمات، workflow، artifact، و زنده‌بودنِ `/`، `data/`، `docs/`، `dashboard/` روی هر دو میزبان (`--local` برای سنجشِ بستهٔ محلی) |
 
 ## ویرایش ایمن
 

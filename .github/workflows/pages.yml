@@ -41,16 +41,13 @@ jobs:
           python3 tools/test_build.py
           node tools/test_site.js
 
+      # چیدمانِ بسته در tools/build_site.py است؛ همان اسکریپت را Vercel هم اجرا
+      # می‌کند، پس دو میزبان هیچ‌وقت از هم جدا نمی‌افتند. اسکریپت در پایان
+      # خودش همهٔ منابعِ لازم را بررسی می‌کند و اگر نبود، workflow می‌شکند.
       - name: ساخت پوشهٔ انتشار
         run: |
-          rm -rf _site && mkdir -p _site/data _site/docs/03-units _site/dashboard
-          cp site/index.html _site/index.html
-          cp data/*.csv _site/data/
-          cp dashboard/index.html _site/dashboard/
-          cp docs/*.md _site/docs/
-          cp docs/03-units/*.md _site/docs/03-units/
-          cp README.md _site/README.md
-          touch _site/.nojekyll
+          python3 tools/build_site.py --out _site
+          test -f _site/index.html
 
       - name: بارگذاریِ artifact
         uses: actions/upload-pages-artifact@v3
