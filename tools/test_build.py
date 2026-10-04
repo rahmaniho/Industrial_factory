@@ -677,6 +677,29 @@ class TestPagesWorkflow(unittest.TestCase):
         self.assertIn(".nojekyll", build_site.GENERIC,
                       "بیِ .nojekyll یعنی Jekyll در Pages دست به بسته می‌برد")
 
+    def test_actions_are_pinned_to_a_full_sha(self):
+        """هر `uses:` باید به SHAِ کامل قفل باشد؛ سیاستِ مخزن همین است.
+
+        پیش‌زمینه: پس از فعال‌شدنِ «all actions must be pinned to a full-length
+        commit SHA» هر دو workflow روی همهٔ شاخه‌ها در گامِ «Set up job» قرمز
+        شدند — یعنی انتشارِ Pages بی‌صدا از کار می‌افتاد، نه اینکه یک گامِ
+        واقعی خطا داده باشد. قفلِ شمارهٔ نسخه (v4.4.0 و …) در کامنت کنارش می‌آید
+        تا به‌روزرسانیِ امنیت-readable بماند.
+        """
+        pinned = re.compile(r"^\s*(?:-\s*)?uses:\s*[\w./-]+@([0-9a-f]{40})(?:\s+#\s*v[\d.]+)?\s*$")
+        for wf_path in (self.WF, self.DOCS_WF):
+            for line in self._read(wf_path).splitlines():
+                if "uses:" not in line:
+                    continue
+                with self.subTest(action=line.strip()):
+                    m = pinned.match(line)
+                    self.assertTrue(
+                        m,
+                        "اکشن به SHAِ کامل قفل نشده (خطایِ «Set up job»: همهٔ اکشن‌ها "
+                        "باید به ۴۰ رقم قفل شوند) — `%s`" % line.strip())
+                    self.assertRegex(line, r"#\s*v\d",
+                                     "کنارِ SHAِ قفل‌شده شمارهٔ نسخه را کامنت کنید")
+
     def test_pages_workflow_has_required_permissions(self):
         wf = self._read(self.WF)
         for perm in ("pages: write", "id-token: write"):
