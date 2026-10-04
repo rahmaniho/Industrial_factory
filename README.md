@@ -70,7 +70,42 @@
 | ۱۳ | معیارهای پذیرش (UAT) و چک‌لیست راه‌اندازی | [`docs/13-uat-checklist.md`](docs/13-uat-checklist.md) |
 | ۱۴ | آموزش و مدیریت تغییر | [`docs/14-change-management.md`](docs/14-change-management.md) |
 
-### نمای اختصاصیِ هر نقش («من با این نقش چه می‌بینم؟»)
+### نمایشِ زنده در گیت‌هاب پیج (GitHub Pages)
+
+نشانی پس از انتشار:
+
+**https://rahmaniho.github.io/Industrial_factory/**
+
+سایت یک فایلِ مستقل است (`site/index.html`) با CSS و جاوااسکریپتِ درونی و
+**هیچ وابستگیِ خارجی** ندارد؛ داده‌ها را هنگامِ اجرا از `data/*.csv` می‌خواند
+و در هر دو حالت — ریشهٔ دامنه و زیرمسیر — کار می‌کند.
+
+فایل `pages.yml` روی هر push به `main` و `arena/**` مستندات را بازتولید می‌کند،
+تست‌ها را اجرا می‌کند، پوشهٔ انتشار را می‌سازد و منتشر می‌کند.
+
+> **اگر انتشار انجام نمی‌شود:** Pages باید یک‌بار روی مخزن فعال شود.
+> مسیر: `Settings → Pages → Build and deployment → Source` را روی
+> **GitHub Actions** بگذارید. این کار فقط از سویِ مالکِ مخزن ممکن است و
+> workflow خودش نمی‌تواند آن را انجام دهد (توکنِ یکپارچه‌سازی دسترسی ندارد).
+> پس از آن، هر push خودکار منتشر می‌شود.
+
+ساخت و دیدنِ محلی، بدون نیاز به انتشار:
+
+```bash
+python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py && python3 tools/build_templates.py
+rm -rf _site && mkdir -p _site/data _site/docs/03-units _site/dashboard
+cp site/index.html _site/index.html
+cp data/*.csv _site/data/
+cp dashboard/index.html _site/dashboard/
+cp docs/*.md _site/docs/ && cp docs/03-units/*.md _site/docs/03-units/
+cp README.md _site/README.md && touch _site/.nojekyll
+cd _site && python3 -m http.server 8080 --bind 0.0.0.0
+```
+
+سپس `http://localhost:8080` را باز کنید. برای این‌که مسیرهای نسبی درست باشند،
+سرور باید از **داخلِ پوشهٔ `_site/`** اجرا شود.
+
+## نمای اختصاصیِ هر نقش («من با این نقش چه می‌بینم؟»)
 
 در سایتِ پروژه (و در بخشِ «نقش‌ها و دسترسیِ» داشبورد) می‌توان یکی از ۲۴ نقش را انتخاب کرد و
 دقیقاً همان چیزی را دید که آن نقش در سامانه می‌بیند:
