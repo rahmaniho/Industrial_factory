@@ -23,10 +23,6 @@ jobs:
       - name: دریافت کد
         uses: actions/checkout@v4
 
-      - name: پیکربندی Pages
-        id: pages
-        uses: actions/configure-pages@v5
-
       - name: آماده‌سازی پایتون
         uses: actions/setup-python@v5
         with:
