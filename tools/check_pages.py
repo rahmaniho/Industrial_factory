@@ -9,9 +9,17 @@
     این اسکریپت همهٔ این‌ها را یکی‌یکی چک می‌کند و دقیقاً می‌گوید کدام حلقه
     از زنجیره سبز است و کدام نه.
 
+    از نسخهٔ جاری، گامِ ۵ روی **هر دو میزبان** سنجیده می‌شود: Pages و
+    Vercel (`industrialautomation-seven.vercel.app`). این همان جایی است که
+    خطایِ `404 NOT_FOUND` دیده شد؛ چکِ `/` روی میزبانِ دوم فوراً می‌گوید
+    build اجرا شده یا ریشهٔ مخزن بی‌واسطه منتشر می‌شود.
+
 پیش‌نیاز:  gh (با ورودِ انجام‌شده) — نیازی به دسترسیِ مدیریتی ندارد.
 
-اجرا:      python3 tools/check_pages.py
+اجرا:      python3 tools/check_pages.py                # Pages + Vercel
+           python3 tools/check_pages.py --pages-only     # فقط Pages
+           python3 tools/check_pages.py --local http://127.0.0.1:8080/
+                              # سنجشِ بستهٔ ساخته‌شده در محلی (بدونِ gh)
 خروجی:     0 = انتشار موفق · 1 = مانعی وجود دارد
 """
 import json
@@ -23,6 +31,9 @@ import urllib.request
 
 REPO = "rahmaniho/Industrial_factory"
 PAGES_URL = "https://rahmaniho.github.io/Industrial_factory/"
+# میزبانِ دوم: همان بستهٔ _site را با vercel.json می‌سازد. اگر `/` اینجا ۴۰۴ داد،
+# یعنی build اجرا نشده (یا vercel.json گم شده) و ریشهٔ مخزن منتشر می‌شود.
+VERCEL_URL = "https://industrialautomation-seven.vercel.app/"
 WORKFLOW = "pages.yml"
 SETTINGS_URL = "https://github.com/%s/settings/pages" % REPO
 
@@ -71,6 +82,17 @@ def http_get(url, timeout=25):
 
 
 def main():
+    # حالتِ محلی: فقط بسته‌ای که همین حالا ساخته شده را می‌سنجد (بی‌نیاز از gh)
+    if "--local" in sys.argv:
+        i = sys.argv.index("--local")
+        if i + 1 >= len(sys.argv):
+            print("✗ بعد از --local باید نشانی بیاید، مثل: --local http://127.0.0.1:8080/",
+                  file=sys.stderr)
+            return 1
+        print("بررسیِ بستهٔ محلی — %s\n" % sys.argv[i + 1])
+        check_live(sys.argv[i + 1], "محلی")
+        return finish()
+
     print("بررسیِ انتشار در گیت‌هاب پیج — %s\n" % REPO)
 
     # ── ۱. Pages روی مخزن فعال است؟ ──
@@ -145,33 +167,57 @@ def main():
     else:
         record(False, "بستهٔ انتشار بارگذاری شده", "یافت نشد", "")
 
-    # ── ۵. نشانیِ زنده ──
+    # ── ۵. نشانیِ زنده (هر دو میزبان) ──
     print("\n۵. نشانیِ زنده")
-    st = http_head(PAGES_URL_REAL)
-    if st != 200:
-        record(False, "صفحه در دسترس است", "HTTP %s — %s" % (st, PAGES_URL_REAL),
-               "اگر Pages تازه فعال شده، یک تا دو دقیقه صبر کنید")
-        return finish()
-    record(True, "صفحه در دسترس است", "HTTP 200 — %s" % PAGES_URL_REAL)
+    check_live(PAGES_URL_REAL, "Pages")
+    if "--pages-only" not in sys.argv:
+        check_live(VERCEL_URL, "Vercel")
 
-    code, body = http_get(PAGES_URL_REAL)
+    return finish()
+
+
+def check_live(base, label):
+    """صفحه و منابعِ لازم را روی یک میزبانِ واقعی می‌سنجد.
+
+    `/` مهم‌ترین بررسی است: اگر ۴۰۴ بدهد ولی `site/index.html` سالم باشد،
+    میزبان ریشهٔ مخزن را بی‌واسطه منتشر می‌کند و build (و در نتیجه
+    `tools/build_site.py`) اجرا نشده است.
+    """
+    base = base if base.endswith("/") else base + "/"
+    st = http_head(base)
+    if st != 200:
+        hint = "اگر Pages تازه فعال شده، یک تا دو دقیقه صبر کنید"
+        if label == "Vercel":
+            hint = ("build اجرا نشده؟ vercel.json باید outputDirectory=_site را بدهد "
+                    "(یا میزبان را روی ریشهٔ مخزن گذاشته‌اید) — وگرنه `/` بدون "
+                    "index.html در ریشه ۴۰۴ می‌ماند")
+        record(False, "%s: صفحه در دسترس است" % label, "HTTP %s — %s" % (st, base), hint)
+        return False
+    record(True, "%s: صفحه در دسترس است" % label, "HTTP 200 — %s" % base)
+
+    code, body = http_get(base)
     checks = [
         ("عنوانِ صفحه", "طراحی و پیاده‌سازی اتوماسیون یکپارچه کارخانه" in body),
-        ("هیچ وابستگیِ خارجی", "cdn." not in body and "http://" not in body),
         ("دکمهٔ «نقش من»", 'data-sec="s-role"' in body),
         ("نشانیِ نسبیِ داشبورد", 'data-src="dashboard/index.html"' in body),
     ]
+    if label == "Pages":
+        checks.insert(1, ("هیچ وابستگیِ خارجی", "cdn." not in body and "http://" not in body))
     for name, good in checks:
-        record(good, name, "درست" if good else "یافت نشد")
+        record(good, "%s: %s" % (label, name), "درست" if good else "یافت نشد")
 
     for path, want in (("data/kpi_catalog.csv", "OEE"),
                        ("data/role_journey.csv", "اپراتور"),
+                       ("docs/00-executive-summary.md", "#"),
                        ("dashboard/index.html", "داشبورد")):
-        st, body2 = http_get(PAGES_URL_REAL + path)
+        st, body2 = http_get(base + path)
         record(st == 200 and (want in body2 if want else True),
-               "منبع: %s" % path, "HTTP %s" % st)
+               "%s: منبع %s" % (label, path), "HTTP %s" % st)
 
-    return finish()
+    # صفحهٔ کهنه باید همچنان کار کند (پیوندهای بیرونی به /site/index.html هست)
+    st = http_head(base + "site/index.html")
+    record(st == 200, "%s: مسیرِ کهنه /site/index.html" % label, "HTTP %s" % st)
+    return True
 
 
 def finish():

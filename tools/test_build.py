@@ -12,7 +12,9 @@ import csv
 import io
 import os
 import re
+import shutil
 import sys
+import tempfile
 import unittest
 from collections import Counter
 from glob import glob
@@ -659,11 +661,59 @@ class TestPagesWorkflow(unittest.TestCase):
                 self.assertIn(cmd, wf, "%s در workflow اجرا نمی‌شود" % cmd)
 
     def test_pages_workflow_publishes_every_needed_path(self):
+        """چیدمانِ بسته در tools/build_site.py است؛ workflow باید همان را اجرا کند."""
         wf = self._read(self.WF)
-        for token in ("site/index.html", "data/*.csv", "dashboard/index.html",
-                      "docs/*.md", "docs/03-units/*.md", "README.md", ".nojekyll"):
-            with self.subTest(path=token):
-                self.assertIn(token, wf, "%s در بستهٔ انتشار نیست" % token)
+        self.assertIn("tools/build_site.py", wf,
+                      "workflow انتشار باید بسته را با tools/build_site.py بسازد")
+        import build_site
+        dst = {d.replace(os.sep, "/") for _, d in build_site.COPIES}
+        for need in ("index.html", "site/index.html", "dashboard/index.html", "README.md"):
+            with self.subTest(path=need):
+                self.assertIn(need, dst, "%s در بستهٔ انتشار نیست" % need)
+        trees = {t.replace(os.sep, "/") for _, t, _ in build_site.TREES}
+        for need in ("data", "docs", "docs/03-units"):
+            with self.subTest(tree=need):
+                self.assertIn(need, trees, "پوشهٔ %s/ به بسته کپی نمی‌شود" % need)
+        self.assertIn(".nojekyll", build_site.GENERIC,
+                      "بیِ .nojekyll یعنی Jekyll در Pages دست به بسته می‌برد")
+
+    def test_actions_are_pinned_to_a_full_sha(self):
+        """هر `uses:` باید به SHAِ کامل قفل باشد؛ سیاستِ مخزن همین است.
+
+        پیش‌زمینه: پس از فعال‌شدنِ «all actions must be pinned to a full-length
+        commit SHA» هر دو workflow روی همهٔ شاخه‌ها در گامِ «Set up job» قرمز
+        شدند — یعنی انتشارِ Pages بی‌صدا از کار می‌افتاد، نه اینکه یک گامِ
+        واقعی خطا داده باشد. قفلِ شمارهٔ نسخه (v4.4.0 و …) در کامنت کنارش می‌آید
+        تا به‌روزرسانیِ امنیت-readable بماند.
+        """
+        pinned = re.compile(r"^\s*(?:-\s*)?uses:\s*[\w./-]+@([0-9a-f]{40})(?:\s+#\s*v[\d.]+)?\s*$")
+        for wf_path in (self.WF, self.DOCS_WF):
+            for line in self._read(wf_path).splitlines():
+                if "uses:" not in line:
+                    continue
+                with self.subTest(action=line.strip()):
+                    m = pinned.match(line)
+                    self.assertTrue(
+                        m,
+                        "اکشن به SHAِ کامل قفل نشده (خطایِ «Set up job»: همهٔ اکشن‌ها "
+                        "باید به ۴۰ رقم قفل شوند) — `%s`" % line.strip())
+                    self.assertRegex(line, r"#\s*v\d",
+                                     "کنارِ SHAِ قفل‌شده شمارهٔ نسخه را کامنت کنید")
+
+    def test_deploy_job_only_runs_on_the_default_branch(self):
+        """GitHub Pages یک سایتِ تولیدی دارد؛ استقرار از شاخهٔ دیگر رد می‌شود.
+
+        اگر `deploy` بدونِ `if:` روی arena/** هم اجرا شود، workflow سبزِ build
+        زیرِ پایِ خطایِ «استقرار از شاخهٔ غیرپیش‌فرض» قرمز می‌شود و پیامِ اصلی
+        (که همان بستهٔ انتشار است) گم می‌شود.
+        """
+        wf = self._read(self.WF)
+        self.assertIn("if: github.ref == 'refs/heads/main'", wf,
+                      "گامِ deploy باید به شاخهٔ پیش‌فرض محدود شود")
+        self.assertNotIn("enablement:", wf,
+                         "deploy-pages input به نام enablement ندارد؛ این ورودیِ "
+                         "جعلی هیچ‌وقت Pages را فعال نمی‌کند و فقط خواننده را "
+                         "مطمئن می‌کند. فعال‌سازی فقط از Settings → Pages ممکن است")
 
     def test_pages_workflow_has_required_permissions(self):
         wf = self._read(self.WF)
@@ -686,6 +736,86 @@ class TestPagesWorkflow(unittest.TestCase):
         for gen in sorted(set(re.findall(r"tools/(build_\w+\.py)", wf))):
             with self.subTest(generator=gen):
                 self.assertIn(gen, readme, "%s در دستورِ محلیِ README نیست" % gen)
+
+
+class TestHosting(unittest.TestCase):
+    """میزبان‌های استاتیک نباید با نشانیِ خالیِ `/` بی‌صدا ۴۰۴ بدهند.
+
+    پیش‌زمینه: Vercel این مخزن را بدونِ build و از ریشهٔ مخزن منتشر می‌کرد؛
+    `site/index.html` سالم بود ولی `/` خطایِ `404 NOT_FOUND` می‌داد، چون
+    هیچ `index.html`ی در ریشهٔ منتشرشده نبود. این کلاس هر دو لایهٔ دفاع را
+    قفل می‌کند: پیکربندیِ build در vercel.json و صفحهٔ راهنمای ریشه.
+    """
+
+    VERCEL = os.path.join(BASE, "vercel.json")
+    SHIM = os.path.join(BASE, "index.html")
+
+    def _vercel(self):
+        import json
+        self.assertTrue(os.path.exists(self.VERCEL),
+                        "vercel.json در ریشهٔ مخزن نیست — تنظیماتِ build فقط در "
+                        "پنلِ Vercel می‌ماند و با هر مخزنِ تازه گم می‌شود")
+        return json.loads(read_text(self.VERCEL))
+
+    def test_vercel_builds_the_same_package_as_pages(self):
+        import build_site
+        cfg = self._vercel()
+        self.assertEqual(cfg.get("outputDirectory"), "_site",
+                         "خروجیِ build باید همان بستهٔ _site باشد")
+        self.assertIn("tools/build_site.py", cfg.get("buildCommand", ""),
+                      "Vercel باید همان اسکریپتِ ساختِ Pages را اجرا کند، نه دستورِ cp دستی")
+        for src, dst in build_site.COPIES:
+            if dst == "index.html":
+                return
+        self.fail("بستهٔ انتشار `index.html` در ریشه ندارد → `/` روی میزبان ۴۰۴ می‌شود")
+
+    def test_vercel_disables_framework_detection(self):
+        cfg = self._vercel()
+        self.assertIsNone(cfg.get("framework"),
+                          "با framework=null میزبان دست به تشخیصِ فریم‌ورک نمی‌برد")
+        self.assertFalse(cfg.get("cleanUrls", False),
+                         "cleanUrls نشانیِ /docs/xx.md را می‌شکند؛ سایت همان .md را fetch می‌کند")
+
+    def test_vercel_has_no_catch_all_rewrite(self):
+        """rewrite سراسری یعنی «هر چیزی ۲۰۰ است» — و تشخیصِ ریشهٔ سایت خراب می‌شود.
+
+        `site/index.html` با HEAD روی `data/kpi_catalog.csv` می‌فهمد ریشهٔ
+        دامنه است یا زیرمسیر؛ اگر ۴۰۴ به ۲۰۰ تبدیل شود، ROOT اشتباه انتخاب و
+        همهٔ داده‌ها بی‌صدا خالی می‌مانند.
+        """
+        cfg = self._vercel()
+        for key in ("rewrites", "routes"):
+            for item in cfg.get(key, []) or []:
+                dest = item.get("destination") or item.get("dest") or ""
+                with self.subTest(key=key, dest=dest):
+                    self.assertNotEqual(dest, "/index.html",
+                                        "پیش‌گیریِ سراسری به نفع index.html ۴۰۴ها را می‌پوشاند")
+
+    def test_root_shim_redirects_to_the_site(self):
+        self.assertTrue(os.path.exists(self.SHIM),
+                        "صفحهٔ راهنمای ریشه حذف شده: روی هر میزبانی که ریشهٔ مخزن را "
+                        "بی‌واسطه منتشر می‌کند، `/` دوباره ۴۰۴ می‌شود")
+        html = read_text(self.SHIM)
+        for token in ('url=site/index.html', 'href="site/index.html"',
+                      'location.replace("site/index.html"'):
+            with self.subTest(token=token):
+                self.assertIn(token, html, "shim باید به %s هدایت کند" % token)
+        self.assertIn('content="noindex"', html,
+                      "صفحهٔ راهنما نباید در جست‌وجو ایندکس شود")
+
+    def test_root_shim_survives_jekyll_and_file_urls(self):
+        """Jekyll در Pages این فایل را بی‌واسطه کپی می‌کند؛ هیچ قالبی نباید بخورد."""
+        html = read_text(self.SHIM)
+        for bad in ("{{", "{%", "---\n"):
+            with self.subTest(token=bad):
+                self.assertNotIn(bad, html,
+                                 "«%s» برای Jekyll نشانهٔ قالب است و فایل را خراب می‌کند" % bad)
+
+    def test_build_never_publishes_the_shim_at_package_root(self):
+        """اگر shim هم در ریشهٔ بسته برود، `/` به جای سایت، خودش را نشان می‌دهد."""
+        import build_site
+        self.assertNotIn(("index.html", "index.html"), build_site.COPIES)
+        self.assertNotIn("index.html", build_site.GENERIC)
 
 
 class TestSite(unittest.TestCase):
@@ -728,14 +858,16 @@ class TestSite(unittest.TestCase):
         self.assertNotIn("cdn.", self.html.lower().replace("githubusercontent", ""))
         self.assertNotIn('rel="stylesheet" href="http', self.html)
 
-    def test_pages_workflow_publishes_needed_paths(self):
-        wf = os.path.join(BASE, ".github", "workflows", "pages.yml")
-        self.assertTrue(os.path.exists(wf), "workflow انتشار در Pages وجود ندارد")
-        body = read_text(wf)
-        for token in ("_site/data", "_site/docs", "_site/dashboard", "site/index.html",
-                      "docs/03-units", ".nojekyll"):
-            with self.subTest(token=token):
-                self.assertIn(token, body, f"{token} در workflow کپی نشده است")
+    def test_publish_package_contains_what_the_page_loads(self):
+        """بستهٔ واقعیِ انتشار باید هر آنچه صفحه درخواست می‌کند داشته باشد."""
+        import build_site
+        tmp = tempfile.mkdtemp(prefix="test_site_pkg_")
+        try:
+            build_site.build(tmp, quiet=True)
+            problems = build_site.verify(tmp, quiet=True)
+            self.assertEqual(problems, [], "بستهٔ انتشار ناکامل است: " + "؛ ".join(problems))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
     def test_dashboard_is_embedded(self):
         self.assertIn('id="dashFrame"', self.html)

@@ -81,7 +81,15 @@
 و در هر دو حالت — ریشهٔ دامنه و زیرمسیر — کار می‌کند.
 
 فایل `pages.yml` روی هر push به `main` و `arena/**` مستندات را بازتولید می‌کند،
-تست‌ها را اجرا می‌کند، پوشهٔ انتشار را می‌سازد و منتشر می‌کند.
+تست‌ها را اجرا می‌کند و بستهٔ انتشار را با `tools/build_site.py` می‌سازد؛ گامِ
+**استقرار** فقط روی `main` اجرا می‌شود (GitHub Pages یک سایتِ تولیدی دارد و
+استقرارِ شاخهٔ دیگر را رد می‌کند)، پس روی شاخه‌های کاری همان بسته‌بندی و تست‌ها
+سبز/قرمزِ workflow را تعیین می‌کنند.
+
+> **اکشن‌ها قفلِ SHA دارند:** سیاستِ مخزن «همهٔ اکشن‌ها باید به ۴۰ رقمِ کامل قفل
+> باشند» است؛ اگر `uses:` را به `@v4` برگردانید، هر دو workflow در گامِ
+> «Set up job» می‌شکنند و انتشار بی‌صدا متوقف می‌شود. شمارهٔ نسخه در کامنتِ
+> کنارِ هر SHA آمده و `tools/test_build.py` هر دو را بررسی می‌کند.
 
 بررسیِ اینکه انتشار واقعاً بدون خطا انجام شده است:
 
@@ -89,10 +97,12 @@
 python3 tools/check_pages.py
 ```
 
-این اسکریپت شش چیز را یکی‌یکی چک می‌کند: فعال‌بودنِ Pages روی مخزن، نتیجهٔ
-آخرین اجرای workflow، نتیجهٔ هر گام (build و deploy)، بارگذاریِ بستهٔ انتشار،
-در دسترس‌بودنِ نشانیِ زنده، و این‌که صفحه و منابعِ آن واقعاً محتوای درست را
-برمی‌گردانند. خروجیِ آن ۰ است اگر همه‌چیز سبز باشد.
+این اسکریپت یکی‌یکی چک می‌کند: فعال‌بودنِ Pages روی مخزن، نتیجهٔ آخرین اجرای
+workflow، نتیجهٔ هر گام (build و deploy)، بارگذاریِ بستهٔ انتشار، و در
+دسترس‌بودنِ نشانیِ زنده — و گامِ آخر را روی **هر دو میزبان** (Pages و Vercel)
+می‌سنجد: صفحهٔ `/`، `data/*.csv`، `docs/*.md`، `dashboard/` و مسیرِ کهنهٔ
+`site/index.html`. خروجیِ آن ۰ است اگر همه‌چیز سبز باشد. برای سنجشِ بستهٔ
+محلی قبل از انتشار: `python3 tools/check_pages.py --local http://127.0.0.1:8080/`.
 
 > **اگر انتشار انجام نمی‌شود:** Pages باید یک‌بار روی مخزن فعال شود.
 > مسیر: `Settings → Pages → Build and deployment → Source` را روی
@@ -104,17 +114,39 @@ python3 tools/check_pages.py
 
 ```bash
 python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py && python3 tools/build_templates.py
-rm -rf _site && mkdir -p _site/data _site/docs/03-units _site/dashboard
-cp site/index.html _site/index.html
-cp data/*.csv _site/data/
-cp dashboard/index.html _site/dashboard/
-cp docs/*.md _site/docs/ && cp docs/03-units/*.md _site/docs/03-units/
-cp README.md _site/README.md && touch _site/.nojekyll
+python3 tools/build_site.py          # بستهٔ _site را می‌سازد و خودش هم بررسی می‌کند
 cd _site && python3 -m http.server 8080 --bind 0.0.0.0
 ```
 
 سپس `http://localhost:8080` را باز کنید. برای این‌که مسیرهای نسبی درست باشند،
-سرور باید از **داخلِ پوشهٔ `_site/`** اجرا شود.
+سرور باید از **داخلِ پوشهٔ `_site/`** اجرا شود — یا مستقیماً
+`python3 -m http.server 8080 -d _site`.
+
+> چیدمانِ بستهٔ انتشار فقط در `tools/build_site.py` تعریف شده است؛ همان اسکریپت را
+> workflow پیج و `vercel.json` اجرا می‌کنند. اگر روزی فایلی به سایت اضافه شد،
+> تنها همین‌جا باید ثبت شود.
+
+### میزبانیِ دوم در Vercel (نشانیِ کوتاه‌تر)
+
+مخزن علاوه بر Pages روی **Vercel** هم منتشر می‌شود:
+**🌐 <https://industrialautomation-seven.vercel.app>**
+
+Vercel برخلاف Pages «بدون build» ریشهٔ مخزن را منتشر می‌کند و چون `site/index.html`
+در ریشه نیست، نشانیِ `/` خطایِ `404 NOT_FOUND` می‌داد (درحالی‌که
+`/site/index.html` سالم کار می‌کرد). دو لایهٔ رفع:
+
+| فایل | چه می‌کند |
+|---|---|
+| `vercel.json` | `buildCommand: python3 tools/build_site.py --out _site` و `outputDirectory: _site` ⇒ `/` همان سایت است |
+| `index.html` (ریشهٔ مخزن) | صفحهٔ راهنما: اگر میزبانی build را اجرا نکرد، `/` را به `site/index.html` می‌فرستد |
+
+تنظیماتِ لازم در پنل Vercel (یک‌بار): **Framework Preset = Other**؛ بقیه از
+`vercel.json` خوانده می‌شود. اگر پوشهٔ Root Directory مخزن را روی `site/` گذاشته‌اید،
+آن را به ریشهٔ مخزن برگردانید — وگرنه `data/` و `docs/` از دسترس می‌روند.
+
+> در `vercel.json` عمداً هیچ `rewrites` سراسری («هر مسیر → index.html») نیست:
+> سایت با یک `HEAD` روی `data/kpi_catalog.csv` تشخیص می‌دهد در ریشهٔ دامنه است یا
+> زیرمسیر؛ اگر ۴۰۴ها به ۲۰۰ تبدیل شوند، تشخیص اشتباه می‌شود و صفحه بی‌صدا بی‌داده می‌ماند.
 
 ## نمای اختصاصیِ هر نقش («من با این نقش چه می‌بینم؟»)
 
@@ -171,11 +203,17 @@ cd _site && python3 -m http.server 8080 --bind 0.0.0.0
 > همهٔ اعدادِ کلیدی این طرح (بودجه، زمان‌بندی، شمارش‌ها) از فایل‌های `data/*.csv` محاسبه می‌شوند،
 > بنابراین خلاصهٔ مدیریتی، نقشهٔ راه و داشبورد همواره با یکدیگر هم‌خوان‌اند.
 
-## ۳. سایت زنده (GitHub Pages)
+## ۳. سایت زنده (GitHub Pages و Vercel)
 
 این مخزن یک **سایت تعاملی** هم دارد که همهٔ بخش‌ها را قابل مرور و استفاده می‌کند:
 
-**🌐 <https://rahmaniho.github.io/Industrial_factory/>**
+| میزبان | نشانی | منشأ |
+|---|---|---|
+| گیت‌هاب پیج | **<https://rahmaniho.github.io/Industrial_factory/>** | `.github/workflows/pages.yml` → بستهٔ `_site` |
+| Vercel | **<https://industrialautomation-seven.vercel.app>** | `vercel.json` → همان بستهٔ `_site` |
+
+هر دو میزبان یک بسته را از یک اسکریپت (`tools/build_site.py`) می‌سازند؛ پس هیچ‌وقت
+یکی «سایتِ کامل» و دیگری «۴۰۴» نمی‌شود.
 
 | بخش | چه می‌کند |
 |---|---|
@@ -244,11 +282,12 @@ cd _site && python3 -m http.server 8080 --bind 0.0.0.0
 python3 tools/build_integration_matrix.py && python3 tools/build_catalogs.py
 ```
 
-کیفیت این مخزن با ۲۰ تست خودکار پایش می‌شود؛ اجرا:
+کیفیت این مخزن با ۹۷ تست خودکار پایش می‌شود؛ اجرا:
 
 ```bash
-python3 tools/test_build.py     # ۲۸ تستِ داده و مستندات (پایتون)
-node tools/test_site.js         # ۱۸ تستِ سایت و داشبورد (جاوااسکریپت)
+python3 tools/test_build.py     # ۶۲ تستِ داده، مستندات و بستهٔ انتشار (پایتون)
+node tools/test_site.js         # ۳۵ تستِ سایت و داشبورد (جاوااسکریپت)
+python3 tools/build_site.py --check   # بستهٔ انتشار را می‌سازد و فقط بررسی می‌کند
 ```
 
 همین بررسی‌ها در GitHub Actions (`.github/workflows/docs.yml`) اجرا می‌شوند و اگر
