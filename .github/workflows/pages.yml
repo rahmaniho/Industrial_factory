@@ -23,6 +23,10 @@ jobs:
       - name: دریافت کد
         uses: actions/checkout@v4
 
+      - name: پیکربندی Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
       - name: آماده‌سازی پایتون
         uses: actions/setup-python@v5
         with:
@@ -67,3 +71,16 @@ jobs:
       - name: استقرار
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # اگر Pages هنوز روی مخزن فعال نشده باشد، همین گام فعالش می‌کند
+          enablement: true
+
+      - name: نشانیِ صفحه
+        if: always()
+        run: |
+          if [ -n "${{ steps.deployment.outputs.page_url }}" ]; then
+            echo "✓ منتشر شد: ${{ steps.deployment.outputs.page_url }}"
+          else
+            echo "::warning::استقرار انجام نشد. اگر نخستین اجراست، یک‌بار در"
+            echo "::warning::Settings → Pages → Source را روی «GitHub Actions» بگذارید."
+          fi
