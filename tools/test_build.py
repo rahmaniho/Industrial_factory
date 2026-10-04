@@ -700,6 +700,21 @@ class TestPagesWorkflow(unittest.TestCase):
                     self.assertRegex(line, r"#\s*v\d",
                                      "کنارِ SHAِ قفل‌شده شمارهٔ نسخه را کامنت کنید")
 
+    def test_deploy_job_only_runs_on_the_default_branch(self):
+        """GitHub Pages یک سایتِ تولیدی دارد؛ استقرار از شاخهٔ دیگر رد می‌شود.
+
+        اگر `deploy` بدونِ `if:` روی arena/** هم اجرا شود، workflow سبزِ build
+        زیرِ پایِ خطایِ «استقرار از شاخهٔ غیرپیش‌فرض» قرمز می‌شود و پیامِ اصلی
+        (که همان بستهٔ انتشار است) گم می‌شود.
+        """
+        wf = self._read(self.WF)
+        self.assertIn("if: github.ref == 'refs/heads/main'", wf,
+                      "گامِ deploy باید به شاخهٔ پیش‌فرض محدود شود")
+        self.assertNotIn("enablement:", wf,
+                         "deploy-pages input به نام enablement ندارد؛ این ورودیِ "
+                         "جعلی هیچ‌وقت Pages را فعال نمی‌کند و فقط خواننده را "
+                         "مطمئن می‌کند. فعال‌سازی فقط از Settings → Pages ممکن است")
+
     def test_pages_workflow_has_required_permissions(self):
         wf = self._read(self.WF)
         for perm in ("pages: write", "id-token: write"):

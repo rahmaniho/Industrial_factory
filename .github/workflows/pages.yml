@@ -50,11 +50,17 @@ jobs:
           test -f _site/index.html
 
       - name: بارگذاریِ artifact
-        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
+        # v4 به بعد: نسخهٔ v3 داخلِ خودش actions/upload-artifact@v4 را بدونِ SHA صدا
+        # می‌زد و سیاستِ «قفلِ اکشن به SHAِ کامل» همین را رد می‌کند (Set up job می‌شکست).
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b  # v4.0.0
         with:
           path: _site
 
+  # استقرار فقط از شاخهٔ پیش‌فرض: GitHub Pages یک سایتِ تولیدی دارد و API آن
+  # استقرارِ شاخه‌های دیگر را رد می‌کند؛ روی arena/** این گام اجرا نمی‌شود تا
+  # نتیجهٔ workflow پیامِ «بستهٔ انتشار» باشد، نه خطایِ استقرار.
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -63,10 +69,9 @@ jobs:
     steps:
       - name: استقرار
         id: deployment
+        # توجه: deploy-pages هیچ input به نام enablement ندارد؛ فعال‌کردنِ Pages
+        # فقط از Settings → Pages ممکن است (زیر این گام توضیح داده شده است).
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4.0.5
-        with:
-          # اگر Pages هنوز روی مخزن فعال نشده باشد، همین گام فعالش می‌کند
-          enablement: true
 
       - name: نشانیِ صفحه
         if: always()
