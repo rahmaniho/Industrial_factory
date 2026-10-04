@@ -190,9 +190,11 @@
 
   <div class="card">
     <h2>هدف‌های کمّی پروژه</h2>
-    <p class="hint">اعدادِ «وضعیت فعلی» مفروض‌اند و با پاسخ به پرسش‌نامهٔ مشتری جایگزین می‌شوند.</p>
+    <p class="hint">این جدول همان <code>exec_targets.csv</code> است که در مستند ۰۰ و در داشبورد
+      هم به کار رفته؛ اعدادِ «اکنون» مفروض‌اند و با پاسخ به پرسش‌نامهٔ مشتری جایگزین می‌شوند.</p>
     <table>
-      <thead><tr><th>شاخص</th><th>اکنون [فرض]</th><th>هدف</th><th>منبعِ سنجش</th></tr></thead>
+      <thead><tr><th>شاخص</th><th>واحد</th><th>اکنون [فرض]</th><th>هدف ۱۸ ماهه</th>
+        <th>هدف ۳۰ ماهه</th><th>منبعِ سنجش</th></tr></thead>
       <tbody id="targets"></tbody>
     </table>
   </div>
@@ -922,19 +924,22 @@ function buildDocMap(){
 }
 
 /* ═════════════════ بارگذاری داده ═════════════════ */
-const TARGETS = [
-  ["OEE", "۵۲٪", "۷۵٪", "MES + Historian"],
-  ["ثبت دستی دادهٔ تولید", "۱۰۰٪", "< ۵٪", "MES"],
-  ["زمان ردیابی بچ (عقب/جلو)", "~۴ ساعت", "< ۳۰ ثانیه", "شجره‌نامهٔ MES"],
-  ["دقت موجودی انبار", "۸۴٪", "≥ ۹۸.۵٪", "WMS"],
-  ["OTIF", "۷۶٪", "۹۵٪", "WMS + ERP"],
-  ["انجام به‌موقع PM", "۵۵٪", "۹۵٪", "CMMS"],
-  ["MTBF پمپ‌های بحرانی", "۲٬۲۰۰ ساعت", "۵٬۰۰۰ ساعت", "CMMS + PdM"],
-  ["LTIFR", "۳.۸", "۱.۲", "HSE"],
-  ["بستنِ ماهانه", "۱۲ روز", "۲ روز", "ERP ↔ MES"],
-  ["انرژی ویژه", "۱۱۵ kWh/تن", "۹۰ kWh/تن", "Historian"],
-];
-
+/* جدولِ اهداف دیگر اینجا نوشته نمی‌شود؛ از exec_targets.csv خوانده می‌شود تا
+   «خلاصهٔ مدیریتی»، «داشبورد» و این صفحه همگی یک عدد را نشان دهند. */
+let TGT = [];
+function drawTargets(){
+  const box = document.getElementById("targets");
+  if(!TGT.length){
+    box.innerHTML = '<tr><td colspan="5" style="color:var(--muted)">در حال خواندنِ exec_targets.csv…</td></tr>';
+    return;
+  }
+  box.innerHTML = TGT.map(t => `<tr><td>${esc(t.metric)}</td>
+    <td style="color:var(--muted)">${esc(t.unit)}</td>
+    <td>${esc(t.baseline)}</td>
+    <td><span class="pill p-ok">${esc(t.target_18m)}</span></td>
+    <td><span class="pill p-low">${esc(t.target_30m)}</span></td>
+    <td style="font-size:11.5px">${esc(t.source)}</td></tr>`).join("");
+}
 const BOOT = (async () => {
   ROOT = await detectRoot();
   const frame = document.getElementById("dashFrame");
@@ -945,9 +950,7 @@ const BOOT = (async () => {
   buildSide("");
   buildDocMap();
 
-  document.getElementById("targets").innerHTML =
-    TARGETS.map(t => `<tr><td>${esc(t[0])}</td><td>${esc(t[1])}</td>
-      <td><span class="pill p-ok">${esc(t[2])}</span></td><td>${esc(t[3])}</td></tr>`).join("");
+  drawTargets();
 
   document.getElementById("footer").innerHTML =
     `منبعِ یگانهٔ حقیقت: فایل‌های <code>data/*.csv</code> · مستندات با <code>tools/build_*.py</code>
@@ -956,14 +959,15 @@ const BOOT = (async () => {
 
   try{
     const [kpi, alarm, events, matrix, master, road, risk, ques, ben, fin, oz, oc,
-           roles, acc, rbac, raci, rmap, jour] =
+           roles, acc, rbac, raci, rmap, jour, tgt] =
       await Promise.all(["kpi_catalog","alarm_catalog","event_catalog","integration_matrix",
         "master_data","roadmap","risk_register","open_questions",
         "benefit_model","financial_model","ot_zones","ot_conduits",
-        "roles","ui_matrix","rbac","raci","role_map","role_journey"].map(csv));
+        "roles","ui_matrix","rbac","raci","role_map","role_journey",
+        "exec_targets"].map(csv));
     ROLES = roles; ACC = acc; RBAC = rbac; RACIX = raci; RMAP = rmap; JOUR = jour;
-    KPIS = kpi; ALS = alarm;
-    buildRoleGrid("");
+    KPIS = kpi; ALS = alarm; TGT = tgt;
+    buildRoleGrid(""); drawTargets();
 
     const capex = fin.reduce((a,r) => a + (N(r.capex_low_musd) + N(r.capex_high_musd)) / 2, 0);
     const recMid = ben.reduce((a,b) => a + (N(b.saving_low_musd) + N(b.saving_high_musd)) / 2, 0);

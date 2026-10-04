@@ -49,6 +49,7 @@ function loadSiteApi(){
                      " indexSize: () => (INDEX ? INDEX.length : 0)," +
                      " owns, bestIn, rpCounts, pickRole, renderRole, buildRoleGrid," +
                      " roles: () => ROLES, rmap: () => RMAP, acc: () => ACC, rbac: () => RBAC," +
+                     " tgt: () => TGT," +
                      " raci: () => RACIX, jour: () => JOUR, kpis: () => KPIS, als: () => ALS," +
                      " curRole: () => CUR_ROLE, setRp: (v) => { CUR_RP = v; }," +
                      " ready: () => BOOT };";
@@ -161,10 +162,35 @@ test("عنوان و توضیح برای همهٔ ورودی‌ها پر است",
 /* ══════════════════════════════════════════════════════════════
    نمای اختصاصیِ هر نقش  (s-role)
    ══════════════════════════════════════════════════════════════ */
+console.log("\nجدولِ اهدافِ مشترک");
+const SITE_HTML = fs.readFileSync(path.join(ROOT, "site", "index.html"), "utf8");
+
+test("جدولِ اهداف از CSV می‌آید، نه از آرایهٔ دستی", () => {
+  assert.ok(!/const TARGETS\s*=/.test(SITE_HTML),
+    "آرایهٔ TARGETS باید حذف شود؛ اهداف باید از exec_targets.csv خوانده شوند");
+  assert.ok(SITE_HTML.includes('"exec_targets"'), "exec_targets در فهرستِ بارگذاری نیست");
+  assert.ok(/function drawTargets/.test(SITE_HTML), "تابعِ drawTargets یافت نشد");
+});
+
+await api.ready();
+test("اهداف در سایت رندر می‌شوند", () => {
+  const html = documentStub.getElementById("targets").innerHTML;
+  assert.ok(html.length > 200, "جدولِ اهداف خالی است");
+  for(const m of ["OEE", "OTIF", "LTIFR"]){
+    assert.ok(html.includes(m), `شاخصِ ${m} در جدولِ اهداف نیست`);
+  }
+});
+test("ستونِ واحد و هر دو افقِ زمانی نمایش داده می‌شود", () => {
+  const html = documentStub.getElementById("targets").innerHTML;
+  assert.ok(/هدف ۱۸ ماهه/.test(SITE_HTML) && /هدف ۳۰ ماهه/.test(SITE_HTML),
+    "هر دو افق باید در سرستون باشند");
+  assert.strictEqual((html.match(/<tr>/g) || []).length, api.tgt().length,
+    "تعداد سطرها باید با exec_targets.csv یکی باشد");
+});
+
 console.log("\nنمای اختصاصیِ هر نقش");
 await api.ready();
 
-const SITE_HTML = fs.readFileSync(path.join(ROOT, "site", "index.html"), "utf8");
 const ROLE_CODES = Array.from({ length: 24 }, (_, i) => "R" + String(i + 1).padStart(2, "0"));
 
 test("بخشِ «نقش من» در ناوبری و بدنهٔ صفحه هست", () => {
@@ -267,6 +293,57 @@ test("سفر کاری برای هر نقش ۴ گام دارد", () => {
       }
     }
   }
+});
+
+/* ══════════════════════════════════════════════════════════════
+   داشبورد: همهٔ منابع باید واقعاً رندر شوند
+   ══════════════════════════════════════════════════════════════ */
+console.log("\nداشبورد");
+
+const DASH_CACHE = new Map();
+function dashEl(){
+  const el = stubEl();
+  el.classList = { toggle(){}, add(){}, remove(){}, contains(){ return false; } };
+  return el;
+}
+const dashDoc = {
+  getElementById(id){ if(!DASH_CACHE.has(id)) DASH_CACHE.set(id, dashEl()); return DASH_CACHE.get(id); },
+  querySelectorAll(){ return []; }, querySelector(){ return null; }, addEventListener(){},
+};
+function loadDashApi(){
+  const html = fs.readFileSync(path.join(ROOT, "dashboard", "index.html"), "utf8");
+  const blocks = html.match(/<script>([\s\S]*?)<\/script>/g);
+  assert.ok(blocks && blocks.length, "هیچ بلوکِ اسکریپت در داشبورد یافت نشد");
+  const code = blocks[blocks.length - 1].replace(/^<script>/, "").replace(/<\/script>$/, "");
+  const tail = "\n;return { ready: () => BOOT, panels: () => PANELS()," +
+               " counts: () => ({ kpi: KPIS.length, roles: ROLES.length }) };";
+  return new Function("document", "fetch", "setTimeout", code + tail)(
+    dashDoc, fetchStub, (f) => f());
+}
+const dash = loadDashApi();
+await dash.ready();
+
+test("داشبورد همهٔ داده‌ها را بدون خطا بارگذاری می‌کند", () => {
+  assert.strictEqual(dashDoc.getElementById("loadErr").innerHTML, "",
+    "خطای بارگذاری: " + dashDoc.getElementById("loadErr").innerHTML);
+});
+
+test("هر پانلِ داشبورد پس از بارگذاری جدولِ پُر دارد", () => {
+  const ids = dash.panels();
+  assert.ok(ids.length >= 20, "انتظار حداقل ۲۰ پانل؛ یافت‌شده: " + ids.length);
+  for(const id of ids){
+    const html = dashDoc.getElementById(id).innerHTML;
+    assert.ok(html.indexOf("موردی یافت نشد") === -1, `${id}: پانل خالی رندر شده است`);
+    assert.ok((html.match(/<tr>/g) || []).length >= 2, `${id}: کمتر از دو سطر دارد`);
+  }
+});
+
+test("جدولِ فازها از roadmap جمع‌بسته می‌شود", () => {
+  const html = dashDoc.getElementById("pPhases").innerHTML;
+  assert.ok(html.includes("4.96") && html.includes("8.42"),
+    "جمعِ بودجه باید با roadmap.csv یکی باشد (۴.۹۶–۸.۴۲)");
+  assert.ok(/<tr>/g.test(html) && (html.match(/<tr>/g) || []).length >= 8,
+    "هفت فاز به‌علاوهٔ سطرِ جمع");
 });
 
 console.log("\n" + (fail === 0

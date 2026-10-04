@@ -98,6 +98,10 @@
   <button data-sec="sec-nfr">الزامات و انطباق</button>
   <button data-sec="sec-dm">مدل داده</button>
   <button data-sec="sec-hw">سخت‌افزار</button>
+  <button data-sec="sec-exec">خلاصهٔ مدیریتی</button>
+  <button data-sec="sec-inp">ورودی‌ها و واژه‌نامه</button>
+  <button data-sec="sec-vnd">انتخاب تأمین‌کننده</button>
+  <button data-sec="sec-cut">انتقال و مهاجرت</button>
 </nav>
 
 <main>
@@ -475,6 +479,74 @@
       <div class="scroll" id="mdmTable"></div>
     </div>
   </section>
+  <!-- خلاصهٔ مدیریتی -->
+  <section id="sec-exec">
+    <div class="card">
+      <h2>خلاصهٔ مدیریتی</h2>
+      <p class="hint">اعدادِ این بخش همان‌هایی است که هیئت‌مدیره می‌بیند — مستقیماً از
+        <code>gaps.csv</code>، <code>adr_summary.csv</code>، <code>exec_targets.csv</code>،
+        <code>phase_summary.csv</code> + <code>roadmap.csv</code>، <code>exec_finance.csv</code>
+        و <code>governance.csv</code>.</p>
+      <div class="toolbar"><input id="execSearch" placeholder="جست‌وجو در همهٔ جدول‌های این بخش…"></div>
+    </div>
+    <div class="card"><h2>چهار گسستِ داده‌ایِ امروز</h2><div class="scroll" id="pGaps"></div></div>
+    <div class="card"><h2>شش تصمیمِ سخت (ADR)</h2><div class="scroll" id="pAdr"></div></div>
+    <div class="card"><h2>اعداد هدف (Baseline → Target)</h2>
+      <p class="hint">همین جدول مبنای نمای «نمای کلیِ» سایت است؛ یک منبع، دو نمایش.</p>
+      <div class="scroll" id="pTargets"></div></div>
+    <div class="card"><h2>فازها، زمان و بودجه</h2>
+      <p class="hint">بازه و بودجه از <code>roadmap.csv</code> جمع‌بسته می‌شود، نه از دست.</p>
+      <div class="scroll" id="pPhases"></div></div>
+    <div class="card"><h2>بازگشت سرمایه</h2><div class="scroll" id="pFin"></div></div>
+    <div class="card"><h2>حاکمیت پروژه</h2><div class="scroll" id="pGov"></div></div>
+  </section>
+
+  <!-- ورودی‌ها و واژه‌نامه -->
+  <section id="sec-inp">
+    <div class="card">
+      <h2>ورودی‌ها، مفروضات و واژه‌نامه</h2>
+      <p class="hint">هر ورودیِ خالیِ کارفرما با برچسبِ «[فرض]» ثبت شده و باید تا پایان فاز ۰
+        با دادهٔ واقعی جایگزین شود. ستونِ «روش تأیید» دقیقاً همین را مشخص می‌کند.</p>
+      <div class="toolbar"><input id="inpSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>پارامترهای ورودی</h2><div class="scroll" id="pParams"></div></div>
+    <div class="card"><h2>مفروضاتِ کلیدیِ معماری</h2><div class="scroll" id="pAssum"></div></div>
+    <div class="card"><h2>واژه‌نامه و اختصارها</h2><div class="scroll" id="pGloss"></div></div>
+    <div class="card"><h2>کدهای واحدها (ماتریس یکپارچگی)</h2><div class="scroll" id="pUnits"></div></div>
+  </section>
+
+  <!-- انتخاب تأمین‌کننده -->
+  <section id="sec-vnd">
+    <div class="card">
+      <h2>انتخاب تأمین‌کننده و قرارداد</h2>
+      <p class="hint">وزن‌ها باید پیش از دریافت پیشنهادها نهایی شوند؛ امتیاز فقط با شواهد
+        داده می‌شود. این بخش همان برگهٔ ارزیابی را به‌صورتِ قابل‌فیلتر نشان می‌دهد.</p>
+      <div class="toolbar"><input id="vndSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>مدل ارزیابی (وزن‌ها)</h2><div class="scroll" id="pVcrit"></div></div>
+    <div class="card"><h2>معیارهای حذف (Knock-out)</h2><div class="scroll" id="pVko"></div></div>
+    <div class="card"><h2>رویکرد تدارک</h2><div class="scroll" id="pVmod"></div></div>
+    <div class="card"><h2>برگهٔ امتیازدهی</h2><div class="scroll" id="pVscore"></div></div>
+    <div class="card"><h2>روز‌شمار اثبات مفهوم (POC)</h2><div class="scroll" id="pPoc"></div></div>
+    <div class="card"><h2>بندهای قراردادیِ غیرقابل‌مذاکره</h2><div class="scroll" id="pClauses"></div></div>
+    <div class="card"><h2>اشتباهات رایج</h2><div class="scroll" id="pPitfalls"></div></div>
+  </section>
+
+  <!-- انتقال و مهاجرت -->
+  <section id="sec-cut">
+    <div class="card">
+      <h2>برنامهٔ انتقال (Cutover) و مهاجرت داده</h2>
+      <p class="hint">قانون طلایی مهاجرت: «اعدادِ غلط را منتقل نکن.» این بخش راهبرد،
+        برنامهٔ زمانیِ Runbook و معیارهای آشتی‌سازی را نشان می‌دهد.</p>
+      <div class="toolbar"><input id="cutSearch" placeholder="جست‌وجو…"></div>
+    </div>
+    <div class="card"><h2>راهبرد کلی</h2><div class="scroll" id="pCprinc"></div></div>
+    <div class="card"><h2>مهاجرت داده به تفکیک حوزه</h2><div class="scroll" id="pMigr"></div></div>
+    <div class="card"><h2>T-۱۴ تا T-۳ (آماده‌سازی)</h2><div class="scroll" id="pPrep"></div></div>
+    <div class="card"><h2>T-۲ تا T=0 (آخر هفتهٔ انتقال)</h2><div class="scroll" id="pCday"></div></div>
+    <div class="card"><h2>T+۱ تا T+۳۰ (Hypercare)</h2><div class="scroll" id="pPost"></div></div>
+    <div class="card"><h2>آشتی‌سازی (Reconciliation)</h2><div class="scroll" id="pRecon"></div></div>
+  </section>
 </main>
 
 <footer>
@@ -525,10 +597,16 @@ const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&l
 
 /* ---------- boot ---------- */
 let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[], FIN=[], OZ=[], OC=[], TR=[], ROLES=[], ACC=[], RBAC=[], SOD=[], RACI=[], UAT=[], UATC=[], NFR=[], SLT=[], OTC=[], COMP=[], AUD=[],
-      ENT=[], IDC=[], RET=[], INTG=[], SCD=[], DIM=[], HW=[], HWP=[], HWS=[], HWC=[], RMAP=[], JOUR=[];
-(async ()=>{
+      ENT=[], IDC=[], RET=[], INTG=[], SCD=[], DIM=[], HW=[], HWP=[], HWS=[], HWC=[], RMAP=[], JOUR=[],
+      GAPS=[], ADRS=[], TGT=[], PH=[], EXFIN=[], GOV=[],
+      PARAMS=[], ASSUM=[], GLOSS=[], UNITS=[],
+      VC=[], VKO=[], VMOD=[], VSC=[], POC=[], CLS=[], PIT=[],
+      CPR=[], MIG=[], PREP=[], CDAY=[], POST=[], RECON=[];
+const BOOT = (async ()=>{
   try{
-    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR,ROLES,ACC,RBAC,SOD,RACI,UAT,UATC,NFR,SLT,OTC,COMP,AUD,ENT,IDC,RET,INTG,SCD,DIM,HW,HWP,HWS,HWC,RMAP,JOUR] = await Promise.all([
+    [MX,KPI,AL,ROAD,MDM,EV,RK,QQ,BEN,FIN,OZ,OC,TR,ROLES,ACC,RBAC,SOD,RACI,UAT,UATC,NFR,SLT,OTC,COMP,AUD,ENT,IDC,RET,INTG,SCD,DIM,HW,HWP,HWS,HWC,RMAP,JOUR,
+      GAPS,ADRS,TGT,PH,EXFIN,GOV,PARAMS,ASSUM,GLOSS,UNITS,
+      VC,VKO,VMOD,VSC,POC,CLS,PIT,CPR,MIG,PREP,CDAY,POST,RECON] = await Promise.all([
       load("integration_matrix.csv"),load("kpi_catalog.csv"),load("alarm_catalog.csv"),
       load("roadmap.csv"),load("master_data.csv"),load("event_catalog.csv"),
       load("risk_register.csv"),load("open_questions.csv"),
@@ -542,7 +620,16 @@ let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[]
       load("integrity_rules.csv"),load("scd_policies.csv"),load("conformed_dims.csv"),
       load("sensors.csv"),load("hw_principles.csv"),load("hw_standards.csv"),
       load("hw_cost_items.csv"),
-      load("role_map.csv"),load("role_journey.csv")
+      load("role_map.csv"),load("role_journey.csv"),
+      load("gaps.csv"),load("adr_summary.csv"),load("exec_targets.csv"),
+      load("phase_summary.csv"),load("exec_finance.csv"),load("governance.csv"),
+      load("input_params.csv"),load("assumptions.csv"),load("glossary.csv"),
+      load("unit_codes.csv"),
+      load("vendor_criteria.csv"),load("vendor_knockout.csv"),load("vendor_models.csv"),
+      load("vendor_scores.csv"),load("poc_schedule.csv"),load("contract_clauses.csv"),
+      load("vendor_pitfalls.csv"),
+      load("cutover_principles.csv"),load("migration_domains.csv"),load("cutover_prep.csv"),
+      load("cutover_day.csv"),load("post_cutover.csv"),load("reconciliation.csv")
     ]);
   }catch(e){
     document.getElementById("loadErr").innerHTML =
@@ -552,7 +639,7 @@ let MX=[], EDGES={}, KPI=[], AL=[], ROAD=[], MDM=[], EV=[], RK=[], QQ=[], BEN=[]
     return;
   }
   buildEdges(); renderKpis(); renderMatrix(); renderKpi(); renderAlarms(); renderRoad(); renderMdm();
-  renderJourney();
+  renderJourney(); drawExec(); drawInp(); drawVnd(); drawCut();
   wire();
 })();
 
@@ -958,6 +1045,79 @@ function drawJourney(){
       <td>${esc(j.action)}</td><td>${esc(j.system)}</td><td>${esc(j.evidence)}</td></tr>`).join("") +
     `</tbody></table>` + (note ? `<p class="hint" style="margin-top:10px">نکتهٔ اعلان: ${esc(note)}</p>` : "");
 }
+/* ---------- پانل‌های مرجع (جدولِ ساده با فیلتر) ---------- */
+function tbl(cols, rows, keys){
+  if(!rows.length) return '<p class="hint">موردی یافت نشد</p>';
+  return `<table><thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>` +
+    rows.map(r=>`<tr>${keys.map(k=>`<td>${esc(r[k]||"")}</td>`).join("")}</tr>`).join("") +
+    `</tbody></table><p class="hint" style="margin-top:8px">${rows.length} ردیف</p>`;
+}
+function drawPanels(list, q){
+  list.forEach(function(p_){
+    const rows = p_[1]().filter(function(r){
+      return !q || p_[3].some(function(k){ return (r[k]||"").toLowerCase().indexOf(q) >= 0; });
+    });
+    document.getElementById(p_[0]).innerHTML = tbl(p_[2], rows, p_[3]);
+  });
+}
+const P_EXEC = [
+  ["pGaps",    () => GAPS,  ["گسست","نشانهٔ میدانی","هزینهٔ پنهان"], ["gap","symptom","hidden_cost"]],
+  ["pAdr",     () => ADRS,  ["ADR","تصمیم","جایگزینِ رد‌شده","دلیل رد"], ["adr","decision","rejected","why"]],
+  ["pTargets", () => TGT,   ["شاخص","واحد","Baseline [فرض]","هدف ۱۸ ماهه","هدف ۳۰ ماهه","منبع"],
+                      ["metric","unit","baseline","target_18m","target_30m","source"]],
+  ["pFin",     () => EXFIN, ["مورد","مقدار"], ["item","value"]],
+  ["pGov",     () => GOV,   ["نقش","مسئولیت","تصمیمات اختصاصی"], ["role","responsibility","decisions"]],
+];
+const P_INP = [
+  ["pParams", () => PARAMS, ["پارامتر","مقدار فرضی","برچسب","روش تأیید (فاز ۰)"], ["param","assumed_value","tag","verify"]],
+  ["pAssum",  () => ASSUM,  ["#","فرض","ریسک اگر غلط باشد","نشانهٔ هشدار"], ["id","assumption","risk_if_wrong","warning_sign"]],
+  ["pGloss",  () => GLOSS,  ["اختصار","معادل فارسی","توضیح کوتاه"], ["abbr","fa","desc"]],
+  ["pUnits",  () => UNITS,  ["کد","واحد","کد","واحد"], ["code_a","name_a","code_b","name_b"]],
+];
+const P_VND = [
+  ["pVcrit",   () => VC,   ["#","معیار","وزن","آنچه واقعاً می‌سنجیم"], ["id","criterion","weight","what_it_measures"]],
+  ["pVko",     () => VKO,  ["#","شرط حذف","دلیل"], ["id","condition","reason"]],
+  ["pVmod",    () => VMOD, ["مدل","مزایا","معایب","دامنهٔ پیشنهادی"], ["model","pros","cons","scope"]],
+  ["pVscore",  () => VSC,  ["معیار","وزن","تأمین‌کنندهٔ الف","تأمین‌کنندهٔ ب","تأمین‌کنندهٔ ج"], ["criterion","weight","v_a","v_b","v_c"]],
+  ["pPoc",     () => POC,  ["روز","فعالیت"], ["day","activity"]],
+  ["pClauses", () => CLS,  ["#","بند","چرا حیاتی است"], ["id","clause","why_critical"]],
+  ["pPitfalls", () => PIT,  ["اشتباه","پیامد","پیشگیری در این فرآیند"], ["mistake","consequence","prevention"]],
+];
+const P_CUT = [
+  ["pCprinc", () => CPR,  ["اصل","تصمیم"], ["principle","decision"]],
+  ["pMigr",   () => MIG,  ["حوزه داده","حجم [فرض]","روش","کیفیتِ هدف","مسئول"], ["domain","volume","method","target_quality","owner"]],
+  ["pPrep",   () => PREP, ["زمان","اقدام","مسئول","معیار عبور"], ["time","action","owner","exit_criteria"]],
+  ["pCday",   () => CDAY, ["زمان","اقدام","مسئول"], ["time","action","owner"]],
+  ["pPost",   () => POST, ["بازه","اقدام","معیار خروج"], ["window","action","exit_criteria"]],
+  ["pRecon",  () => RECON,["مورد","روش","آستانه","فرکانس در ماه نخست"], ["item","method","threshold","frequency"]],
+];
+const PANELS = () => P_EXEC.concat(P_INP, P_VND, P_CUT).map(p_ => p_[0]);
+function drawExec(){ drawPanels(P_EXEC, (document.getElementById("execSearch").value||"").toLowerCase()); drawPhaseSum(); }
+function drawInp(){ drawPanels(P_INP, (document.getElementById("inpSearch").value||"").toLowerCase()); }
+function drawVnd(){ drawPanels(P_VND, (document.getElementById("vndSearch").value||"").toLowerCase()); }
+function drawCut(){ drawPanels(P_CUT, (document.getElementById("cutSearch").value||"").toLowerCase()); }
+
+/* جمع‌بستنِ فازها از roadmap — همان کاری که مولدِ مستند انجام می‌دهد */
+function drawPhaseSum(){
+  const agg = {};
+  ROAD.forEach(function(r){ (agg[r.phase] = agg[r.phase] || []).push(r); });
+  let lo = 0, hi = 0, wmin = null, wmax = null;
+  const rows = PH.map(function(p_){
+    const it = agg[p_.phase] || [];
+    if(!it.length) return null;
+    const a = it.reduce(function(x,r){ return x + parseFloat(r.cost_low_musd||0); }, 0);
+    const b = it.reduce(function(x,r){ return x + parseFloat(r.cost_high_musd||0); }, 0);
+    const ws = Math.min.apply(null, it.map(function(r){ return +r.start_week; }));
+    const we = Math.max.apply(null, it.map(function(r){ return +r.start_week + +r.duration_weeks; }));
+    lo += a; hi += b;
+    wmin = (wmin === null) ? ws : Math.min(wmin, ws);
+    wmax = (wmax === null) ? we : Math.max(wmax, we);
+    return {label:p_.label, span:ws+"–"+we, cost:a.toFixed(2)+"–"+b.toFixed(2), out:p_.main_output};
+  }).filter(Boolean);
+  rows.push({label:"**جمع**", span:wmin+"–"+wmax, cost:lo.toFixed(2)+"–"+hi.toFixed(2), out:"—"});
+  document.getElementById("pPhases").innerHTML =
+    tbl(["فاز","بازه (هفته)","بودجه (M USD)","اصلی‌ترین خروجی"], rows, ["label","span","cost","out"]);
+}
 function drawAcc(){
   const role=document.getElementById("accRole").value, page=document.getElementById("accPage").value;
   const all=document.getElementById("accAll").checked;
@@ -1265,6 +1425,10 @@ function wire(){
   document.getElementById("entSvc").addEventListener("change",drawEnt);
   ["roleSearch"].forEach(id=>document.getElementById(id).addEventListener("input",drawRoles));
   document.getElementById("jrRole").addEventListener("change",drawJourney);
+  document.getElementById("execSearch").addEventListener("input",drawExec);
+  document.getElementById("inpSearch").addEventListener("input",drawInp);
+  document.getElementById("vndSearch").addEventListener("input",drawVnd);
+  document.getElementById("cutSearch").addEventListener("input",drawCut);
   ["accRole","accPage"].forEach(id=>document.getElementById(id).addEventListener("change",drawAcc));
   document.getElementById("accAll").addEventListener("change",drawAcc);
   ["rbacRole","rbacMod"].forEach(id=>document.getElementById(id).addEventListener("change",drawRbac));

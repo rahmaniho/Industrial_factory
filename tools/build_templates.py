@@ -215,7 +215,119 @@ def build_placeholders():
         ["#", "فاز", "آنچه در سامانه انجام می‌دهد", "سامانه", "خروجی/اثرِ قابل‌ردیابی"],
         ["step", "phase", "action", "system", "evidence"])
 
+
+    # ── ۰۰. خلاصهٔ مدیریتی ──
+    p["gaps"] = simple_table(
+        read("gaps.csv"), ["گسست", "نشانهٔ میدانی", "هزینهٔ پنهان"],
+        ["gap", "symptom", "hidden_cost"])
+    p["adr_summary"] = simple_table(
+        read("adr_summary.csv"), ["ADR", "تصمیم", "جایگزینِ رد‌شده", "دلیل رد"],
+        ["adr", "decision", "rejected", "why"])
+    p["exec_targets"] = simple_table(
+        read("exec_targets.csv"),
+        ["شاخص", "واحد", "Baseline [فرض]", "هدف ۱۸ ماهه", "هدف ۳۰ ماهه", "منبع"],
+        ["metric", "unit", "baseline", "target_18m", "target_30m", "source"])
+    p["phases"] = phase_table(read("phase_summary.csv"), read("roadmap.csv"))
+    p["exec_finance"] = simple_table(
+        read("exec_finance.csv"), ["مورد", "مقدار"], ["item", "value"])
+    p["governance"] = simple_table(
+        read("governance.csv"), ["نقش", "مسئولیت", "تصمیمات اختصاصی"],
+        ["role", "responsibility", "decisions"])
+
+    # ── ۰۱. ورودی‌ها و مفروضات ──
+    p["input_params"] = simple_table(
+        read("input_params.csv"),
+        ["پارامتر", "مقدار فرضی", "برچسب", "روش تأیید (فاز ۰)"],
+        ["param", "assumed_value", "tag", "verify"])
+    p["assumptions"] = simple_table(
+        read("assumptions.csv"),
+        ["#", "فرض", "ریسک اگر غلط باشد", "نشانهٔ هشدار"],
+        ["id", "assumption", "risk_if_wrong", "warning_sign"])
+    p["glossary"] = simple_table(
+        read("glossary.csv"), ["اختصار", "معادل فارسی", "توضیح کوتاه"],
+        ["abbr", "fa", "desc"])
+    p["unit_codes"] = simple_table(
+        read("unit_codes.csv"), ["کد", "واحد", "کد", "واحد"],
+        ["code_a", "name_a", "code_b", "name_b"], default="")
+
+    # ── ۲۲. انتخاب تأمین‌کننده ──
+    p["vendor_criteria"] = simple_table(
+        read("vendor_criteria.csv"), ["#", "معیار", "وزن", "آنچه واقعاً می‌سنجیم"],
+        ["id", "criterion", "weight", "what_it_measures"])
+    p["vendor_knockout"] = simple_table(
+        read("vendor_knockout.csv"), ["#", "شرط حذف", "دلیل"],
+        ["id", "condition", "reason"])
+    p["vendor_models"] = simple_table(
+        read("vendor_models.csv"), ["مدل", "مزایا", "معایب", "دامنهٔ پیشنهادی"],
+        ["model", "pros", "cons", "scope"])
+    p["vendor_scores"] = simple_table(
+        read("vendor_scores.csv"),
+        ["معیار", "وزن", "تأمین‌کنندهٔ الف", "تأمین‌کنندهٔ ب", "تأمین‌کنندهٔ ج"],
+        ["criterion", "weight", "v_a", "v_b", "v_c"], default="")
+    p["poc_schedule"] = simple_table(
+        read("poc_schedule.csv"), ["روز", "فعالیت"], ["day", "activity"])
+    p["contract_clauses"] = simple_table(
+        read("contract_clauses.csv"), ["#", "بند", "چرا حیاتی است"],
+        ["id", "clause", "why_critical"])
+    p["vendor_pitfalls"] = simple_table(
+        read("vendor_pitfalls.csv"), ["اشتباه", "پیامد", "پیشگیری در این فرآیند"],
+        ["mistake", "consequence", "prevention"])
+
+    # ── ۲۳. انتقال و مهاجرت داده ──
+    p["cutover_principles"] = simple_table(
+        read("cutover_principles.csv"), ["اصل", "تصمیم"], ["principle", "decision"])
+    p["migration_domains"] = simple_table(
+        read("migration_domains.csv"),
+        ["حوزه داده", "حجم [فرض]", "روش", "کیفیتِ هدف", "مسئول"],
+        ["domain", "volume", "method", "target_quality", "owner"])
+    p["cutover_prep"] = simple_table(
+        read("cutover_prep.csv"), ["زمان", "اقدام", "مسئول", "معیار عبور"],
+        ["time", "action", "owner", "exit_criteria"])
+    p["cutover_day"] = simple_table(
+        read("cutover_day.csv"), ["زمان", "اقدام", "مسئول"],
+        ["time", "action", "owner"])
+    p["post_cutover"] = simple_table(
+        read("post_cutover.csv"), ["بازه", "اقدام", "معیار خروج"],
+        ["window", "action", "exit_criteria"])
+    p["reconciliation"] = simple_table(
+        read("reconciliation.csv"), ["مورد", "روش", "آستانه", "فرکانس در ماه نخست"],
+        ["item", "method", "threshold", "frequency"])
+
     return p
+
+
+def fa(n):
+    """تبدیل عدد به ارقام فارسی."""
+    return str(n).translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
+
+
+def phase_table(rows, road):
+    """جدولِ فازها در خلاصهٔ مدیریتی: بازه و بودجه از roadmap.csv حساب می‌شود،
+    نه از دست. با این کار ادعای «این اعداد از CSV محاسبه شده‌اند» واقعی می‌ماند."""
+    agg = OrderedDict()
+    for r in road:
+        agg.setdefault(r["phase"], []).append(r)
+    out = [_row(["فاز", "بازه (هفته)", "بودجه (M USD)", "اصلی‌ترین خروجی"]),
+           "|---|---|---|---|"]
+    tlo = thi = 0.0
+    wmin, wmax = None, None
+    for r in rows:
+        items = agg.get(r["phase"], [])
+        if not items:
+            continue
+        lo = sum(float(i["cost_low_musd"]) for i in items)
+        hi = sum(float(i["cost_high_musd"]) for i in items)
+        ws = min(int(i["start_week"]) for i in items)
+        we = max(int(i["start_week"]) + int(i["duration_weeks"]) for i in items)
+        tlo += lo; thi += hi
+        wmin = ws if wmin is None else min(wmin, ws)
+        wmax = we if wmax is None else max(wmax, we)
+        out.append(_row([r["label"], "%s–%s" % (fa(ws), fa(we)),
+                         "%s–%s" % (fa("%.2f" % lo), fa("%.2f" % hi)),
+                         r["main_output"]]))
+    span = "**%s–%s (≈ ۲۴ ماه؛ تا ۳۰ ماه با احتیاط)**" % (fa(wmin), fa(wmax))
+    out.append(_row(["**جمع**", span, "**%s–%s**" % (fa("%.2f" % tlo), fa("%.2f" % thi)), "—"]))
+    return "\n".join(out)
 
 
 def strip_template_notice(text):

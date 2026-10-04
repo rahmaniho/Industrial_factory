@@ -153,6 +153,87 @@ class TestCsvIntegrity(unittest.TestCase):
                 self.assertIn(r["access"], ("●", "◐", "○", "—"),
                               "نمادِ نامعتبر: %s" % r["access"])
 
+    def test_exec_targets_are_complete(self):
+        """جدولِ اهداف در سه جا مصرف می‌شود (مستند ۰۰، داشبورد، سایت) — باید کامل باشد."""
+        rows = read_csv("exec_targets.csv")
+        self.assertTrue(len(rows) >= 10, "انتظار حداقل ۱۰ شاخصِ هدف")
+        for r in rows:
+            with self.subTest(metric=r["metric"]):
+                for col in ("unit", "baseline", "target_18m", "target_30m", "source"):
+                    self.assertTrue(r[col].strip(), f"{r['metric']}: ستون {col} خالی است")
+                self.assertNotEqual(r["target_30m"], r["baseline"],
+                                    f"{r['metric']}: هدف با وضعیتِ فعلی یکی است")
+
+    def test_vendor_weights_sum_to_one_hundred(self):
+        def fa_num(v):
+            """وزنِ فارسی/درشت‌نویس/خط‌تیره را به عدد تبدیل می‌کند؛ ناعدّد = صفر."""
+            v = str(v).strip().strip("*").replace("٪", "").replace("٫", ".").strip()
+            v = v.translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789"))
+            try:
+                return float(v)
+            except ValueError:
+                return 0.0
+        crit = read_csv("vendor_criteria.csv")
+        total = sum(fa_num(r["weight"]) for r in crit)
+        with self.subTest(source="vendor_criteria"):
+            self.assertAlmostEqual(total, 100.0, places=1,
+                                   msg="جمع وزن‌ها باید ۱۰۰٪ باشد")
+        # سطرِ «جمع وزنی» و سطرِ معیارهای حذف در جمعِ وزن‌ها حساب نمی‌شوند
+        scores = [r for r in read_csv("vendor_scores.csv")
+                  if not r["criterion"].strip().startswith("**")
+                  and fa_num(r["weight"]) > 0]
+        total_s = sum(fa_num(r["weight"]) for r in scores)
+        with self.subTest(source="vendor_scores"):
+            self.assertAlmostEqual(total_s, 100.0, places=1,
+                                   msg="جمع وزن‌های برگهٔ امتیاز باید ۱۰۰ باشد")
+
+    def test_phase_summary_matches_roadmap(self):
+        phases = {r["phase"] for r in read_csv("roadmap.csv")}
+        summary = read_csv("phase_summary.csv")
+        for r in summary:
+            with self.subTest(phase=r["phase"]):
+                self.assertIn(r["phase"], phases,
+                              "فازی در خلاصه هست که در نقشهٔ راه نیست")
+                self.assertTrue(r["label"].strip(), "برچسبِ فاز خالی است")
+                self.assertTrue(r["main_output"].strip(), "خروجیِ فاز خالی است")
+        self.assertEqual({r["phase"] for r in summary}, phases,
+                         "هر فازِ نقشهٔ راه باید در خلاصهٔ مدیریتی ردیف داشته باشد")
+
+    def test_assumptions_are_labelled(self):
+        for r in read_csv("input_params.csv"):
+            with self.subTest(param=r["param"]):
+                self.assertIn("[فرض]", r["tag"],
+                              "هر ورودیِ فرضی باید برچسب [فرض] داشته باشد")
+                self.assertTrue(r["verify"].strip() or r["verify"] == "—",
+                                f"{r['param']}: روش تأیید مشخص نیست")
+        for r in read_csv("assumptions.csv"):
+            with self.subTest(assumption=r["id"]):
+                self.assertTrue(r["assumption"].strip(), f"{r['id']}: متنِ فرض خالی است")
+
+    def test_glossary_and_unit_codes_are_complete(self):
+        for r in read_csv("glossary.csv"):
+            with self.subTest(abbr=r["abbr"]):
+                self.assertTrue(r["fa"].strip(), f"{r['abbr']}: معادل فارسی ندارد")
+                self.assertTrue(r["desc"].strip(), f"{r['abbr']}: توضیح ندارد")
+        pairs = read_csv("unit_codes.csv")
+        codes = [r["code_a"] for r in pairs] + [r["code_b"] for r in pairs]
+        codes = [c for c in codes if c.strip()]
+        self.assertEqual(len(codes), len(set(codes)), "کدِ واحد تکراری است")
+        for r in pairs:
+            with self.subTest(code=r["code_a"]):
+                self.assertTrue(r["name_a"].strip(), "نامِ واحد خالی است")
+
+    def test_cutover_runbook_is_actionable(self):
+        for f, cols in (("cutover_prep.csv", ("time", "action", "owner", "exit_criteria")),
+                        ("cutover_day.csv", ("time", "action", "owner")),
+                        ("post_cutover.csv", ("window", "action", "exit_criteria")),
+                        ("reconciliation.csv", ("item", "method", "threshold", "frequency")),
+                        ("migration_domains.csv", ("domain", "method", "owner"))):
+            for r in read_csv(f):
+                with self.subTest(source=f, row=r.get("time") or r.get("item") or r.get("domain")):
+                    for c in cols:
+                        self.assertTrue(r[c].strip(), f"{f}: ستون {c} خالی است")
+
     def test_role_map_covers_every_role(self):
         rmap = {r["code"]: r for r in read_csv("role_map.csv")}
         for r in read_csv("roles.csv"):

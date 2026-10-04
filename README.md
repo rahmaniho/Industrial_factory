@@ -75,6 +75,11 @@
 در سایتِ پروژه (و در بخشِ «نقش‌ها و دسترسیِ» داشبورد) می‌توان یکی از ۲۴ نقش را انتخاب کرد و
 دقیقاً همان چیزی را دید که آن نقش در سامانه می‌بیند:
 
+یک منبع، سه نمایش: جدولِ «اعداد هدف» در مستند ۰۰، در داشبورد و در صفحهٔ نخستِ سایت
+همگی از یک فایل (`exec_targets.csv`) خوانده می‌شوند. جدولِ «فازها، زمان و بودجه» در مستند ۰۰
+و در داشبورد از `roadmap.csv` **جمع‌بسته** می‌شود — ادعایِ «این اعداد از CSV محاسبه شده‌اند»
+اکنون با تست قفل شده است، نه با قول.
+
 | زیربخش | پرسشی که پاسخ می‌دهد | منبع داده |
 |---|---|---|
 | صفحه‌های من | کدام صفحه‌ها را با چه سطحی باز می‌کند؟ | `ui_matrix.csv` (۲۸ × ۲۴) |
@@ -172,6 +177,10 @@
 | `docs/15-nfr-security-compliance.md` | `nfr.csv` + `ot_controls.csv` + `compliance.csv` + … | ۲۹ الزام غیرکارکردی، ۲۵ کنترل OT، استانداردها و گزارش‌های ممیزی |
 | `docs/18-data-model.md` | `entities.csv` + `id_conventions.csv` + `retention_classes.csv` + … | موجودیت‌ها، قرارداد شناسه، کلاس‌های نگه‌داری و سیاست‌های تغییر |
 | `docs/07-ui-forms-by-role.md` | `roles.csv` + `ui_matrix.csv` + `role_map.csv` + `role_journey.csv` | ۲۴ نقش، ۶۷۲ خانهٔ دسترسی، نگاشت به RACI و سفر کاریِ هر نقش |
+| `docs/00-executive-summary.md` | `gaps.csv` + `adr_summary.csv` + `exec_targets.csv` + `phase_summary.csv` + … | گسست‌ها، شش تصمیمِ سخت، اعداد هدف، فازها، بازگشت سرمایه، حاکمیت |
+| `docs/01-inputs-and-assumptions.md` | `input_params.csv` + `assumptions.csv` + `glossary.csv` + `unit_codes.csv` | پارامترهای ورودی، ثبتِ فرض‌ها، واژه‌نامه، کدهای واحدها |
+| `docs/22-vendor-selection.md` | `vendor_criteria.csv` + `vendor_knockout.csv` + `vendor_scores.csv` + … | وزن‌های ارزیابی، معیارهای حذف، بندهای قرارداد |
+| `docs/23-cutover-migration.md` | `cutover_principles.csv` + `migration_domains.csv` + `cutover_day.csv` + … | راهبرد انتقال، مهاجرت داده، Runbook و آشتی‌سازی |
 
 بازتولید همهٔ موارد بالا:
 
@@ -189,7 +198,7 @@ node tools/test_site.js         # ۱۸ تستِ سایت و داشبورد (جا
 همین بررسی‌ها در GitHub Actions (`.github/workflows/docs.yml`) اجرا می‌شوند و اگر
 مستندِ تولید‌شده با CSV هم‌خوان نباشد، ساخت شکست می‌خورد.
 
-شش مستند (۶، ۷، ۱۰، ۱۳، ۱۵، ۱۸) ترکیبی‌اند: متن در قالب (`tools/templates/`) و جدول‌ها از CSV.
+ده مستند (۰، ۱، ۶، ۷، ۱۰، ۱۳، ۱۵، ۱۸، ۲۲، ۲۳) ترکیبی‌اند: متن در قالب (`tools/templates/`) و جدول‌ها از CSV.
 بازتولید آن‌ها:
 
 ```bash
